@@ -3,7 +3,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | 1.0.0 |
+| Document version | 1.1.0 |
 | Status | **APPROVED — IMPLEMENTATION AUTHORISED (P0 ONLY)** |
 | Last updated | 15 November 2026 |
 | Owners | Shivam Agarwal (23UEC621) — Privacy/ML lead; Mokshit Jain (23UEC574) — Systems/Security lead |
@@ -11,7 +11,7 @@
 | Planned execution | 17 Nov 2026 → 5 Apr 2027 (20 weeks, 8 gates) |
 | Budget | **Tier 0 only — ₹0** (paid tiers removed in CHANGE-005) |
 | MVP milestone | Gate G3, 25 Jan 2027 (Section 4.5) |
-| Previous version | v0.10.0 archived as `PROJECT_ROADMAP_v0.10.0.md` |
+| Previous version | v0.9.0 / v0.10.0 exist only in the planning conversation. From v1.0.0 onward, git history plus this change log is the authoritative record. |
 | Builds on | Phase 1 BTP report `BTP_23UEC621_23UEC574.pdf` (April 2026) — reference only, not a codebase to extend |
 
 ---
@@ -30,14 +30,16 @@
 ### 0.2 Change log
 | CHANGE-ID | Date | Version | Change | Status |
 |---|---|---|---|---|
-| CHANGE-001 | 15 Nov 2026 | 0.9.0 | Initial roadmap created from fresh research plan; prior BTP reclassified as reference | Proposed |
-| CHANGE-002 | 15 Nov 2026 | 0.9.0 | Cost strategy added; budget revised down to Tier 0 ₹0 default with optional tiers; ADR-013…018 added | Proposed |
-| CHANGE-003 | 15 Nov 2026 | 0.10.0 | **Scope cut to the research core.** Removed components that have no effect inside a single-process simulation or do not serve a research question: SPIRE/mTLS, HPKE, Privacy Pass, SQLCipher, OpenBao, NATS, Valkey, Prio3/DAP, Cedar/OPA, Trillian service, k3s/Helm, OTel/Prometheus/Grafana/Loki, k6 + serving SLOs, toxiproxy chaos, ONNX, pgvector/Qdrant, cosign/SLSA/Scorecard, mutmut, atheris, ASVS, NVFlare parity spike, MP-SPDZ gossip spike, TEE/Android/Bluesky stretch, 2-lakh-client soak, full DPIA + ISO crosswalks, SNAP/MIND as default datasets. Added MVP + MoSCoW (4.5) and the viva rule (0.1.7). ADR-009/010/011 rejected; other ADRs superseded as marked in Section 7. Removed evidence IDs (S3–S11, S16, S18–S22, S24, S25, S28; R2, R3, R5, R8–R14, R17, R18, R20–R23, R27–R29) are not reused | Proposed |
-| CHANGE-004 | 15 Nov 2026 | 0.10.0 | **Technical corrections.** No top-k sparsification (leaks interacted items, breaks SecAgg+ summation) → small dense content-feature model (ADR-019); user-level DP via client-update clipping, Opacus only for the central baseline (ADR-020); noise added once by the aggregator (ADR-021); accountant gate fixed — PLD vs PRV ±5%, RDP as upper bound, ε with and without amplification (ADR-022); SecAgg+ verified on a subset (ADR-023); gossip uses local DP only and its gap is measured, not assumed small (ADR-024); robustness measured in three modes (ADR-025); in-repo Merkle log (ADR-026); custom attacks replace `breaching`/many-shadow LiRA (ADR-029); success criteria reframed as pre-registered hypotheses (4.6) | Proposed |
-| CHANGE-005 | 15 Nov 2026 | 0.10.0 | **Tier 0 only.** Tier 1/2 removed; Oracle Always Free, Cloudflare R2, GHCR, self-hosted runner, paid GPU/VM providers dropped; no service that requires a payment card; compute budget and experiment grid added (Section 9) | Proposed |
-| CHANGE-006 | 15 Nov 2026 | 0.10.0 | **Framing and research questions.** Phase 1 described as a feasibility prototype (Section 2, 21); RQ5 participation bias added; source-policy confirmation with guide added as verification item 1; report-writing rule added (Section 17) | Proposed |
+| CHANGE-001 | 15 Nov 2026 | 0.9.0 | Initial roadmap created from fresh research plan; prior BTP reclassified as reference | Approved |
+| CHANGE-002 | 15 Nov 2026 | 0.9.0 | Cost strategy added; budget revised down to Tier 0 ₹0 default with optional tiers; ADR-013…018 added | Approved |
+| CHANGE-003 | 15 Nov 2026 | 0.10.0 | **Scope cut to the research core.** Removed components that have no effect inside a single-process simulation or do not serve a research question: SPIRE/mTLS, HPKE, Privacy Pass, SQLCipher, OpenBao, NATS, Valkey, Prio3/DAP, Cedar/OPA, Trillian service, k3s/Helm, OTel/Prometheus/Grafana/Loki, k6 + serving SLOs, toxiproxy chaos, ONNX, pgvector/Qdrant, cosign/SLSA/Scorecard, mutmut, atheris, ASVS, NVFlare parity spike, MP-SPDZ gossip spike, TEE/Android/Bluesky stretch, 2-lakh-client soak, full DPIA + ISO crosswalks, SNAP/MIND as default datasets. Added MVP + MoSCoW (4.5) and the viva rule (0.1.7). ADR-009/010/011 rejected; other ADRs superseded as marked in Section 7. Removed evidence IDs (S3–S11, S16, S18–S22, S24, S25, S28; R2, R3, R5, R8–R14, R17, R18, R20–R23, R27–R29) are not reused | Approved |
+| CHANGE-004 | 15 Nov 2026 | 0.10.0 | **Technical corrections.** No top-k sparsification (leaks interacted items, breaks SecAgg+ summation) → small dense content-feature model (ADR-019); user-level DP via client-update clipping, Opacus only for the central baseline (ADR-020); noise added once by the aggregator (ADR-021); accountant gate fixed — PLD vs PRV ±5%, RDP as upper bound, ε with and without amplification (ADR-022); SecAgg+ verified on a subset (ADR-023); gossip uses local DP only and its gap is measured, not assumed small (ADR-024); robustness measured in three modes (ADR-025); in-repo Merkle log (ADR-026); custom attacks replace `breaching`/many-shadow LiRA (ADR-029); success criteria reframed as pre-registered hypotheses (4.6) | Approved |
+| CHANGE-005 | 15 Nov 2026 | 0.10.0 | **Tier 0 only.** Tier 1/2 removed; Oracle Always Free, Cloudflare R2, GHCR, self-hosted runner, paid GPU/VM providers dropped; no service that requires a payment card; compute budget and experiment grid added (Section 9) | Approved |
+| CHANGE-006 | 15 Nov 2026 | 0.10.0 | **Framing and research questions.** Phase 1 described as a feasibility prototype (Section 2, 21); RQ5 participation bias added; source-policy confirmation with guide added as verification item 1; report-writing rule added (Section 17) | Approved |
 | CHANGE-007 | 15 Nov 2026 | 1.0.0 | Roadmap approved by both owners. Implementation authorised for P0 only. Step 0 executed: uv-managed Python 3.12, repo skeleton, ruff/mypy/pytest/pip-audit/pip-licenses gates, uv.lock. Guide sign-off and verification items 1-15 remain open G0 conditions. | Approved |
-| CHANGE-008 | 15 Nov 2026 | 1.0.1 | Step 0 executed (toolchain + skeleton, GitHub private repo). Step 1 executed: GitHub Actions CI (ruff, mypy strict, pytest, licence gate, pip-audit, gitleaks), .gitattributes line-ending policy, scripts/check_licenses.py with tests. Progress tracked in docs/implementation-log.md. Repo licence still pending owner decision. | Approved |
+| CHANGE-008 | 15 Nov 2026 | 1.0.1 | Step 0 executed (toolchain + skeleton, GitHub private repo). Step 1 executed: GitHub Actions CI (ruff, mypy strict, pytest, licence gate, pip-audit, gitleaks), .gitattributes line-ending policy, scripts/check_licenses.py with tests. Progress tracked in docs/implementation-log.md. Repo licence still pending owner decision. | Superseded by CHANGE-010 (progress moved to docs/implementation-log.md) |
+| CHANGE-009 | 15 Nov 2026 | 1.1.0 | Governance correction. Section 19 approval boxes ticked and owner signatures recorded; CHANGE-001…006 and all Proposed ADRs marked Approved. Owners' signatures authorise P0; Dr. Acharya's review is a G0 exit condition, not a P0 blocker. Owner-2 acknowledgement recorded as pending until confirmed. Stale "On approval: bump to v1.0.0" line removed. | Approved |
+| CHANGE-010 | 15 Nov 2026 | 1.1.0 | Correctness fixes from owner review: (1) .gitignore anchored to /data/ and /raw/ so src/prism/data/ is tracked, Yelp JSON ignored, results/*.jsonl un-ignored; (2) licence gate rewritten - SPDX OR/AND evaluation, classifiers as OR, first-line-only free text, BSL=Boost allowed vs BUSL blocked, APPROVED_EXCEPTIONS table keyed to CHANGE-IDs, markdown-safe output; (3) Makefile check now includes license-gate and audit, CI and make use bare --cov; (4) environment report adds git commit, dirty flag, uv.lock SHA-256, immutable package tuple, version read from installed metadata; (5) coverage source includes scripts/. CHANGE-008 progress note superseded - progress lives only in docs/implementation-log.md. | Approved |
 
 ### 0.3 Decision register status legend
 `Proposed` = awaiting approval · `Approved` = locked, build to it · `Rejected` = do not use · `Superseded` = replaced, kept for history.
@@ -277,10 +279,10 @@ prism-rec/
 
 | ADR | Decision | Alternatives | Rationale | Status |
 |---|---|---|---|---|
-| 001 | Flower as FL runtime | TFF, FedML, custom, NVFlare spike | SecAgg+ and DP wrappers shipped; Ray simulation; Apache-2.0 (R1) | Proposed (amended CHANGE-003: NVFlare spike removed) |
-| 002 | **User-level DP** as headline guarantee | example-level, edge-level | S1 neighbourhood discipline; avoids classic overclaim | Proposed |
+| 001 | Flower as FL runtime | TFF, FedML, custom, NVFlare spike | SecAgg+ and DP wrappers shipped; Ray simulation; Apache-2.0 (R1) | Approved (amended CHANGE-003: NVFlare spike removed) |
+| 002 | **User-level DP** as headline guarantee | example-level, edge-level | S1 neighbourhood discipline; avoids classic overclaim | Approved |
 | 003 | Discrete Gaussian + OS CSPRNG; two-accountant CI gate | — | — | Superseded by ADR-021, ADR-022 |
-| 004 | **Availability gates participation, never ε** | Phase 1 adaptive noise | Worst-case guarantee; S23 practice; bias measured in RQ5 | Proposed (amended CHANGE-006) |
+| 004 | **Availability gates participation, never ε** | Phase 1 adaptive noise | Worst-case guarantee; S23 practice; bias measured in RQ5 | Approved (amended CHANGE-006) |
 | 005 | Two-tower with ID embeddings; user embedding never leaves device | — | — | Superseded by ADR-019 |
 | 006 | Gossip: local-DP baseline first, share-based secure gossip second | — | — | Superseded by ADR-024 |
 | 007 | Committee secagg + robust aggregation across committees | — | — | Superseded by ADR-025 |
@@ -289,24 +291,24 @@ prism-rec/
 | 010 | Prio3/DAP for telemetry | — | Simulation has no operational telemetry plane | **Rejected** (CHANGE-003) |
 | 011 | Postgres + pgvector ANN | — | Scoring happens on the device against all item vectors | **Rejected** (CHANGE-003) |
 | 012 | Compose → k3s + Helm; uv lock; SLSA + cosign | — | — | Superseded by ADR-027 |
-| 013 | **Zero paid inference/embedding APIs**; local sentence-transformers | OpenAI/Gemini embeddings | ₹0; no data egress to third parties | Proposed |
+| 013 | **Zero paid inference/embedding APIs**; local sentence-transformers | OpenAI/Gemini embeddings | ₹0; no data egress to third parties | Approved |
 | 014 | Free-first hosting: local + Oracle Always Free | — | — | Superseded by ADR-028 |
-| 015 | **Licence policy**: Apache/MIT/BSD/MPL/PostgreSQL; reject AGPL/BSL/SSPL/RSAL unless a CHANGE-ID approves | permissive-only | Simple, enforceable with pip-licenses in CI | Proposed (amended CHANGE-003) |
-| 016 | **Never commit raw datasets**; download scripts + DVC checksums, no DVC remote | data-in-repo | Yelp no-redistribution terms | Proposed (amended CHANGE-005) |
+| 015 | **Licence policy**: Apache/MIT/BSD/MPL/PostgreSQL; reject AGPL/BSL/SSPL/RSAL unless a CHANGE-ID approves | permissive-only | Simple, enforceable with pip-licenses in CI | Approved (amended CHANGE-003) |
+| 016 | **Never commit raw datasets**; download scripts + DVC checksums, no DVC remote | data-in-repo | Yelp no-redistribution terms | Approved (amended CHANGE-005) |
 | 017 | Private repo + self-hosted runner | — | — | Superseded by ADR-027 |
-| 018 | CPU-first determinism; GPU optional | GPU-always | Free-tier fit + reproducibility; model sized for CPU (ADR-019) | Proposed |
-| 019 | Two-tower over **frozen sentence-transformer embeddings of business metadata** + small trainable towers (~1.15 lakh params); dense updates; no sparsification | ID embedding tables + top-1% sparsification | Sparse row indices reveal which businesses a user reviewed and cannot be summed under SecAgg+; small dense model is DP-friendly and CPU-feasible | Proposed |
-| 020 | User-level DP in FL by clipping each client's whole update + noise on the aggregate (Flower DP wrappers); Opacus only for the central baseline (user = one sample) | Opacus per-example DP-SGD on clients | Per-example DP-SGD gives example-level, not user-level, guarantees | Proposed |
-| 021 | Noise added **once by the aggregator** after summation, with an OpenDP/Google DP sampler | Distributed discrete Gaussian shares across clients | Accounting for distributed discrete noise is research-grade; production FL (S23) adds noise server-side; trust assumption stated as non-claim | Proposed |
-| 022 | Accounting: **PLD (`dp_accounting`) of record**; Opacus PRV within ±5%; RDP ε must be ≥ PLD ε; ε reported with and without Poisson amplification | PRV vs RDP ±5% gate | RDP is systematically looser, so a PRV–RDP gate fires on correct code; amplification depends on how sampling is really implemented | Proposed |
-| 023 | SecAgg+ run on a verified subset (aggregate equivalence within quantization tolerance + overhead); utility sweeps run without it | SecAgg+ on every run | SecAgg+ changes confidentiality, not the aggregate; saves Tier 0 compute | Proposed |
-| 024 | Gossip over friends graph (degree ≤ d) with per-message local DP; ε composed over all sent messages; no secure gossip; no amplification | Share-based/MPC gossip | Tractable in 3 weeks; honest accounting; gap vs central DP is measured (RQ2) | Proposed |
-| 025 | Robustness in three modes: (a) plaintext + trimmed mean/median; (b) SecAgg+ + clipping; (c) SecAgg+ committees + median of sums (Could) | SecAgg+ and Krum together | At 30% adversaries P(committee of size k is attacker-free) = 0.7^k (≈17% at k=5, ≈3% at k=10), so the conflict is measured, not assumed away | Proposed |
-| 026 | In-repo append-only Merkle log with RFC 6962 hashing, inclusion/consistency proofs, Ed25519-signed receipts and tree heads (`cryptography`); verifier CLI | Trillian service; plain hash chain | Third-party verifiable without running a separate service; SHA-256/Ed25519 from a vetted library — the tree is a data structure, not a new primitive | Proposed |
-| 027 | uv lockfile + Makefile + GitHub-hosted CI (lint, unit/property tests, pip-audit, gitleaks, licence check); experiments run locally | k3s/Helm, self-hosted runner, SLSA/cosign | Fits the free Actions minutes; nothing is deployed | Proposed |
-| 028 | Compute: 2 laptops + LNMIIT lab machine; Kaggle/Colab GPU optional; no cloud VM; no service that needs a payment card | Oracle Always Free | Simulation needs no server; Oracle signup needs a card; ARM capacity unreliable; idle reclamation | Proposed |
-| 029 | Attacks: analytic first-layer inversion + NN item recovery; user-level MI (loss-threshold, RMIA ≤4 reference models); item-promotion poisoning; free-riding | `breaching`, LiRA with many shadow models, ART | `breaching` targets vision models; many-shadow LiRA exceeds Tier 0 compute; custom attacks fit the model exactly | Proposed |
-| 030 | Availability model from FedScale device traces if licence permits ⚠, else synthetic; scenarios: always-available, independent random, correlated with user activity, trace-based | No availability model | Needed for RQ5; correlated scenario tests whether gating biases quality | Proposed |
+| 018 | CPU-first determinism; GPU optional | GPU-always | Free-tier fit + reproducibility; model sized for CPU (ADR-019) | Approved |
+| 019 | Two-tower over **frozen sentence-transformer embeddings of business metadata** + small trainable towers (~1.15 lakh params); dense updates; no sparsification | ID embedding tables + top-1% sparsification | Sparse row indices reveal which businesses a user reviewed and cannot be summed under SecAgg+; small dense model is DP-friendly and CPU-feasible | Approved |
+| 020 | User-level DP in FL by clipping each client's whole update + noise on the aggregate (Flower DP wrappers); Opacus only for the central baseline (user = one sample) | Opacus per-example DP-SGD on clients | Per-example DP-SGD gives example-level, not user-level, guarantees | Approved |
+| 021 | Noise added **once by the aggregator** after summation, with an OpenDP/Google DP sampler | Distributed discrete Gaussian shares across clients | Accounting for distributed discrete noise is research-grade; production FL (S23) adds noise server-side; trust assumption stated as non-claim | Approved |
+| 022 | Accounting: **PLD (`dp_accounting`) of record**; Opacus PRV within ±5%; RDP ε must be ≥ PLD ε; ε reported with and without Poisson amplification | PRV vs RDP ±5% gate | RDP is systematically looser, so a PRV–RDP gate fires on correct code; amplification depends on how sampling is really implemented | Approved |
+| 023 | SecAgg+ run on a verified subset (aggregate equivalence within quantization tolerance + overhead); utility sweeps run without it | SecAgg+ on every run | SecAgg+ changes confidentiality, not the aggregate; saves Tier 0 compute | Approved |
+| 024 | Gossip over friends graph (degree ≤ d) with per-message local DP; ε composed over all sent messages; no secure gossip; no amplification | Share-based/MPC gossip | Tractable in 3 weeks; honest accounting; gap vs central DP is measured (RQ2) | Approved |
+| 025 | Robustness in three modes: (a) plaintext + trimmed mean/median; (b) SecAgg+ + clipping; (c) SecAgg+ committees + median of sums (Could) | SecAgg+ and Krum together | At 30% adversaries P(committee of size k is attacker-free) = 0.7^k (≈17% at k=5, ≈3% at k=10), so the conflict is measured, not assumed away | Approved |
+| 026 | In-repo append-only Merkle log with RFC 6962 hashing, inclusion/consistency proofs, Ed25519-signed receipts and tree heads (`cryptography`); verifier CLI | Trillian service; plain hash chain | Third-party verifiable without running a separate service; SHA-256/Ed25519 from a vetted library — the tree is a data structure, not a new primitive | Approved |
+| 027 | uv lockfile + Makefile + GitHub-hosted CI (lint, unit/property tests, pip-audit, gitleaks, licence check); experiments run locally | k3s/Helm, self-hosted runner, SLSA/cosign | Fits the free Actions minutes; nothing is deployed | Approved |
+| 028 | Compute: 2 laptops + LNMIIT lab machine; Kaggle/Colab GPU optional; no cloud VM; no service that needs a payment card | Oracle Always Free | Simulation needs no server; Oracle signup needs a card; ARM capacity unreliable; idle reclamation | Approved |
+| 029 | Attacks: analytic first-layer inversion + NN item recovery; user-level MI (loss-threshold, RMIA ≤4 reference models); item-promotion poisoning; free-riding | `breaching`, LiRA with many shadow models, ART | `breaching` targets vision models; many-shadow LiRA exceeds Tier 0 compute; custom attacks fit the model exactly | Approved |
+| 030 | Availability model from FedScale device traces if licence permits ⚠, else synthetic; scenarios: always-available, independent random, correlated with user activity, trace-based | No availability model | Needed for RQ5; correlated scenario tests whether gating biases quality | Approved |
 
 ---
 
@@ -582,27 +584,21 @@ Raw datasets are **never committed**. The repo holds download scripts and DVC ch
 
 ---
 
-## 19. Approval gate
+# Implementation log
 
-**Implementation is blocked until every box below is ticked.**
+The single progress tracker. PROJECT_ROADMAP.md remains the SSOT for decisions.
 
-- [ ] Scope (Section 4) approved, including MoSCoW, out-of-scope and non-claims
-- [ ] Dataset choice approved (Yelp primary, filtered to one metro)
-- [ ] ADR-001…030 approved (or amended with CHANGE-IDs)
-- [ ] Budget: Tier 0 (₹0) confirmed — paid tiers removed in CHANGE-005
-- [ ] Compute plan (Section 9) accepted; lab machine access requested
-- [ ] Source rule confirmed with guide (verification item 1)
-- [ ] Timeline + gate dates confirmed against the LNMIIT calendar
-- [ ] Verification queue owners assigned
-- [ ] Guide (Dr. Malika Acharya) has reviewed this document
+| Step | Date | Scope | Evidence | Status |
+|---|---|---|---|---|
+| 0 | 15 Nov 2026 | Python 3.12 via uv, repo skeleton, ruff/mypy/pytest/pip-audit, uv.lock, private GitHub repo | commit `chore(step-0)`; local checks pass | Done |
+| 1 | 15 Nov 2026 | CI workflow, licence gate, gitleaks, .gitattributes | commit `22e71d6`; Actions run: <paste link> | Done - pending CI confirmation |
+| 1.1 | 15 Nov 2026 | Review fixes: gitignore anchoring, Yelp ignore, licence gate rewrite, provenance, CI/make parity | commit: <paste hash>; Actions run: <paste link> | In progress |
 
-| Role | Name | Signature | Date |
-|---|---|---|---|
-| Privacy/ML lead | Shivam Agarwal (23UEC621) | | |
-| Systems/Security lead | Mokshit Jain (23UEC574) | | |
-| Guide | Dr. Malika Acharya | | |
-
-**On approval:** bump to v1.0.0, set status `APPROVED — IMPLEMENTATION AUTHORISED (P0 ONLY)`, and begin Gate G0 work.
+## Open items
+- Confirm GitHub Actions is green (browser: repo -> Actions tab).
+- Mokshit's acknowledgement of roadmap v1.1.0 (Section 19).
+- Repo licence for our own code (MIT proposed) - owner decision pending.
+- Verification queue items 1-15 (roadmap Section 18).
 
 ---
 
