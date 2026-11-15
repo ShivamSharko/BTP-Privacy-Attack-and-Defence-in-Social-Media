@@ -1,0 +1,22 @@
+# Normalise line endings across Windows/macOS/Linux (ends the LF/CRLF warnings).
+* text=auto eol=lf
+
+# Files that must keep LF to work correctly
+Makefile text eol=lf
+uv.lock text eol=lf
+*.sh text eol=lf
+
+# Windows-only scripts keep CRLF
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary assets - never touch
+*.png binary
+*.jpg binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.parquet binary
+*.npy binary
+*.pt binary

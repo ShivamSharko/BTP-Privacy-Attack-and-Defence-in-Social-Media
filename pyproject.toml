@@ -45,13 +45,14 @@ known-first-party = ["prism"]
 
 [tool.mypy]
 python_version = "3.12"
-files = ["src/prism"]
+files = ["src/prism", "scripts"]
 strict = true
 plugins = ["pydantic.mypy"]
 warn_unreachable = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["scripts"]
 addopts = "-q --strict-markers --strict-config"
 
 [tool.coverage.run]
