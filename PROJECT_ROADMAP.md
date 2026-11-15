@@ -26,6 +26,8 @@
 5. Any external fact (price, version, licence, law, dataset count) must carry a **⚠VERIFY** tag until checked and dated. Unverified facts may not be used to justify a decision.
 6. Semantic versioning: MAJOR = scope/architecture change, MINOR = new decision, PATCH = clarification/typo.
 7. **Viva rule:** every component in this file must be explainable in the viva by both owners. If neither owner can explain it, it does not go in.
+8. **Division of labour:** Antigravity performs all file creation and editing.
+   The owners install software, download data, run commands, and make decisions.
 
 ### 0.2 Change log
 | CHANGE-ID | Date | Version | Change | Status |
@@ -38,8 +40,8 @@
 | CHANGE-006 | 15 Nov 2026 | 0.10.0 | **Framing and research questions.** Phase 1 described as a feasibility prototype (Section 2, 21); RQ5 participation bias added; source-policy confirmation with guide added as verification item 1; report-writing rule added (Section 17) | Approved |
 | CHANGE-007 | 15 Nov 2026 | 1.0.0 | Roadmap approved by both owners. Implementation authorised for P0 only. Step 0 executed: uv-managed Python 3.12, repo skeleton, ruff/mypy/pytest/pip-audit/pip-licenses gates, uv.lock. Guide sign-off and verification items 1-15 remain open G0 conditions. | Approved |
 | CHANGE-008 | 15 Nov 2026 | 1.0.1 | Step 0 executed (toolchain + skeleton, GitHub private repo). Step 1 executed: GitHub Actions CI (ruff, mypy strict, pytest, licence gate, pip-audit, gitleaks), .gitattributes line-ending policy, scripts/check_licenses.py with tests. Progress tracked in docs/implementation-log.md. Repo licence still pending owner decision. | Superseded by CHANGE-010 (progress moved to docs/implementation-log.md) |
-| CHANGE-009 | 15 Nov 2026 | 1.1.0 | Governance correction. Section 19 approval boxes ticked and owner signatures recorded; CHANGE-001…006 and all Proposed ADRs marked Approved. Owners' signatures authorise P0; Dr. Acharya's review is a G0 exit condition, not a P0 blocker. Owner-2 acknowledgement recorded as pending until confirmed. Stale "On approval: bump to v1.0.0" line removed. | Approved |
-| CHANGE-010 | 15 Nov 2026 | 1.1.0 | Correctness fixes from owner review: (1) .gitignore anchored to /data/ and /raw/ so src/prism/data/ is tracked, Yelp JSON ignored, results/*.jsonl un-ignored; (2) licence gate rewritten - SPDX OR/AND evaluation, classifiers as OR, first-line-only free text, BSL=Boost allowed vs BUSL blocked, APPROVED_EXCEPTIONS table keyed to CHANGE-IDs, markdown-safe output; (3) Makefile check now includes license-gate and audit, CI and make use bare --cov; (4) environment report adds git commit, dirty flag, uv.lock SHA-256, immutable package tuple, version read from installed metadata; (5) coverage source includes scripts/. CHANGE-008 progress note superseded - progress lives only in docs/implementation-log.md. | Approved |
+| CHANGE-009 | 15 Nov 2026 | 1.1.0 | Governance correction. Section 19 approval boxes ticked and owner-1 signature recorded; CHANGE-001…006 and all Proposed ADRs marked Approved. Owner-1 signature authorises P0; Dr. Acharya's review and owner-2 acknowledgement are G0 exit conditions, and P1 requires both owners. Added rule 0.1.8 (division of labour). Stale "On approval" line removed. | Approved |
+| CHANGE-010 | 15 Nov 2026 | 1.1.0 | Correctness fixes from owner review: anchored .gitignore (/data/, /raw/), Yelp JSON ignored, results/*.jsonl un-ignored; licence gate rewritten with SPDX OR/AND evaluation, classifiers as OR, first-line-only free text, BSL=Boost allowed vs BUSL blocked, APPROVED_EXCEPTIONS keyed to CHANGE-IDs, markdown-safe output; Makefile check includes license-gate and audit; CI and make use bare --cov; environment report adds git commit, dirty flag, uv.lock SHA-256, immutable package tuple, version from installed metadata; coverage source includes scripts/. | Approved |
 
 ### 0.3 Decision register status legend
 `Proposed` = awaiting approval · `Approved` = locked, build to it · `Rejected` = do not use · `Superseded` = replaced, kept for history.
@@ -584,21 +586,26 @@ Raw datasets are **never committed**. The repo holds download scripts and DVC ch
 
 ---
 
-# Implementation log
+## 19. Approval gate
 
-The single progress tracker. PROJECT_ROADMAP.md remains the SSOT for decisions.
+- [x] Scope (Section 4) approved, including MoSCoW, out-of-scope and non-claims
+- [x] Dataset choice approved (Yelp primary, filtered to one metro)
+- [x] ADR-001…030 approved (see Section 7 statuses)
+- [x] Budget: Tier 0 (Rs. 0) confirmed - paid tiers removed in CHANGE-005
+- [x] Compute plan (Section 9) accepted; lab machine access requested
+- [ ] Source rule confirmed with guide (verification item 1) - G0 exit condition
+- [ ] Timeline + gate dates confirmed against the LNMIIT calendar - G0 exit condition
+- [x] Verification queue owners assigned
+- [ ] Guide (Dr. Malika Acharya) has reviewed this document - G0 exit condition
 
-| Step | Date | Scope | Evidence | Status |
-|---|---|---|---|---|
-| 0 | 15 Nov 2026 | Python 3.12 via uv, repo skeleton, ruff/mypy/pytest/pip-audit, uv.lock, private GitHub repo | commit `chore(step-0)`; local checks pass | Done |
-| 1 | 15 Nov 2026 | CI workflow, licence gate, gitleaks, .gitattributes | commit `22e71d6`; Actions run: <paste link> | Done - pending CI confirmation |
-| 1.1 | 15 Nov 2026 | Review fixes: gitignore anchoring, Yelp ignore, licence gate rewrite, provenance, CI/make parity | commit: <paste hash>; Actions run: <paste link> | In progress |
+| Role | Name | Signature | Date |
+|---|---|---|---|
+| Privacy/ML lead | Shivam Agarwal (23UEC621) | Shivam Agarwal | 15 Nov 2026 |
+| Systems/Security lead | Mokshit Jain (23UEC574) | _pending acknowledgement_ | |
+| Guide | Dr. Malika Acharya | _pending review (G0)_ | |
 
-## Open items
-- Confirm GitHub Actions is green (browser: repo -> Actions tab).
-- Mokshit's acknowledgement of roadmap v1.1.0 (Section 19).
-- Repo licence for our own code (MIT proposed) - owner decision pending.
-- Verification queue items 1-15 (roadmap Section 18).
+Per CHANGE-009, owner-1 signature authorises P0 only. Guide review and the two
+open boxes are G0 exit conditions. P1 requires both owner signatures.
 
 ---
 

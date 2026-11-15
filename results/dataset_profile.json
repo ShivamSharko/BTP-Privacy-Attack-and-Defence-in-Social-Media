@@ -1,0 +1,158 @@
+{
+  "businesses": {
+    "count": 150346,
+    "distinct_cities": 1416,
+    "distinct_states": 27,
+    "top_cities": {
+      "Boise": 2937,
+      "Brandon": 1033,
+      "Carmel": 967,
+      "Cherry Hill": 960,
+      "Clearwater": 2221,
+      "Edmonton": 5054,
+      "Franklin": 1414,
+      "Indianapolis": 7540,
+      "Largo": 1002,
+      "Meridian": 1043,
+      "Metairie": 1643,
+      "Nashville": 6971,
+      "New Orleans": 6209,
+      "Philadelphia": 14569,
+      "Reno": 5935,
+      "Saint Louis": 4827,
+      "Saint Petersburg": 1663,
+      "Santa Barbara": 3829,
+      "Sparks": 1624,
+      "St. Louis": 1255,
+      "St. Petersburg": 1185,
+      "Tampa": 9050,
+      "Tucson": 9250,
+      "West Chester": 838,
+      "Wilmington": 1446
+    },
+    "top_states": {
+      "AB": 5573,
+      "AZ": 9912,
+      "CA": 5203,
+      "CO": 3,
+      "DE": 2265,
+      "FL": 26330,
+      "HI": 2,
+      "ID": 4467,
+      "IL": 2145,
+      "IN": 11247,
+      "LA": 9924,
+      "MA": 2,
+      "MI": 1,
+      "MO": 10913,
+      "MT": 1,
+      "NC": 1,
+      "NJ": 8536,
+      "NV": 7715,
+      "PA": 34039,
+      "SD": 1,
+      "TN": 12056,
+      "TX": 4,
+      "UT": 1,
+      "WA": 2,
+      "XMS": 1
+    }
+  },
+  "files": {
+    "yelp_academic_dataset_business.json": {
+      "bad_lines": 0,
+      "keys": [
+        "address",
+        "attributes",
+        "business_id",
+        "categories",
+        "city",
+        "hours",
+        "is_open",
+        "latitude",
+        "longitude",
+        "name",
+        "postal_code",
+        "review_count",
+        "stars",
+        "state"
+      ],
+      "records_read": 150346,
+      "size_bytes": 118863795
+    },
+    "yelp_academic_dataset_review.json": {
+      "bad_lines": 0,
+      "keys": [
+        "business_id",
+        "cool",
+        "date",
+        "funny",
+        "review_id",
+        "stars",
+        "text",
+        "useful",
+        "user_id"
+      ],
+      "records_read": 6990280,
+      "size_bytes": 5341868833
+    },
+    "yelp_academic_dataset_user.json": {
+      "bad_lines": 0,
+      "keys": [
+        "average_stars",
+        "compliment_cool",
+        "compliment_cute",
+        "compliment_funny",
+        "compliment_hot",
+        "compliment_list",
+        "compliment_more",
+        "compliment_note",
+        "compliment_photos",
+        "compliment_plain",
+        "compliment_profile",
+        "compliment_writer",
+        "cool",
+        "elite",
+        "fans",
+        "friends",
+        "funny",
+        "name",
+        "review_count",
+        "useful",
+        "user_id",
+        "yelping_since"
+      ],
+      "records_read": 1987897,
+      "size_bytes": 3363329011
+    }
+  },
+  "generated_utc": "2026-11-15T17:29:28+00:00",
+  "limit_applied": null,
+  "provenance": {
+    "git_commit": "1888e927740166e204c2e1bb250d4a6d49b8147b",
+    "prism_version": "0.1.0",
+    "uv_lock_sha256": "0e83d90a4a025c365084ff693517b62778af86503ef66c174f1597a907f00b5b"
+  },
+  "reviews": {
+    "count": 6990280,
+    "distinct_businesses": 150346,
+    "distinct_users": 1987929,
+    "max_date": "2022-01-19 19:48:45",
+    "min_date": "2005-02-16 03:23:22",
+    "stars_histogram": {
+      "1": 1069561,
+      "2": 544240,
+      "3": 691934,
+      "4": 1452918,
+      "5": 3231627
+    }
+  },
+  "schema_version": 1,
+  "users": {
+    "count": 1987897,
+    "friend_listings_total": 105225474,
+    "max_friend_degree": 14995,
+    "review_count_sum": 46505676,
+    "users_with_friends": 1109346
+  }
+}
