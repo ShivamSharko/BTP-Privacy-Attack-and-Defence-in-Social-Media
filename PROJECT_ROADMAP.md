@@ -37,6 +37,7 @@
 | CHANGE-005 | 15 Nov 2026 | 0.10.0 | **Tier 0 only.** Tier 1/2 removed; Oracle Always Free, Cloudflare R2, GHCR, self-hosted runner, paid GPU/VM providers dropped; no service that requires a payment card; compute budget and experiment grid added (Section 9) | Proposed |
 | CHANGE-006 | 15 Nov 2026 | 0.10.0 | **Framing and research questions.** Phase 1 described as a feasibility prototype (Section 2, 21); RQ5 participation bias added; source-policy confirmation with guide added as verification item 1; report-writing rule added (Section 17) | Proposed |
 | CHANGE-007 | 15 Nov 2026 | 1.0.0 | Roadmap approved by both owners. Implementation authorised for P0 only. Step 0 executed: uv-managed Python 3.12, repo skeleton, ruff/mypy/pytest/pip-audit/pip-licenses gates, uv.lock. Guide sign-off and verification items 1-15 remain open G0 conditions. | Approved |
+| CHANGE-008 | 15 Nov 2026 | 1.0.1 | Step 0 executed (toolchain + skeleton, GitHub private repo). Step 1 executed: GitHub Actions CI (ruff, mypy strict, pytest, licence gate, pip-audit, gitleaks), .gitattributes line-ending policy, scripts/check_licenses.py with tests. Progress tracked in docs/implementation-log.md. Repo licence still pending owner decision. | Approved |
 
 ### 0.3 Decision register status legend
 `Proposed` = awaiting approval · `Approved` = locked, build to it · `Rejected` = do not use · `Superseded` = replaced, kept for history.

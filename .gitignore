@@ -15,7 +15,7 @@ coverage.xml
 htmlcov/
 .hypothesis/
 
-# Secrets and keys - NEVER commit (roadmap 8.3)
+# Secrets and keys - intentionally UNANCHORED: never commit at any depth
 .env
 .env.*
 keys/
@@ -23,13 +23,15 @@ secrets/
 *.pem
 *.key
 
-# Data - never commit raw datasets (ADR-016)
-data/
-raw/
+# Datasets - ANCHORED to repo root so src/prism/data/ is NOT ignored (ADR-016)
+/data/
+/raw/
+yelp_academic_dataset_*.json
 *.tar
 *.tar.gz
 *.zip
 *.jsonl
+!results/**/*.jsonl
 
 # Local experiment tracking
 mlruns/

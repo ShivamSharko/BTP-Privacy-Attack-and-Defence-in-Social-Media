@@ -2,7 +2,7 @@
 # Windows users without `make`: run the equivalent `uv run ...` commands directly.
 
 .DEFAULT_GOAL := help
-.PHONY: help setup lint format typecheck test audit licenses check env clean
+.PHONY: help setup lint format typecheck test audit licenses license-gate check env clean
 
 help:
 	@echo "setup      - create .venv and install locked dependencies"
@@ -12,6 +12,7 @@ help:
 	@echo "test       - pytest with coverage"
 	@echo "audit      - pip-audit dependency vulnerability scan"
 	@echo "licenses   - list dependency licences (ADR-015)"
+	@echo "license-gate - enforce ADR-015 dependency licence policy"
 	@echo "check      - lint + typecheck + test"
 	@echo "env        - print the reproducibility environment report"
 	@echo "clean      - remove tool caches (macOS/Linux)"
@@ -31,7 +32,7 @@ typecheck:
 	uv run mypy
 
 test:
-	uv run pytest --cov=prism --cov-report=term-missing
+	uv run pytest --cov --cov-report=term-missing
 
 audit:
 	uv run pip-audit --skip-editable
@@ -39,7 +40,10 @@ audit:
 licenses:
 	uv run pip-licenses --format=markdown --order=license
 
-check: lint typecheck test
+license-gate:
+	uv run python scripts/check_licenses.py
+
+check: lint typecheck test license-gate audit
 
 env:
 	uv run python -m prism.environment

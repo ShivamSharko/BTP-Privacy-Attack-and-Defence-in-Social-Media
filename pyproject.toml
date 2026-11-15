@@ -56,7 +56,7 @@ pythonpath = ["scripts"]
 addopts = "-q --strict-markers --strict-config"
 
 [tool.coverage.run]
-source = ["prism"]
+source = ["src/prism", "scripts"]
 branch = true
 
 [tool.coverage.report]
