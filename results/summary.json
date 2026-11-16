@@ -1,0 +1,217 @@
+{
+  "alpha": 0.05,
+  "confounds": [
+    "Central used 40 server rounds; federated used 400 at a matched expected user-update budget. The federated advantage reflects 10x more optimisation steps, not an intrinsic benefit of decentralisation. A round-matched central control is required.",
+    "With 5 seeds the minimum achievable two-sided sign/Wilcoxon p-value is 0.0625, so two-sided significance at alpha=0.05 is impossible regardless of effect size.",
+    "Neither topology exceeded the MostPopular baseline; the model is content-only with no user-ID embeddings."
+  ],
+  "metric": "ndcg@10",
+  "topologies": {
+    "central": {
+      "1.0": {
+        "bootstrap_ci95": [
+          0.016248956175395762,
+          0.01804174269884093
+        ],
+        "holm_reject": false,
+        "mean": 0.017233653129590288,
+        "mean_difference": -0.0005123135433531517,
+        "min_possible_two_sided_p": 0.0625,
+        "n_seeds": 5,
+        "retention_vs_central_nondp": 0.9711307052021991,
+        "retention_vs_own_nondp": 0.9711307052021991,
+        "sd": 0.0011903421488794292,
+        "seeds_degraded": 3,
+        "seeds_improved": 2,
+        "sign_test_one_sided_p": 1.0,
+        "wilcoxon_two_sided_p": 0.625
+      },
+      "16.0": {
+        "bootstrap_ci95": [
+          0.016433992572422246,
+          0.017809424994198235
+        ],
+        "holm_reject": false,
+        "mean": 0.01707114778854857,
+        "mean_difference": -0.0006748188843948733,
+        "min_possible_two_sided_p": 0.0625,
+        "n_seeds": 5,
+        "retention_vs_central_nondp": 0.9619733939079383,
+        "retention_vs_own_nondp": 0.9619733939079383,
+        "sd": 0.000869964932598093,
+        "seeds_degraded": 3,
+        "seeds_improved": 2,
+        "sign_test_one_sided_p": 1.0,
+        "wilcoxon_two_sided_p": 0.625
+      },
+      "2.0": {
+        "bootstrap_ci95": [
+          0.017490498342797464,
+          0.01861433612209784
+        ],
+        "holm_reject": false,
+        "mean": 0.018036591753268542,
+        "mean_difference": 0.00029062508032510136,
+        "min_possible_two_sided_p": 0.0625,
+        "n_seeds": 5,
+        "retention_vs_central_nondp": 1.016376965294779,
+        "retention_vs_own_nondp": 1.016376965294779,
+        "sd": 0.0007348859038105519,
+        "seeds_degraded": 2,
+        "seeds_improved": 3,
+        "sign_test_one_sided_p": 1.0,
+        "wilcoxon_two_sided_p": 0.8125
+      },
+      "4.0": {
+        "bootstrap_ci95": [
+          0.0166342087943055,
+          0.01795895227762668
+        ],
+        "holm_reject": false,
+        "mean": 0.017270581820049594,
+        "mean_difference": -0.0004753848528938474,
+        "min_possible_two_sided_p": 0.0625,
+        "n_seeds": 5,
+        "retention_vs_central_nondp": 0.9732116676620018,
+        "retention_vs_own_nondp": 0.9732116676620018,
+        "sd": 0.0008666806010912172,
+        "seeds_degraded": 4,
+        "seeds_improved": 1,
+        "sign_test_one_sided_p": 1.0,
+        "wilcoxon_two_sided_p": 0.4375
+      },
+      "8.0": {
+        "bootstrap_ci95": [
+          0.016449838169234822,
+          0.018216962545777694
+        ],
+        "holm_reject": false,
+        "mean": 0.0172070772198764,
+        "mean_difference": -0.0005388894530670423,
+        "min_possible_two_sided_p": 0.0625,
+        "n_seeds": 5,
+        "retention_vs_central_nondp": 0.9696331305586939,
+        "retention_vs_own_nondp": 0.9696331305586939,
+        "sd": 0.0011607130645034873,
+        "seeds_degraded": 4,
+        "seeds_improved": 1,
+        "sign_test_one_sided_p": 1.0,
+        "wilcoxon_two_sided_p": 0.4375
+      },
+      "nondp": {
+        "bootstrap_ci95": [
+          0.01709991942882557,
+          0.018638898760263502
+        ],
+        "mean": 0.017745966672943442,
+        "n_seeds": 5,
+        "retention_vs_central_nondp": 1.0,
+        "retention_vs_own_nondp": 1.0,
+        "sd": 0.0009791300005485574
+      }
+    },
+    "federated": {
+      "1.0": {
+        "bootstrap_ci95": [
+          0.01598279840920121,
+          0.020122454373674013
+        ],
+        "holm_reject": false,
+        "mean": 0.018282137775382866,
+        "mean_difference": -0.0055208251608438105,
+        "min_possible_two_sided_p": 0.0625,
+        "n_seeds": 5,
+        "retention_vs_central_nondp": 1.0302136881197292,
+        "retention_vs_own_nondp": 0.7680614310228814,
+        "sd": 0.0026533415462619996,
+        "seeds_degraded": 5,
+        "seeds_improved": 0,
+        "sign_test_one_sided_p": 0.03125,
+        "wilcoxon_two_sided_p": 0.0625
+      },
+      "16.0": {
+        "bootstrap_ci95": [
+          0.021508327004906548,
+          0.023148194486706596
+        ],
+        "holm_reject": false,
+        "mean": 0.022328260745806572,
+        "mean_difference": -0.0014747021904201018,
+        "min_possible_two_sided_p": 0.0625,
+        "n_seeds": 5,
+        "retention_vs_central_nondp": 1.2582160869179118,
+        "retention_vs_own_nondp": 0.9380454360084856,
+        "sd": 0.001049363804350057,
+        "seeds_degraded": 4,
+        "seeds_improved": 1,
+        "sign_test_one_sided_p": 1.0,
+        "wilcoxon_two_sided_p": 0.1875
+      },
+      "2.0": {
+        "bootstrap_ci95": [
+          0.01847872679748961,
+          0.021595490278460906
+        ],
+        "holm_reject": false,
+        "mean": 0.020249917059197105,
+        "mean_difference": -0.003553045877029571,
+        "min_possible_two_sided_p": 0.0625,
+        "n_seeds": 5,
+        "retention_vs_central_nondp": 1.141099689433731,
+        "retention_vs_own_nondp": 0.850730941078682,
+        "sd": 0.0020278633171414403,
+        "seeds_degraded": 5,
+        "seeds_improved": 0,
+        "sign_test_one_sided_p": 0.03125,
+        "wilcoxon_two_sided_p": 0.0625
+      },
+      "4.0": {
+        "bootstrap_ci95": [
+          0.01911397355936294,
+          0.021993958203109922
+        ],
+        "holm_reject": false,
+        "mean": 0.020787462302354096,
+        "mean_difference": -0.0030155006338725755,
+        "min_possible_two_sided_p": 0.0625,
+        "n_seeds": 5,
+        "retention_vs_central_nondp": 1.1713908115272131,
+        "retention_vs_own_nondp": 0.8733140642216786,
+        "sd": 0.0019051745559502788,
+        "seeds_degraded": 5,
+        "seeds_improved": 0,
+        "sign_test_one_sided_p": 0.03125,
+        "wilcoxon_two_sided_p": 0.0625
+      },
+      "8.0": {
+        "bootstrap_ci95": [
+          0.019885940200661804,
+          0.02260333571218511
+        ],
+        "holm_reject": false,
+        "mean": 0.021340204048452483,
+        "mean_difference": -0.002462758887774192,
+        "min_possible_two_sided_p": 0.0625,
+        "n_seeds": 5,
+        "retention_vs_central_nondp": 1.2025382692163527,
+        "retention_vs_own_nondp": 0.8965356164116014,
+        "sd": 0.001831436082614655,
+        "seeds_degraded": 5,
+        "seeds_improved": 0,
+        "sign_test_one_sided_p": 0.03125,
+        "wilcoxon_two_sided_p": 0.0625
+      },
+      "nondp": {
+        "bootstrap_ci95": [
+          0.023146646798639314,
+          0.024307445835685764
+        ],
+        "mean": 0.023802962936226673,
+        "n_seeds": 5,
+        "retention_vs_central_nondp": 1.341316783408485,
+        "retention_vs_own_nondp": 1.0,
+        "sd": 0.0007341006632200703
+      }
+    }
+  }
+}

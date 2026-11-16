@@ -13,9 +13,15 @@ The single progress tracker. PROJECT_ROADMAP.md remains the SSOT for decisions.
 | 5 | 16 Nov 2026 | k=15 applied, contracts fixed, chronological splits, dataset card | src/prism/data/splits.py, scripts/build_dataset.py, results/dataset_card.json | In progress |
 | 6 | 16 Nov 2026 | Data-layer test hardening; metro CLI made testable; hardware and split shares recorded | tests/test_build_philly_subset_stages.py, tests/test_metro_analysis_stages.py, tests/test_splits_errors.py, tests/test_environment_paths.py | In progress |
 | 7A | 17 Nov 2026 | Frozen content features, ranking metrics, MostPopular and ItemKNN baselines | src/prism/data/features.py, src/prism/eval/, results/features_card.json, results/baselines.json | In progress |
-| 7B | 17 Nov 2026 | Two-tower trainer, user-level DP, PRV/RDP accounting, resumable central/federated grid | src/prism/privacy/dp.py, src/prism/models/two_tower.py, scripts/run_grid.py | In progress |
+| 7B | 17 Nov 2026 | Two-tower trainer, user-level DP, PRV/RDP accounting, resumable central/federated grid | src/prism/privacy/dp.py, src/prism/models/two_tower.py, scripts/run_grid.py | Done |
+| 8 | 17 Nov 2026 | Grid complete (60/60 runs); reproducible summary with bootstrap CIs, paired tests, Holm correction | results/summary.json, results/summary_table.csv | In progress |
 
 ## Open items
+- Federated DP shows a monotonic privacy-utility curve: retention 76.6% (eps 1), 84.9% (2), 87.3% (4), 89.5% (8), 93.7% (16) versus federated non-private 0.02384.
+- Central DP shows no detectable degradation at any epsilon; all differences are inside seed noise and eps=2 exceeds non-private, so the correct claim is "no detectable effect", not "no cost".
+- CONFOUND: federated used 400 server rounds versus central 40 at matched data budget. H1 as literally pre-registered gives 120.4% retention (satisfied) but is confounded by round count. A round-matched central control (q=0.02, E=1, T=400) is required.
+- Neither topology beat MostPopular 0.0250; ItemKNN 0.0347 remains ahead. R-23 materialised.
+- Five seeds cannot yield two-sided significance at alpha=0.05 (minimum p = 0.0625). Extend to 10 seeds for headline comparisons.
 - Probe with item bias: best NDCG@10 0.0101 at lr=2.0 round 40 (6.7x random chance), still below MostPopular 0.0250 and ItemKNN 0.0347. Cause identified as bias learning rate; ADR-040 applied. Grid launched at lr=2.0 with RQ1 framed as relative retention.
 - ADR-038 cosine fix raised deltas ~50x and NDCG@10 to 0.0071 (4.7x random) but still below MostPopular 0.0250; ADR-039 item bias added to restore popularity representation. Learning rate to be confirmed by the 40-round probe before launch.
 - Step 7B smoke test verified DP accounting, clipping and resumability, but revealed the model at random chance; scoring fixed via ADR-038 and learning rate to be selected by probe before the overnight launch.
