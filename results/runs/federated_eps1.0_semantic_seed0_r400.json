@@ -1,0 +1,102 @@
+{
+  "accountant_of_record": "opacus_prv",
+  "checkpoint": "model_federated_eps1.0_semantic_seed0_r400.npz",
+  "clip_norm": 4.9214,
+  "delta": 1.0087763542822556e-05,
+  "epsilon_prv": 0.9926504539931215,
+  "epsilon_rdp": 1.246161626442193,
+  "expected_user_updates": 79304.0,
+  "final_metrics": {
+    "coverage@10": 0.01329324260167748,
+    "exposure_gini": 0.9976472953562907,
+    "hr@10": 0.11974175325330375,
+    "mrr": 0.055294286848823926,
+    "ndcg@10": 0.020028012553007013,
+    "recall@20": 0.031410071767021014,
+    "users_evaluated": 9913.0
+  },
+  "history": [
+    {
+      "cohort": 102,
+      "mean_delta_norm": 4.007158281756382,
+      "metrics": {
+        "coverage@10": 0.007437885741414781,
+        "exposure_gini": 0.9981970505320645,
+        "hr@10": 0.11994350852416019,
+        "mrr": 0.055159723271393825,
+        "ndcg@10": 0.020114079605153098,
+        "recall@20": 0.02790248500242141,
+        "users_evaluated": 9913.0
+      },
+      "round": 50
+    },
+    {
+      "cohort": 97,
+      "mean_delta_norm": 4.089022589713028,
+      "metrics": {
+        "coverage@10": 0.006171862636493116,
+        "exposure_gini": 0.9981048159021468,
+        "hr@10": 0.10107939069908202,
+        "mrr": 0.04680929388075571,
+        "ndcg@10": 0.016417535812146996,
+        "recall@20": 0.025823347285515736,
+        "users_evaluated": 9913.0
+      },
+      "round": 100
+    },
+    {
+      "cohort": 87,
+      "mean_delta_norm": 4.02138283060885,
+      "metrics": {
+        "coverage@10": 0.00838740307010603,
+        "exposure_gini": 0.9981363036451629,
+        "hr@10": 0.12619792192071017,
+        "mrr": 0.05181307446412501,
+        "ndcg@10": 0.019941920721958852,
+        "recall@20": 0.03222437784029067,
+        "users_evaluated": 9913.0
+      },
+      "round": 200
+    },
+    {
+      "cohort": 92,
+      "mean_delta_norm": 3.9100944905177406,
+      "metrics": {
+        "coverage@10": 0.01329324260167748,
+        "exposure_gini": 0.9976472953562907,
+        "hr@10": 0.11974175325330375,
+        "mrr": 0.055294286848823926,
+        "ndcg@10": 0.020028012553007013,
+        "recall@20": 0.031410071767021014,
+        "users_evaluated": 9913.0
+      },
+      "round": 400
+    }
+  ],
+  "id": "federated_eps1.0_semantic_seed0_r400",
+  "items": 6319,
+  "limitations": [
+    "Float Gaussian noise from a seeded PCG64 PRNG; epsilon is accountant-derived under an ideal mechanism (ADR-037).",
+    "Single-process simulation; no real network or device trust boundary.",
+    "Clipping norm fixed once from a non-private pilot."
+  ],
+  "local_epochs": 2,
+  "local_lr": 2.0,
+  "noise_multiplier": 1.0961,
+  "provenance": {
+    "git_commit": "6dad6dd0033fa822d6630406f0115d654cb59c8b",
+    "uv_lock_sha256": "cedd822f3112664b11787e414899374667312957a6637dead03490130b7dc328"
+  },
+  "rdp_upper_bound_holds": true,
+  "rounds": 400,
+  "sample_rate": 0.01,
+  "seed": 0,
+  "server_lr": 1.0,
+  "target_epsilon": 1.0,
+  "threads": 2,
+  "topology": "federated",
+  "torch_version": "2.15.0+cpu",
+  "users": 9913,
+  "variant": "semantic",
+  "wall_seconds": 152.32
+}

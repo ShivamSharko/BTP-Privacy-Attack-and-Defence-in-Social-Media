@@ -13,8 +13,12 @@ The single progress tracker. PROJECT_ROADMAP.md remains the SSOT for decisions.
 | 5 | 16 Nov 2026 | k=15 applied, contracts fixed, chronological splits, dataset card | src/prism/data/splits.py, scripts/build_dataset.py, results/dataset_card.json | In progress |
 | 6 | 16 Nov 2026 | Data-layer test hardening; metro CLI made testable; hardware and split shares recorded | tests/test_build_philly_subset_stages.py, tests/test_metro_analysis_stages.py, tests/test_splits_errors.py, tests/test_environment_paths.py | In progress |
 | 7A | 17 Nov 2026 | Frozen content features, ranking metrics, MostPopular and ItemKNN baselines | src/prism/data/features.py, src/prism/eval/, results/features_card.json, results/baselines.json | In progress |
+| 7B | 17 Nov 2026 | Two-tower trainer, user-level DP, PRV/RDP accounting, resumable central/federated grid | src/prism/privacy/dp.py, src/prism/models/two_tower.py, scripts/run_grid.py | In progress |
 
 ## Open items
+- Probe with item bias: best NDCG@10 0.0101 at lr=2.0 round 40 (6.7x random chance), still below MostPopular 0.0250 and ItemKNN 0.0347. Cause identified as bias learning rate; ADR-040 applied. Grid launched at lr=2.0 with RQ1 framed as relative retention.
+- ADR-038 cosine fix raised deltas ~50x and NDCG@10 to 0.0071 (4.7x random) but still below MostPopular 0.0250; ADR-039 item bias added to restore popularity representation. Learning rate to be confirmed by the 40-round probe before launch.
+- Step 7B smoke test verified DP accounting, clipping and resumability, but revealed the model at random chance; scoring fixed via ADR-038 and learning rate to be selected by probe before the overnight launch.
 - Roadmap governance Commit B: section 19 signatures, ADRs to Approved, header v1.1.0, CHANGE-009/010.
 - Mokshit's acknowledgement of the roadmap (blocks P1).
 - Repo licence for our own code (MIT proposed) - owner decision pending.

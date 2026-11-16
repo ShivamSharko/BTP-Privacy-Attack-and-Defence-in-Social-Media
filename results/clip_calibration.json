@@ -1,0 +1,11 @@
+{
+  "clip_norm": 4.9214,
+  "median_of": "unclipped delta L2 norms",
+  "percentiles": {
+    "10": 3.1817917823791504,
+    "50": 4.921437501907349,
+    "90": 6.526064872741699
+  },
+  "pilot": "non-private",
+  "probe_users": 256
+}
