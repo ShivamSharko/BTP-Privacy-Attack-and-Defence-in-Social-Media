@@ -3,7 +3,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | 1.5.0 |
+| Document version | 1.6.0 |
 | Status | **APPROVED — IMPLEMENTATION AUTHORISED (P0 ONLY)** |
 | Last updated | 15 November 2026 |
 | Owners | Shivam Agarwal (23UEC621) — Privacy/ML lead; Mokshit Jain (23UEC574) — Systems/Security lead |
@@ -47,6 +47,7 @@
 | CHANGE-013 | 16 Nov 2026 | 1.4.0 | Source rule confirmed as option (c): any credible source including conference and journal papers. Section 1 rewritten; the no-papers restriction is superseded. S-series and R-series retained; a P-series peer-reviewed literature review is added as a planned step. Also records the Yelp licence compliance posture (ADR-033): stricter 7 Jul 2023 terms control, 12-month term to 15 Nov 2027, no third-party data sharing, aggregate-metric disclosure limited to academic purposes, and mandatory pre-publication review of findings by Yelp. Repository default changed to private. | Approved |
 | CHANGE-014 | 16 Nov 2026 | 1.5.0 | Execution topology fixed to a single PC (owner-1 machine). No second data copy and no lab machine dependency. Mokshit contributes code and synthetic-fixture tests from his own machine; all data-dependent runs execute on this PC, so the Data never leaves it (satisfies Yelp 4.D by construction). Section 9 compute budget re-based on one machine with parallelism across seeds. Deliverable 9 restated as a clean-environment rerun, not a clean-machine rerun. | Approved |
 | CHANGE-015 | 16 Nov 2026 | 1.5.0 | Yelp Section 3 pre-publication review deferred until the implementation is complete. The gate is retained, not removed: it blocks any public presentation or publication, including making the repository public, public demo video, blog, paper or institutional upload. Trigger: submit findings to Yelp at least 3 weeks before the final submission date. Submission date still pending from the guide. | Approved |
+| CHANGE-016 | 17 Nov 2026 | 1.6.0 | Time-boxed execution: a single overnight compute window is available. Scope for this window is the MVP utility-vs-privacy core only (features, metrics, baselines, two-tower, central and federated DP epsilon sweep). SecAgg+, gossip, attacks and ledger are explicitly deferred to later sessions and are NOT claimed. Two amendments: (a) headline grid uses an in-process federated simulation instead of Flower/Ray, as anticipated by risk R-20, with a Flower parity check deferred; (b) Opacus PRV becomes the accountant of record with RDP as the required upper bound, and the dp_accounting PLD cross-check is deferred to remove an unfamiliar API from the critical path. GPU (RTX 3050, 4 GB) documented but unused; CPU-only for determinism per ADR-018. | Approved |
 
 ### 0.3 Decision register status legend
 `Proposed` = awaiting approval · `Approved` = locked, build to it · `Rejected` = do not use · `Superseded` = replaced, kept for history.
@@ -331,6 +332,8 @@ prism-rec/
 | 032 | k=15 selected from measured k-core survival; sensitivity sweep at k in {10,20} | k=5 / k=10 / k=20 as primary; guessing k in advance | k=15 clears the 5,000-user floor with ~2x margin and the >=70% connectivity gate; k=20 maximises connectivity (84.1%) but leaves only 6,001 users, k=10 maximises population (19,141) but leaves 31.8% of nodes without in-set peers. Trade-off reported, not hidden. | Approved |
 | 033 | Yelp licence compliance posture: comply with the stricter 7 Jul 2023 terms; repository stays PRIVATE by default; submit findings to Yelp before any public presentation or publication; each owner downloads their own data copy; delete Data and derivatives on term expiry | Comply with the older 2021 terms; make the repo public at freeze | The 2023 terms are newer and stricter and add an explicit no-third-party-sharing clause (4.D). Section 3 requires Yelp review before public release, and 4.E restricts disclosure of dataset summaries and metrics outside the academic-purpose exception. Supersedes the "public at freeze" clause of ADR-016 / Annex A.6. | Approved |
 | 034 | Single-PC execution; code-only collaboration with owner-2 | Two laptops plus lab machine; second data copy | Removes the lab dependency and removes any data transfer between owners, satisfying Yelp 4.D by construction. Parallelism is applied across seeds and configs rather than within a run, because the model is small. Amends the compute topology of ADR-028; its Tier-0 no-card and free-tier rules remain in force. | Approved |
+| 035 | In-process federated simulation for the headline grid; Flower parity check deferred | Flower plus Ray simulation tonight | 99 clients per round and ~1.15 lakh parameters need no distributed runtime; Ray per-process memory threatens the 16 GB budget (R-20). One trainer serves central and federated modes, reducing the chance of a DP implementation divergence. | Approved |
+| 036 | Opacus PRV accountant of record; RDP must be >= PRV; dp_accounting PLD cross-check deferred | PLD of record tonight | Removes an unfamiliar API and an extra dependency from a time-boxed overnight run. The two-accountant sanity gate is preserved. PLD remains a planned cross-check. | Approved |
 
 ---
 
@@ -524,6 +527,7 @@ descoping ladder below remains the safety valve.
 | R-18 | Licence term expiry on 15 Nov 2027, or earlier termination by Yelp | L×M | Calendar reminder; on expiry or termination delete all Data and derivative works and certify in writing on request | Project extends past expiry => re-accept terms and re-download |
 | R-19 | Laptop thermal throttling distorts wall-clock measurements | M×L | Cap concurrency at 4 runs / 8 threads; keep plugged in on a hard surface; report wall-clock with the thread setting stated | Timings unstable => report machine-hours and thread config, not raw wall-clock |
 | R-20 | Ray per-process memory overhead exceeds 16 GB when runs are parallelised | M×M | Measure at the FL step; fall back to in-process Flower simulation, which is sufficient at 99 clients per round and ~1.15 lakh parameters | Memory pressure => in-process simulation, recorded as an ADR amendment |
+| R-21 | Single overnight window is insufficient for the full roadmap | H×H | Time-box to the MVP utility-vs-privacy core; resumable per-run JSON output so partial results survive a crash; report only what actually completed | Window ends => report completed runs honestly and schedule the remainder |
 
 **Accepted trade-offs:** user-level DP costs utility (paid for honesty) · gossip costs bytes and accuracy (paid for no coordinator) · SecAgg+ limits robustness (measured) · the aggregator is trusted to add noise (stated).
 

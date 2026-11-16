@@ -1,0 +1,44 @@
+{
+  "content_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "embedding_dim": 384,
+  "items": 6319,
+  "primary_variant": "semantic",
+  "provenance": {
+    "git_commit": "371afb3f3ed72ec91f96d88fc1486f90e913f897",
+    "uv_lock_sha256": "cedd822f3112664b11787e414899374667312957a6637dead03490130b7dc328"
+  },
+  "review_text_used": false,
+  "schema_version": 1,
+  "train_interactions_used_for_pooling": 295580,
+  "users": 9913,
+  "variants": {
+    "semantic": {
+      "file": "features_semantic.npz",
+      "item_shape": [
+        6319,
+        384
+      ],
+      "sha256": "6d73175ba077562cb0dc586e9202724153b15ba8e3d5d1bc3b56e138762e520e",
+      "size_bytes": 23132544,
+      "user_shape": [
+        9913,
+        384
+      ],
+      "zero_user_vectors": 0
+    },
+    "tfidf": {
+      "file": "features_tfidf.npz",
+      "item_shape": [
+        6319,
+        384
+      ],
+      "sha256": "dbeb49bcaf5103a12b8f8a8206aff1349839b84003cf04fe36fbda36cec29a08",
+      "size_bytes": 23318169,
+      "user_shape": [
+        9913,
+        384
+      ],
+      "zero_user_vectors": 0
+    }
+  }
+}
