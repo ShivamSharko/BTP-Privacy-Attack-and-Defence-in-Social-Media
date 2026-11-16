@@ -462,12 +462,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/41/d3/2719e0a0504c94ddd91e568632340a1941ac8f3b2be409aa30b28df9efe8/pandera-0.36.0-py3-none-any.whl", hash = "sha256:f9ed1191fde25467813cde0ab3f279707c6e05fbb6c61649cfc5b646d1b2a783", size = 604634, upload-time = "2026-11-10T03:40:45.331Z" },
 ]
 
-[package.optional-dependencies]
-pandas = [
-    { name = "numpy" },
-    { name = "pandas" },
-]
-
 [[package]]
 name = "pathspec"
 version = "1.1.1"
@@ -579,6 +573,9 @@ name = "prism-rec"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "numpy" },
+    { name = "pandas" },
+    { name = "pandera" },
     { name = "pydantic" },
 ]
 
@@ -586,7 +583,6 @@ dependencies = [
 dev = [
     { name = "hypothesis" },
     { name = "mypy" },
-    { name = "pandera", extra = ["pandas"] },
     { name = "pip" },
     { name = "pip-audit" },
     { name = "pip-licenses" },
@@ -596,13 +592,17 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pydantic", specifier = ">=2.9,<3" }]
+requires-dist = [
+    { name = "numpy", specifier = ">=1.26" },
+    { name = "pandas", specifier = ">=2.1" },
+    { name = "pandera", specifier = ">=0.18" },
+    { name = "pydantic", specifier = ">=2.9,<3" },
+]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "hypothesis", specifier = ">=6.112" },
     { name = "mypy", specifier = ">=1.13" },
-    { name = "pandera", extras = ["pandas"], specifier = ">=0.18" },
     { name = "pip", specifier = ">=24.2" },
     { name = "pip-audit", specifier = ">=2.7" },
     { name = "pip-licenses", specifier = ">=5.0" },

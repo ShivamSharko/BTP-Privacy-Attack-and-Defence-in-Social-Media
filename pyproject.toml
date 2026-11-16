@@ -11,6 +11,9 @@ authors = [
 ]
 dependencies = [
   "pydantic>=2.9,<3",
+  "numpy>=1.26",
+  "pandas>=2.1",
+  "pandera>=0.18",
 ]
 
 [dependency-groups]
@@ -23,7 +26,6 @@ dev = [
   "mypy>=1.13",
   "pip-audit>=2.7",
   "pip-licenses>=5.0",
-  "pandera[pandas]>=0.18",
 ]
 
 [build-system]

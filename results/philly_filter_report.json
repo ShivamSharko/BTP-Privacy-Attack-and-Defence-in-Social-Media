@@ -1,0 +1,115 @@
+{
+  "bounds": {
+    "lat_max": 40.2,
+    "lat_min": 39.8,
+    "lon_max": -74.9,
+    "lon_min": -75.3
+  },
+  "businesses_kept": 25039,
+  "measurement": {
+    "business_interaction_histogram": {
+      "1": 0,
+      "10-19": 5987,
+      "100+": 2929,
+      "2": 0,
+      "20-49": 5770,
+      "3": 0,
+      "4": 0,
+      "5-9": 7634,
+      "50-99": 2719
+    },
+    "businesses_after_integrity_filter": 25039,
+    "interactions_after_integrity_filter": 1312657,
+    "kcore": {
+      "10": {
+        "avg_inner_degree_among_connected": 15.53,
+        "businesses": 9950,
+        "interactions": 557772,
+        "max_inner_degree": 3388,
+        "mean_interactions_per_user": 29.14,
+        "share_connected": 0.6818,
+        "users": 19141,
+        "users_with_inner_friends": 13051
+      },
+      "15": {
+        "avg_inner_degree_among_connected": 18.49,
+        "businesses": 6319,
+        "interactions": 410193,
+        "max_inner_degree": 2979,
+        "mean_interactions_per_user": 41.379,
+        "share_connected": 0.7712,
+        "users": 9913,
+        "users_with_inner_friends": 7645
+      },
+      "20": {
+        "avg_inner_degree_among_connected": 21.7,
+        "businesses": 4284,
+        "interactions": 311935,
+        "max_inner_degree": 2573,
+        "mean_interactions_per_user": 51.981,
+        "share_connected": 0.8409,
+        "users": 6001,
+        "users_with_inner_friends": 5046
+      },
+      "5": {
+        "avg_inner_degree_among_connected": 13.31,
+        "businesses": 18637,
+        "interactions": 813022,
+        "max_inner_degree": 3862,
+        "mean_interactions_per_user": 16.112,
+        "share_connected": 0.5825,
+        "users": 50461,
+        "users_with_inner_friends": 29396
+      }
+    },
+    "mean_interactions_per_user": 3.572,
+    "median_interactions_per_user": 1.0,
+    "user_interaction_histogram": {
+      "1": 214010,
+      "10-19": 13343,
+      "100+": 950,
+      "2": 58186,
+      "20-49": 6178,
+      "3": 27291,
+      "4": 15970,
+      "5-9": 29956,
+      "50-99": 1646
+    },
+    "users_after_integrity_filter": 367530
+  },
+  "metro": "philadelphia",
+  "processed_files": {
+    "philly_businesses.csv.gz": {
+      "sha256": "e1e840083bb7aa43cd086126a6278a6d2ab6f912f045a5dc6c7cf71d2aab7658",
+      "size_bytes": 2108964
+    },
+    "philly_reviews.csv.gz": {
+      "sha256": "fab6360be3be916c4aa48f1e6fe7d976e1e9fd39be425adcdebf13b679e38954",
+      "size_bytes": 72839033
+    },
+    "philly_users.csv.gz": {
+      "sha256": "dd39aedf513ee1dab7782c54849ec15f662b3c9a462a7fea48478b274dd21050",
+      "size_bytes": 380854837
+    }
+  },
+  "provenance": {
+    "git_commit": "f6ad87dceacb477f94db5f22a1c43151fdd05d46",
+    "git_dirty": true,
+    "uv_lock_sha256": "d6750677661f0a2e9f93ce4d1853cc89f107c933c9055f47b93f8422b3b12303"
+  },
+  "reviews": {
+    "distinct_reviewers": 367534,
+    "max_date": "2022-01-19 19:48:45",
+    "min_date": "2005-02-16 04:06:26",
+    "reviews_dropped": 5677619,
+    "reviews_kept": 1312661,
+    "reviews_scanned": 6990280
+  },
+  "schema_version": 1,
+  "users": {
+    "duplicate_user_rows": 0,
+    "orphan_reviewer_ids": 4,
+    "users_kept": 367530,
+    "users_scanned": 1987897
+  }
+}
