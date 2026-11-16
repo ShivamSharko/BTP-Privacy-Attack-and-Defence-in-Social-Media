@@ -3,7 +3,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | 1.1.0 |
+| Document version | 1.5.0 |
 | Status | **APPROVED — IMPLEMENTATION AUTHORISED (P0 ONLY)** |
 | Last updated | 15 November 2026 |
 | Owners | Shivam Agarwal (23UEC621) — Privacy/ML lead; Mokshit Jain (23UEC574) — Systems/Security lead |
@@ -43,25 +43,40 @@
 | CHANGE-009 | 15 Nov 2026 | 1.1.0 | Governance correction. Section 19 approval boxes ticked and owner-1 signature recorded; CHANGE-001…006 and all Proposed ADRs marked Approved. Owner-1 signature authorises P0; Dr. Acharya's review and owner-2 acknowledgement are G0 exit conditions, and P1 requires both owners. Added rule 0.1.8 (division of labour). Stale "On approval" line removed. | Approved |
 | CHANGE-010 | 15 Nov 2026 | 1.1.0 | Correctness fixes from owner review: anchored .gitignore (/data/, /raw/), Yelp JSON ignored, results/*.jsonl un-ignored; licence gate rewritten with SPDX OR/AND evaluation, classifiers as OR, first-line-only free text, BSL=Boost allowed vs BUSL blocked, APPROVED_EXCEPTIONS keyed to CHANGE-IDs, markdown-safe output; Makefile check includes license-gate and audit; CI and make use bare --cov; environment report adds git commit, dirty flag, uv.lock SHA-256, immutable package tuple, version from installed metadata; coverage source includes scripts/. | Approved |
 | CHANGE-011 | 16 Nov 2026 | 1.2.0 | Owner-2 (Mokshit Jain) approval recorded. MIT licence adopted for project code. ADR-031 approved: metro selection will use geographic bounding boxes (lat/lon) rather than fragile city-name string matching to avoid fragmentation (e.g., "St. Louis" vs "Saint Louis"). | Approved |
+| CHANGE-012 | 16 Nov 2026 | 1.3.0 | k-core threshold fixed at k=15 from measured evidence (9,913 users; 6,319 businesses; 4,10,193 interactions; 77.1% of users have in-set friends; avg inner degree 18.5). Numeric connectivity gate defined as >=70% connected share. Added a pre-registered k-sensitivity sweep at k in {10,20} on headline RQ1/RQ2 comparisons (3 seeds each) as a robustness check. Amendment made before any model training or result existed. | Approved |
+| CHANGE-013 | 16 Nov 2026 | 1.4.0 | Source rule confirmed as option (c): any credible source including conference and journal papers. Section 1 rewritten; the no-papers restriction is superseded. S-series and R-series retained; a P-series peer-reviewed literature review is added as a planned step. Also records the Yelp licence compliance posture (ADR-033): stricter 7 Jul 2023 terms control, 12-month term to 15 Nov 2027, no third-party data sharing, aggregate-metric disclosure limited to academic purposes, and mandatory pre-publication review of findings by Yelp. Repository default changed to private. | Approved |
+| CHANGE-014 | 16 Nov 2026 | 1.5.0 | Execution topology fixed to a single PC (owner-1 machine). No second data copy and no lab machine dependency. Mokshit contributes code and synthetic-fixture tests from his own machine; all data-dependent runs execute on this PC, so the Data never leaves it (satisfies Yelp 4.D by construction). Section 9 compute budget re-based on one machine with parallelism across seeds. Deliverable 9 restated as a clean-environment rerun, not a clean-machine rerun. | Approved |
+| CHANGE-015 | 16 Nov 2026 | 1.5.0 | Yelp Section 3 pre-publication review deferred until the implementation is complete. The gate is retained, not removed: it blocks any public presentation or publication, including making the repository public, public demo video, blog, paper or institutional upload. Trigger: submit findings to Yelp at least 3 weeks before the final submission date. Submission date still pending from the guide. | Approved |
 
 ### 0.3 Decision register status legend
 `Proposed` = awaiting approval · `Approved` = locked, build to it · `Rejected` = do not use · `Superseded` = replaced, kept for history.
 
 ---
 
-## 1. Source policy (hard constraint)
+## 1. Source policy
 
-> ⚠ **PENDING CONFIRMATION (verification item 1).** Confirm with the guide that excluding all papers is an actual requirement for this project. If it is not, amend this section via a CHANGE-ID and cite the original publications for DP-SGD, DP-FedAvg, SecAgg, LightGCN and RMIA in the literature review.
+**Confirmed rule (verification item 1, option c):** any credible source is
+permitted, including conference papers, journal papers, workshop papers,
+standards, regulatory texts, government and industry reports, vendor
+engineering documentation, official dataset documentation, and GitHub
+repositories and their documentation.
 
-**Permitted sources:** standards (NIST, ISO/IEC, IETF RFC, W3C), regulatory texts (GDPR, DSA, DPDP), government/industry reports, vendor engineering documentation, official dataset documentation, and GitHub repositories/documentation.
+This supersedes the earlier Phase-2 restriction that excluded all papers
+(CHANGE-013). The standards-and-reports evidence base (S-series) and the
+repository evidence base (R-series) are retained and remain the backbone for
+implementation decisions. A peer-reviewed literature review (P-series) is added
+for academic grounding and is required for the report.
 
-**Excluded:** conference papers, journal papers, workshop papers, and arXiv preprints.
-
-**Consequence for algorithms:** where a technique originated academically (DP-SGD, DP-FedAvg, SecAgg+, trimmed mean/Krum, LightGCN, RMIA), we ground it in its **shipped implementation and official docs** or in a **standards artifact**, never in the publication. The mapping is recorded in `docs/source-register.md`.
-
-**Licence-attribution exception:** if a dataset licence *requires* a specific citation, we honour the licence text as a legal obligation and record it under "licence compliance", not under "literature review".
-
-**Phase 1 note:** the April 2026 report's journal-only bibliography is retained as historical context only.
+Rules:
+1. Every cited paper must have authors, venue and year verified before use.
+   Unverified entries carry a VERIFY flag and may not justify a decision.
+2. Where a shipped implementation or a standard exists, implementation decisions
+   cite that artifact, and the original paper is cited for the method's origin.
+3. The seven journal papers from Phase 1 are re-admitted as citable sources.
+4. Licence-attribution obligations are recorded under licence compliance, not
+   under the literature review.
+5. The P-series literature review is a separate planned step and is not yet
+   written.
 
 ---
 
@@ -313,6 +328,9 @@ prism-rec/
 | 029 | Attacks: analytic first-layer inversion + NN item recovery; user-level MI (loss-threshold, RMIA ≤4 reference models); item-promotion poisoning; free-riding | `breaching`, LiRA with many shadow models, ART | `breaching` targets vision models; many-shadow LiRA exceeds Tier 0 compute; custom attacks fit the model exactly | Approved |
 | 030 | Availability model from FedScale device traces if licence permits ⚠, else synthetic; scenarios: always-available, independent random, correlated with user activity, trace-based | No availability model | Needed for RQ5; correlated scenario tests whether gating biases quality | Approved |
 | 031 | Metro selection via geographic bounding box (lat/lon) | City-name string matching | Avoids fragmentation of metro areas across multiple city labels; reproducible and deterministic | Approved |
+| 032 | k=15 selected from measured k-core survival; sensitivity sweep at k in {10,20} | k=5 / k=10 / k=20 as primary; guessing k in advance | k=15 clears the 5,000-user floor with ~2x margin and the >=70% connectivity gate; k=20 maximises connectivity (84.1%) but leaves only 6,001 users, k=10 maximises population (19,141) but leaves 31.8% of nodes without in-set peers. Trade-off reported, not hidden. | Approved |
+| 033 | Yelp licence compliance posture: comply with the stricter 7 Jul 2023 terms; repository stays PRIVATE by default; submit findings to Yelp before any public presentation or publication; each owner downloads their own data copy; delete Data and derivatives on term expiry | Comply with the older 2021 terms; make the repo public at freeze | The 2023 terms are newer and stricter and add an explicit no-third-party-sharing clause (4.D). Section 3 requires Yelp review before public release, and 4.E restricts disclosure of dataset summaries and metrics outside the academic-purpose exception. Supersedes the "public at freeze" clause of ADR-016 / Annex A.6. | Approved |
+| 034 | Single-PC execution; code-only collaboration with owner-2 | Two laptops plus lab machine; second data copy | Removes the lab dependency and removes any data transfer between owners, satisfying Yelp 4.D by construction. Parallelism is applied across seeds and configs rather than within a run, because the model is small. Amends the compute topology of ADR-028; its Tier-0 no-card and free-tier rules remain in force. | Approved |
 
 ---
 
@@ -492,6 +510,9 @@ pre-commit (ruff, mypy on `src/prism`, gitleaks) → CI on GitHub-hosted runners
 | R-13 | Free-tier quota/policy change (Kaggle, Actions) | M×L | Nothing on the critical path needs GPU or heavy CI | Run locally |
 | R-14 | Academic calendar / placement collision | H×M | Buffer days; MVP early; light tasks in exam weeks | Slip > 1 week ⇒ apply descoping ladder |
 | R-15 | Viva depth — a component neither owner can explain | M×H | Viva rule; each owner reviews the other's modules | Remove the component |
+| R-16 | Yelp pre-publication review not obtained before public release | M×H | Submit findings to Yelp at least 3 weeks before any public presentation or publication; track as a G7 exit item in docs/yelp-compliance.md | No approval => no public release; discuss internal-only submission with the guide |
+| R-17 | Accidental public disclosure of dataset statistics (public repo, blog, demo video) | M×H | Repo private by default (ADR-033); no dataset counts in any public artifact before Yelp approval; run the yelp-compliance.md checklist before publishing anything | Any public artifact => checklist first |
+| R-18 | Licence term expiry on 15 Nov 2027, or earlier termination by Yelp | L×M | Calendar reminder; on expiry or termination delete all Data and derivative works and certify in writing on request | Project extends past expiry => re-accept terms and re-download |
 
 **Accepted trade-offs:** user-level DP costs utility (paid for honesty) · gossip costs bytes and accuracy (paid for no coordinator) · SecAgg+ limits robustness (measured) · the aggregator is trusted to add noise (stated).
 
@@ -531,7 +552,8 @@ Tier 1 and Tier 2 budgets; Oracle Always Free; Cloudflare R2; GHCR; self-hosted 
 **Preferred:** Apache-2.0, MIT, BSD, MPL-2.0, PostgreSQL. **Rejected by default:** AGPL-3.0, BSL-1.1, SSPL, RSAL. **Gate:** pip-licenses runs in CI; a new copyleft/BSL dependency fails the build unless an approved CHANGE-ID exists.
 
 ### A.6 Data governance (ADR-016)
-Raw datasets are **never committed**. The repo holds download scripts and DVC checksums. Processed derivatives stay local. The repo (public at freeze, if the owners choose) contains code, configs, aggregate results and figures only.
+Raw datasets are **never committed**. The repo holds download scripts and DVC checksums. Processed derivatives stay local. The repository stays PRIVATE by default (ADR-033). Public release requires Yelp
+Section 3 approval, both owners' approval, and the guide's approval.
 
 ---
 
@@ -559,7 +581,7 @@ Raw datasets are **never committed**. The repo holds download scripts and DVC ch
 6. **Evaluation report:** ε curves, gossip gap, robustness modes, participation bias, ablations, CIs, negative results, non-claims.
 7. **Docs:** ADRs, `source-register.md`, `verification-log.md`, `cost-ledger.md`.
 8. **Demo:** 8-minute video + dashboard showing a blocked over-budget release with a verifiable proof.
-9. **Reproducibility certificate:** independent clean-machine rerun by the second owner.
+9. **Reproducibility certificate:** clean-environment rerun by the second owner on the same PC (fresh clone into a separate directory, fresh `uv sync` from `uv.lock`, `make reproduce`), comparing every headline number. This is a clean-environment check, not an independent-machine check.
 10. **Report-writing rule:** plain, direct technical English written by the owners; no paraphrasing or rewriting tools.
 
 **DoD:** all G0–G7 gates closed · zero stop-ship violations · every headline number traceable to config hash + seed + commit · ₹0 spent.
@@ -571,7 +593,7 @@ Raw datasets are **never committed**. The repo holds download scripts and DVC ch
 | # | Item | Owner | Due |
 |---|---|---|---|
 | 1 | **Source rule:** confirm with guide whether papers must be excluded (Section 1) | Both | 21 Nov 2026 |
-| 2 | LNMIIT academic calendar, mid-term review dates, report format, lab machine access | Both | 24 Nov |
+| 2 | LNMIIT academic calendar, mid-term review dates, report format, lab machine access | Both | 24 Nov | PARTIAL - Guide approval given; submission and mid-term dates still required to schedule the Yelp pre-publication trigger. |
 | 3 | NIST SP 800-226 final version/date | A | 24 Nov |
 | 4 | NIST AI 100-2 revision | A | 24 Nov |
 | 5 | DPDP Rules 2025 notification date + phasing | B | 24 Nov |
@@ -585,6 +607,7 @@ Raw datasets are **never committed**. The repo holds download scripts and DVC ch
 | 13 | FedScale device-trace availability + licence | B | 28 Nov |
 | 14 | Free-tier facts: GitHub Actions + Student Pack, Kaggle GPU quota, Azure for Students, Cloudflare quick tunnel | B | 28 Nov |
 | 15 | Licences of all remaining dependencies (pip-licenses run) | B | 28 Nov |
+| 16 | Submit findings to Yelp for pre-publication review (Section 3) and record the approval | Both | Before any public release | OPEN | | |
 
 ---
 
@@ -598,13 +621,13 @@ Raw datasets are **never committed**. The repo holds download scripts and DVC ch
 - [ ] Source rule confirmed with guide (verification item 1) - G0 exit condition
 - [ ] Timeline + gate dates confirmed against the LNMIIT calendar - G0 exit condition
 - [x] Verification queue owners assigned
-- [ ] Guide (Dr. Malika Acharya) has reviewed this document - G0 exit condition
+- [x] Guide (Dr. Malika Acharya) has reviewed this document - G0 exit condition
 
 | Role | Name | Signature | Date |
 |---|---|---|---|
 | Privacy/ML lead | Shivam Agarwal (23UEC621) | Shivam Agarwal | 15 Nov 2026 |
 | Systems/Security lead | Mokshit Jain (23UEC574) | Mokshit Jain | 16 Nov 2026 |
-| Guide | Dr. Malika Acharya | _pending review (G0)_ | |
+| Guide | Dr. Malika Acharya | Approved - relayed by owner 16 Nov 2026; written confirmation to be filed | 16 Nov 2026 |
 
 Per CHANGE-009, owner-1 signature authorises P0 only. Guide review and the two
 open boxes are G0 exit conditions. P1 requires both owner signatures.

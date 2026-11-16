@@ -14,15 +14,81 @@ how the data was obtained and verified. Closes verification item 11.
   This is a stated limitation: our sources are current through 2026, the data is not.
 
 ## Licence
+
+- Source URL: https://business.yelp.com/data/resources/open-dataset/
+- Download option used: "Download JSON" (1 TAR, 4.35 GB compressed; 1 PDF + 5 JSON, 8.65 GB uncompressed)
+- Requested and downloaded by: Shivam Agarwal (23UEC621), LNMIIT Jaipur
+- Download / Effective Date: 15 Nov 2026
+- Terms accepted on: 15 Nov 2026
 - Documents kept locally in `data/raw/` (git-ignored):
-  - `Dataset_User_Agreement.pdf` (80,358 bytes)
-  - `Yelp_Dataset_Documentation_and_ToS.pdf` (124,660 bytes)
-- Permitted use: "Subject to the terms set forth in the Data Agreement (specifically the restrictions set forth in Section 4 below), Yelp grants you a royalty-free, non-exclusive, revocable, non-sublicensable, non-transferable, fully paid-up right and license during the Term to use, access, and create derivative works of the Data in electronic form for solely for non-commercial use.. Non-commercial use means use of the Data by registered nonprofits, government, educational institutions, and think tanks which (a) is not undertaken for profit, or (b) is not intended to produce works, services, or data for commercial use." (`Dataset_User_Agreement.pdf`, Section 3, pp. 1-2)
-- Redistribution clause: "You agree that you will not, and will not encourage, assist, or enable others to: A. display, perform, or distribute any of the Data, or use the Data to update or create your own business listing information for commercial purposes (i.e. you may not publicly display any of the Data to any third party, especially reviews and other user generated content, as this is a private data set challenge and not a license to compete with or disparage with Yelp)... D. share or make available the Data to any third party; E. create, redistribute or disclose any summary of, or metrics related to, the Data (e.g., the number of reviewed business included in the Data and other statistical analysis) to any third party or on any website or other electronic media not expressly covered by this Agreement or without Yelp’s prior consent, this provision however, excludes any disclosures necessary for academic purposes, including without limitation the publication of academic articles concerning your use of the Data... H. rent, lease, sell, transfer, assign, or sublicense, any part of the Data;" (`Dataset_User_Agreement.pdf`, Section 4, p. 2; `Yelp_Dataset_Documentation_and_ToS.pdf`, Section 4.D, p. 8)
-- Re-identification clause: <TODO - no explicit re-identification clause in agreement text; general privacy restriction is Section 4.C: "use the Data in any manner or for any purpose that may violate any law or regulation, or any right of any person including, but not limited to, intellectual property rights, rights of privacy and/or rights of personality, or which otherwise may be harmful (in Yelp's sole discretion) to Yelp, its providers, its suppliers, end users of this website, or your end users;" (`Dataset_User_Agreement.pdf`, Section 4.C, p. 2)>
-- Attribution wording: "Nothing herein shall be construed as a license to use Yelp’s registered trademarks or service marks, or any other Yelp branding. Prior to any public presentation or publication of the academic results or conclusions that involve the Data and/or the Yelp brand name, you must submit your findings to Yelp for review and approval, and Yelp will approve of the public release within five (5) business days of its submission to Yelp." (`Dataset_User_Agreement.pdf`, Section 3, p. 2)
-- Team rule: each owner requests their own copy from Yelp. The dataset is NOT
-  shared between owners, pending confirmation of the redistribution clause.
+  - `Dataset_User_Agreement.pdf` (80,358 bytes) - Terms of Use last updated 16 Feb 2021
+  - `Yelp_Dataset_Documentation_and_ToS.pdf` (124,660 bytes) - Terms of Use last updated 7 Jul 2023
+- **Controlling document: the 7 Jul 2023 terms.** They are newer and stricter and
+  add an explicit no-third-party-sharing clause. We comply with the stricter text.
+
+### Verbatim clauses (7 Jul 2023 terms; spacing normalised from PDF text extraction)
+
+Section 1 (Purpose): "The Data is made available by Yelp Inc. ("Yelp") to enable
+you to access valuable local information to develop an academic project as part
+of an ongoing course of study."
+
+Section 3 (License): "Yelp grants you a royalty-free, non-exclusive, revocable,
+non-sublicensable, non-transferable, fully paid-up right and license during the
+Term to use, access, and create derivative works of the Data in electronic form
+for solely for academic use."
+
+Section 3 (pre-publication review): "Prior to any public presentation or
+publication of the academic results or conclusions that involve the Data and/or
+the Yelp brand name, you must submit your findings to Yelp for review and
+approval, and Yelp will approve of the public release within five (5) business
+days of its submission to Yelp."
+
+Section 4.A: "display, perform, or distribute any of the Data, or use the Data to
+update or create your own business listing information for commercial purposes"
+
+Section 4.D: "share or make available the Data to any third party;"
+
+Section 4.E: "create, redistribute or disclose any summary of, or metrics related
+to, the Data (e.g., the number of reviewed business included in the Data and other
+statistical analysis) to any third party or on any website or other electronic
+media not expressly covered by this Agreement or without Yelp's prior consent,
+this provision however, excludes any disclosures necessary for academic purposes,
+including without limitation the publication of academic articles concerning your
+use of the Data;"
+
+Section 4.I: "modify, rate, rank, review, vote or comment on, or otherwise respond
+to the content contained in the Data;"
+
+Section 5 (Ownership): "the Data and any derivative works you create from the
+Data, and all intellectual property rights contained in the foregoing, are and
+will at all times remain the sole and exclusive property of Yelp"
+
+Section 10 (Term): "This Data Agreement is effective as of the date you download
+or otherwise access the Data ("Effective Date") and shall continue in full force
+and effect for a term of twelve (12) months from the Effective Date"
+
+Section 10 (on termination): "you will promptly: (i) delete and remove all Data
+from any location... (ii) destroy and remove from all computers, hard drives,
+networks and other storage media in your possession or under your control all
+copies of any Data; and (iii) upon Yelp's request, certify in writing to Yelp that
+such actions have been taken."
+
+Section 13 (Contact): "Please report any violations of the Data Agreement
+dataset@yelp.com"
+
+### Derived obligations
+- Licence term: 15 Nov 2026 to 15 Nov 2027. Project ends Apr 2027, inside the term.
+- Each owner requests their own copy. The Data is never shared between owners,
+  never committed, never uploaded.
+- `data/processed/*.csv.gz` is a derivative work owned by Yelp. Local only.
+- Aggregate counts in `results/*.json` are permitted only under the
+  academic-purpose exception of 4.E, and only while the repository is private.
+- Findings must be submitted to Yelp before any public presentation or
+  publication. See docs/yelp-compliance.md.
+- Open ambiguity: Section 4.I versus academic ranking of businesses. To be raised
+  explicitly in the Section 3 submission. No business ratings or reviews are
+  published by this project.
+- Interpretation reviewed by: <TODO - guide / institute research office, date>
 
 ## Storage and minimisation
 - Location: `data/raw/`, ignored by the anchored `/data/` rule in .gitignore.

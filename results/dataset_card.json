@@ -1,0 +1,71 @@
+{
+  "artifacts": {
+    "dataset_test.csv.gz": {
+      "sha256": "08720e2e1006bf0c88ced6bcbb3d86fec79058b0fe81670c463d9563d80d2f6b",
+      "size_bytes": 830175
+    },
+    "dataset_train.csv.gz": {
+      "sha256": "951651be5eeed6e375535d3e8e1bd3ddafe2dd7ccb29b238f3b32ab952e95b83",
+      "size_bytes": 2956349
+    },
+    "dataset_val.csv.gz": {
+      "sha256": "130e7b8c6060762fd8c1b6adf4c5102b8829d96be9a44a0eaddc86cd1d5578a1",
+      "size_bytes": 391906
+    }
+  },
+  "bounds": {
+    "lat_max": 40.2,
+    "lat_min": 39.8,
+    "lon_max": -74.9,
+    "lon_min": -75.3
+  },
+  "interactions": 410193,
+  "items": 6319,
+  "k_core": 15,
+  "known_limitations": [
+    "k-core removes 74.8% of Philadelphia businesses, so full-catalogue ranking is over the filtered catalogue and absolute NDCG is inflated relative to the raw catalogue.",
+    "Per-user chronological splits allow the model to observe other users' later interactions. A global time-cutoff variant is a Could robustness check, not the primary protocol.",
+    "Dataset vintage is the Jan-2022 Yelp release."
+  ],
+  "metro": "philadelphia",
+  "per_user_interactions": {
+    "max": 1332,
+    "mean": 41.379,
+    "median": 25.0,
+    "min": 15
+  },
+  "protocol": "per-user chronological 70/10/20; ties broken by review_id",
+  "provenance": {
+    "git_commit": "8c62164066bf2bbcfb3c444a6984813bc8ddcd44",
+    "git_dirty": true,
+    "uv_lock_sha256": "d6750677661f0a2e9f93ce4d1853cc89f107c933c9055f47b93f8422b3b12303"
+  },
+  "referential_integrity": {
+    "orphan_business_ids_count": 0,
+    "orphan_business_review_count": 0,
+    "orphan_user_ids_count": 4,
+    "orphan_user_review_count": 4,
+    "reviews_dropped_for_integrity": 4
+  },
+  "schema_version": 1,
+  "split_counts": {
+    "test": 78407,
+    "train": 295580,
+    "val": 36206
+  },
+  "split_date_ranges": {
+    "test": {
+      "max": "2022-01-19 19:48:45",
+      "min": "2006-04-05 00:26:17"
+    },
+    "train": {
+      "max": "2022-01-14 19:01:53",
+      "min": "2005-05-25 01:12:54"
+    },
+    "val": {
+      "max": "2022-01-17 12:55:50",
+      "min": "2006-04-02 22:34:26"
+    }
+  },
+  "users": 9913
+}

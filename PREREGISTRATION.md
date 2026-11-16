@@ -11,8 +11,9 @@ This document locks in our hypotheses, data splitting strategy, and evaluation m
 ## 1. Dataset & Filtering Strategy
 - **Source:** Yelp Open Dataset (Jan 2022 release).
 - **Metro Selection:** The **Philadelphia** metro area has been selected based on geographic bounding box analysis (lat: 39.8 to 40.2, lon: -75.3 to -74.9). This region yields ~3,67,534 users, ~13,12,661 reviews, and an average friend degree of 101.3, providing the strongest social graph connectivity for gossip experiments (ADR-031).
-- **K-Core Filtering:** After metro selection, we will compute the per-user interaction histogram. The k-core threshold (k) will be chosen to balance graph density with population size (target: >5,000 users). We will not arbitrarily fix k=5 or k=10 without measuring the drop-off first.
+- **K-Core Filtering:** Iterative bipartite k-core with **k = 15**, chosen from the measured survival table (CHANGE-012, ADR-032). This yields 9,913 users, 6,319 businesses and 4,10,193 interactions; 77.1% of surviving users have at least one in-set friend (avg inner degree 18.5). The connectivity gate is defined as **>=70% connected share**. A **sensitivity sweep at k in {10, 20}** (3 seeds each) is pre-registered on the headline RQ1 and RQ2 comparisons as a robustness check. Because k-core guarantees >=15 interactions per user, the 70/10/20 chronological split always yields >=3 test, >=1 validation and >=11 training interactions.
 - **Referential Integrity:** Reviews will be inner-joined with Users and Businesses. Orphan records (e.g., the ~32 distinct reviewers not in user.json) will be dropped and the count logged.
+- **Known filtering bias:** k-core removes 74.8% of Philadelphia businesses (25,039 -> 6,319). Full-catalogue ranking is therefore over the filtered catalogue, which inflates absolute NDCG relative to the raw catalogue. This must be stated in the report.
 
 ## 2. Data Splitting (Chronological, Per-User)
 To prevent temporal leakage, for each user:
