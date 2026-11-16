@@ -42,6 +42,7 @@
 | CHANGE-008 | 15 Nov 2026 | 1.0.1 | Step 0 executed (toolchain + skeleton, GitHub private repo). Step 1 executed: GitHub Actions CI (ruff, mypy strict, pytest, licence gate, pip-audit, gitleaks), .gitattributes line-ending policy, scripts/check_licenses.py with tests. Progress tracked in docs/implementation-log.md. Repo licence still pending owner decision. | Superseded by CHANGE-010 (progress moved to docs/implementation-log.md) |
 | CHANGE-009 | 15 Nov 2026 | 1.1.0 | Governance correction. Section 19 approval boxes ticked and owner-1 signature recorded; CHANGE-001…006 and all Proposed ADRs marked Approved. Owner-1 signature authorises P0; Dr. Acharya's review and owner-2 acknowledgement are G0 exit conditions, and P1 requires both owners. Added rule 0.1.8 (division of labour). Stale "On approval" line removed. | Approved |
 | CHANGE-010 | 15 Nov 2026 | 1.1.0 | Correctness fixes from owner review: anchored .gitignore (/data/, /raw/), Yelp JSON ignored, results/*.jsonl un-ignored; licence gate rewritten with SPDX OR/AND evaluation, classifiers as OR, first-line-only free text, BSL=Boost allowed vs BUSL blocked, APPROVED_EXCEPTIONS keyed to CHANGE-IDs, markdown-safe output; Makefile check includes license-gate and audit; CI and make use bare --cov; environment report adds git commit, dirty flag, uv.lock SHA-256, immutable package tuple, version from installed metadata; coverage source includes scripts/. | Approved |
+| CHANGE-011 | 16 Nov 2026 | 1.2.0 | Owner-2 (Mokshit Jain) approval recorded. MIT licence adopted for project code. ADR-031 approved: metro selection will use geographic bounding boxes (lat/lon) rather than fragile city-name string matching to avoid fragmentation (e.g., "St. Louis" vs "Saint Louis"). | Approved |
 
 ### 0.3 Decision register status legend
 `Proposed` = awaiting approval · `Approved` = locked, build to it · `Rejected` = do not use · `Superseded` = replaced, kept for history.
@@ -311,6 +312,7 @@ prism-rec/
 | 028 | Compute: 2 laptops + LNMIIT lab machine; Kaggle/Colab GPU optional; no cloud VM; no service that needs a payment card | Oracle Always Free | Simulation needs no server; Oracle signup needs a card; ARM capacity unreliable; idle reclamation | Approved |
 | 029 | Attacks: analytic first-layer inversion + NN item recovery; user-level MI (loss-threshold, RMIA ≤4 reference models); item-promotion poisoning; free-riding | `breaching`, LiRA with many shadow models, ART | `breaching` targets vision models; many-shadow LiRA exceeds Tier 0 compute; custom attacks fit the model exactly | Approved |
 | 030 | Availability model from FedScale device traces if licence permits ⚠, else synthetic; scenarios: always-available, independent random, correlated with user activity, trace-based | No availability model | Needed for RQ5; correlated scenario tests whether gating biases quality | Approved |
+| 031 | Metro selection via geographic bounding box (lat/lon) | City-name string matching | Avoids fragmentation of metro areas across multiple city labels; reproducible and deterministic | Approved |
 
 ---
 
@@ -601,7 +603,7 @@ Raw datasets are **never committed**. The repo holds download scripts and DVC ch
 | Role | Name | Signature | Date |
 |---|---|---|---|
 | Privacy/ML lead | Shivam Agarwal (23UEC621) | Shivam Agarwal | 15 Nov 2026 |
-| Systems/Security lead | Mokshit Jain (23UEC574) | _pending acknowledgement_ | |
+| Systems/Security lead | Mokshit Jain (23UEC574) | Mokshit Jain | 16 Nov 2026 |
 | Guide | Dr. Malika Acharya | _pending review (G0)_ | |
 
 Per CHANGE-009, owner-1 signature authorises P0 only. Guide review and the two

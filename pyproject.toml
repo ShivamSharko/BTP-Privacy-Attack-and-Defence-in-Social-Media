@@ -2,6 +2,7 @@
 name = "prism-rec"
 version = "0.1.0"
 description = "PRISM-Rec: a verifiable privacy-preserving social recommendation research harness"
+license = { text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 authors = [
@@ -22,6 +23,7 @@ dev = [
   "mypy>=1.13",
   "pip-audit>=2.7",
   "pip-licenses>=5.0",
+  "pandera[pandas]>=0.18",
 ]
 
 [build-system]
