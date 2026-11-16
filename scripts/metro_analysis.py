@@ -6,6 +6,7 @@ city-name fragmentation (e.g., "Saint Louis" vs "St. Louis").
 
 from __future__ import annotations
 
+import argparse
 import json
 from collections import defaultdict
 from pathlib import Path
@@ -104,25 +105,52 @@ def analyze_metros(root: Path) -> dict[str, Any]:
     return results
 
 
-def main() -> int:
-    root = Path("data/raw")
-    if not (root / "yelp_academic_dataset_business.json").exists():
-        print("ERROR: Dataset not found in data/raw/")
+def main(argv: list[str] | None = None) -> int:
+    """Run the geographic metro comparison and print a table."""
+    parser = argparse.ArgumentParser(description="Geographic metro analysis (ADR-031).")
+    parser.add_argument("--root", default="data/raw", help="folder holding the raw JSON files")
+    parser.add_argument("--out", default=None, help="optional JSON output path")
+    args = parser.parse_args(argv)
+
+    root = Path(str(args.root))
+    required = (
+        "yelp_academic_dataset_business.json",
+        "yelp_academic_dataset_review.json",
+        "yelp_academic_dataset_user.json",
+    )
+    missing = [name for name in required if not (root / name).is_file()]
+    if missing:
+        print("ERROR: missing raw files in " + str(root))
+        for name in missing:
+            print("  - " + name)
         return 1
 
     results = analyze_metros(root)
     print("\n=== Metro Analysis (Geographic Bounding Box) ===")
-    print(
-        f"{'Metro':<15} | {'Businesses':<10} | {'Reviews':<10} | {'Users':<10} | {'Rev/User':<8} | {'Avg Friend Deg':<15}"
-    )
-    print("-" * 75)
-    for metro, stats in sorted(results.items(), key=lambda x: x[1]["reviews"], reverse=True):
+    header = "Metro | Businesses | Reviews | Users | Rev/User | AvgFriendDeg"
+    print(header)
+    print("-" * len(header))
+    for metro, stats in sorted(results.items(), key=lambda item: item[1]["reviews"], reverse=True):
         print(
-            f"{metro:<15} | {stats['businesses']:<10} | {stats['reviews']:<10} | {stats['distinct_users']:<10} | {stats['reviews_per_user']:<8} | {stats['avg_friend_degree']:<15}"
+            str(metro)
+            + " | "
+            + str(stats["businesses"])
+            + " | "
+            + str(stats["reviews"])
+            + " | "
+            + str(stats["distinct_users"])
+            + " | "
+            + str(stats["reviews_per_user"])
+            + " | "
+            + str(stats["avg_friend_degree"])
         )
-
-    print("\nRecommendation: Choose the metro with the highest 'Reviews' and 'Users' ")
-    print("that also has a reasonable 'Avg Friend Deg' (indicates a connected social graph).")
+    if args.out:
+        out = Path(str(args.out))
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(
+            json.dumps(results, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
+        )
+        print("\nWritten to " + str(out))
     return 0
 
 

@@ -401,7 +401,16 @@ pre-commit (ruff, mypy on `src/prism`, gitleaks) → CI on GitHub-hosted runners
 | RQ5 availability | 4 scenarios at ε=8 | 5 | 20 |
 | Ablations | −graph (if built), −contribution bound, content-only vs ID-based (central) | 5 | ~15 |
 
-**Total ≈ 145 federated/gossip runs ≈ 75–110 machine-hours.** With 3× headroom for bugs and reruns ≈ 250 machine-hours ≈ **2–3 weeks of overnight runs on 2 laptops + the lab machine**. GPU is not required.
+**Measured execution hardware (ADR-034, 16 Nov 2026):** Intel i5-12500H,
+12 cores / 16 logical processors (4 Performance-cores + 8 Efficiency-cores),
+16 GB RAM, single Windows PC. RAM is the binding constraint, not CPU.
+Execution policy: at most 4 concurrent experiment runs, 2 threads per run
+(OMP_NUM_THREADS=2), CPU only for determinism (ADR-018). Thread count is a
+reproducibility parameter because floating-point reduction order varies with
+it, and is recorded in run provenance. Revised budget: ~20-60 machine-hours
+for the 145-run grid, ~60-180 with 3x headroom, ~15-45 wall-clock hours at
+4-way parallelism (2-6 overnight sessions). To be re-measured at G1. The
+descoping ladder below remains the safety valve.
 
 **Descoping ladder (in order, if the budget slips):** (1) 3 seeds for secondary blocks; (2) drop ε=16 and the degree sweep; (3) keep only the −graph ablation; (4) RQ4 at 20% adversaries only. **Never cut:** RQ1 FL+DP with 5 seeds; accountant checks.
 
@@ -513,6 +522,8 @@ pre-commit (ruff, mypy on `src/prism`, gitleaks) → CI on GitHub-hosted runners
 | R-16 | Yelp pre-publication review not obtained before public release | M×H | Submit findings to Yelp at least 3 weeks before any public presentation or publication; track as a G7 exit item in docs/yelp-compliance.md | No approval => no public release; discuss internal-only submission with the guide |
 | R-17 | Accidental public disclosure of dataset statistics (public repo, blog, demo video) | M×H | Repo private by default (ADR-033); no dataset counts in any public artifact before Yelp approval; run the yelp-compliance.md checklist before publishing anything | Any public artifact => checklist first |
 | R-18 | Licence term expiry on 15 Nov 2027, or earlier termination by Yelp | L×M | Calendar reminder; on expiry or termination delete all Data and derivative works and certify in writing on request | Project extends past expiry => re-accept terms and re-download |
+| R-19 | Laptop thermal throttling distorts wall-clock measurements | M×L | Cap concurrency at 4 runs / 8 threads; keep plugged in on a hard surface; report wall-clock with the thread setting stated | Timings unstable => report machine-hours and thread config, not raw wall-clock |
+| R-20 | Ray per-process memory overhead exceeds 16 GB when runs are parallelised | M×M | Measure at the FL step; fall back to in-process Flower simulation, which is sufficient at 99 clients per round and ~1.15 lakh parameters | Memory pressure => in-process simulation, recorded as an ADR amendment |
 
 **Accepted trade-offs:** user-level DP costs utility (paid for honesty) · gossip costs bytes and accuracy (paid for no coordinator) · SecAgg+ limits robustness (measured) · the aggregator is trusted to add noise (stated).
 

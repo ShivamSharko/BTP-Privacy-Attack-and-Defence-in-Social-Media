@@ -21,6 +21,14 @@ To prevent temporal leakage, for each user:
 - **Validation set:** The 10% of interactions immediately preceding the test set.
 - **Training set:** All remaining earlier interactions.
 - *Constraint:* Users with fewer than 10 total interactions will be excluded to ensure valid splits.
+- **Realised split shares (measured 16 Nov 2026):** train 2,95,580 (72.06%),
+  validation 36,206 (8.83%), test 78,407 (19.11%) of 4,10,193 interactions.
+  Shares deviate from exactly 70/10/20 because integer floor on short histories
+  rounds validation down and training absorbs the remainder. This is expected
+  behaviour of the deterministic protocol, recorded here so it is not mistaken
+  for a defect. Per-user minimum is 15 interactions, median 25, maximum 1,332.
+- **Referential integrity outcome:** 4 orphan reviewer ids accounting for exactly
+  4 reviews were dropped; 0 orphan businesses.
 
 ## 3. Pre-registered Hypotheses
 | ID | Hypothesis | Metric |
