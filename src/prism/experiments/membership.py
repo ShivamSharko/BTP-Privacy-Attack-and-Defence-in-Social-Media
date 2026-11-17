@@ -31,7 +31,7 @@ from prism.attacks.membership import calibrate_scores, losses_for_models, summar
 from prism.config import RunConfig, config_hash
 from prism.data.bundle import load_bundle
 from prism.experiments.regimes import Frozen, default_paths, load_frozen, make_run
-from prism.experiments.runner import KEY_FILE, Paths, _clean, run_one
+from prism.experiments.runner import KEY_FILE, Paths, _clean, payload_provenance, run_one
 from prism.io import atomic_write_json, read_json
 from prism.ledger.receipts import load_or_create_key
 from prism.privacy.accounting import delta_for
@@ -375,6 +375,7 @@ def run(
             "training": {"models": len(jobs), "trained_now": trained_now},
         },
         "limitations": list(LIMITATIONS),
+        "provenance": payload_provenance(__file__, extra=("attacks/membership.py",)),
         "wall_seconds": round(time.time() - started, 2),
     }
     payload = _clean(payload)

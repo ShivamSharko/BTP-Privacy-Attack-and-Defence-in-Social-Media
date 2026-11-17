@@ -57,10 +57,10 @@ def ranking_metrics_per_user(
     """Aggregate metrics plus per-user NDCG@10 (NaN for users with no unseen target)."""
     n_users = len(target_items)
     k = min(20, n_items)
-    discounts = 1.0 / np.log2(np.arange(2, 12, dtype=np.float64))
+    discounts = 1.0 / np.log2(np.arange(2, 22, dtype=np.float64))
     ideal_dcg = np.cumsum(discounts)
     ndcg_users = np.full(n_users, np.nan, dtype=np.float64)
-    recall_sum = hit_sum = mrr_sum = 0.0
+    recall_sum = hit_sum = mrr_sum = ndcg20_sum = hit20_sum = 0.0
     evaluated = 0
     exposure = np.zeros(n_items, dtype=np.int64)
 
@@ -96,6 +96,9 @@ def ranking_metrics_per_user(
         ndcg_users[start + active] = ndcg
         recall_sum += float((top_hit.sum(axis=1) / n_targets).sum())
         hit_sum += float(top10_hit.any(axis=1).sum())
+        dcg20 = (top_hit * discounts[: top_hit.shape[1]]).sum(axis=1)
+        ndcg20_sum += float((dcg20 / ideal_dcg[np.minimum(20, n_targets) - 1]).sum())
+        hit20_sum += float(top_hit.any(axis=1).sum())
 
         best_scores = np.where(target_mask, scores, -np.inf)
         best = best_scores.argmax(axis=1)
@@ -118,6 +121,8 @@ def ranking_metrics_per_user(
         "ndcg@10": float(np.nansum(ndcg_users)) / evaluated,
         "recall@20": recall_sum / evaluated,
         "hr@10": hit_sum / evaluated,
+        "ndcg@20": ndcg20_sum / evaluated,
+        "hr@20": hit20_sum / evaluated,
         "mrr": mrr_sum / evaluated,
         "coverage@10": float(distinct) / float(n_items),
         "distinct@10": float(distinct),

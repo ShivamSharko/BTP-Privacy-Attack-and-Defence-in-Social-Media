@@ -37,7 +37,7 @@ from prism.eval.stats import (
 )
 from prism.experiments.baselines import evaluate_baselines
 from prism.experiments.regimes import Frozen, default_paths, load_frozen, make_run
-from prism.experiments.runner import Paths, run_grid
+from prism.experiments.runner import Paths, payload_provenance, run_grid
 from prism.io import atomic_write_json
 
 NAME: str = "privacy_utility"
@@ -218,6 +218,7 @@ def run(
             "Hyperparameters were tuned on the validation split of the same users without "
             "accounting for the privacy cost of tuning.",
         ],
+        "provenance": payload_provenance(__file__, extra=()),
         "wall_seconds": round(time.time() - started, 2),
     }
     atomic_write_json(paths.results / f"{NAME}.json", payload)

@@ -248,3 +248,21 @@ def test_full_size_evaluation_is_fast() -> None:
     start = time.perf_counter()
     ranking_metrics(lambda users: scores[users], seen, targets, n_items)
     assert time.perf_counter() - start < 5.0
+
+
+def test_list_length_20_metrics_are_reported_next_to_length_10() -> None:
+    """NDCG@20 and HR@20 let the report show how conclusions move with the list length."""
+    n_items = 40
+    scores = np.zeros((2, n_items), dtype=np.float32)
+    scores[0, :30] = np.arange(30, 0, -1)  # user 0 ranks items 0, 1, 2, ... in that order
+    scores[1, :30] = np.arange(30, 0, -1)
+    seen = [np.empty(0, dtype=np.int64), np.empty(0, dtype=np.int64)]
+    targets = [np.array([14], dtype=np.int64), np.array([0, 25], dtype=np.int64)]
+    metrics = ranking_metrics(lambda users: scores[users], seen, targets, n_items)
+    # user 0: target at rank 15 -> outside the top 10, inside the top 20
+    # user 1: one target at rank 1, the other at rank 26
+    ideal_two = 1.0 + 1.0 / np.log2(3.0)
+    assert metrics["hr@10"] == pytest.approx(0.5)
+    assert metrics["hr@20"] == pytest.approx(1.0)
+    assert metrics["ndcg@10"] == pytest.approx((0.0 + 1.0 / ideal_two) / 2)
+    assert metrics["ndcg@20"] == pytest.approx((1.0 / np.log2(16.0) + 1.0 / ideal_two) / 2)

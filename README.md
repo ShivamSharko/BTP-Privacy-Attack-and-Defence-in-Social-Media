@@ -7,7 +7,7 @@ PRISM-Rec (Python package `prism`) is a research harness. It trains a recommende
 - **RQ1:** what privacy costs in recommendation quality.
 - **RQ2:** gossip training between friends with local privacy, against server-based training.
 - **RQ3:** what a curious server or an outsider can infer (visited businesses, friendships, membership), and how much secure aggregation and noise reduce it.
-- **RQ4:** fake accounts promoting one business, against robust aggregation.
+- **RQ4:** fake accounts promoting one business, against robust aggregation (including a committee-median mode), and free-riding clients that take the model without contributing.
 - **RQ5:** whether availability-driven participation disadvantages quiet or isolated users.
 - **RQ6:** a signed, append-only ledger with a release gate that blocks over-budget training.
 
@@ -50,11 +50,22 @@ or 330 (small cohort) if clients are not truly sampled at random.
 trimmed-mean aggregation holds that to 0.1% (and 6% at 30% attackers), but its model is almost
 useless even with no attackers (0.0047 against 0.0279), because coordinate-wise robust statistics
 discard the sparse signal a recommender learns from. Robustness and secure aggregation do not
-combine here, and the robust alternative costs the model.
+combine here, and the robust alternative costs the model. The committee-median compromise (secure
+sums inside small committees, median across them) has no good setting: committees of 4 stop 10%
+attackers (0.03% exposure) but fail at 20% (94%) and leave a useless model (0.0040); committees of
+20 keep most of the model (0.0220) but do not stop even 10% attackers (85%).
 
-**RQ2, gossip between friends (2,000 users, 2 seeds).** Without privacy, gossip reaches 0.0208
-against 0.0292 for server-based training on the same users. With local privacy at ε = 8 it falls to
-0.0054 against 0.0172, and it sends about 60 times more bytes.
+**Free-riding clients (3 seeds).** Accounts that take the model but send nothing useful cost the
+others little and gain almost everything: with 10% free-riders overall accuracy drops 2% (0.0294
+against 0.0301), with 30% it drops 3 to 4%, and a free-rider's own recommendations are only 0.0016
+worse than a contributor's. A server that sees individual updates catches them easily by update
+size (AUC 1.00 for empty updates, 0.99 for noise made to look like an update); under secure
+aggregation it sees only the sum and cannot catch them at all.
+
+**RQ2, gossip between friends (2,500 users, 3 seeds).** Without privacy, gossip reaches 0.0221
+against 0.0282 for server-based training on the same users. With local privacy at ε = 8 it falls to
+0.0054 against 0.0204, and it sends about 60 times more bytes. The local ε = 8 uses the project's
+add-or-remove convention; under the stricter replace-one convention the same noise gives ε ≈ 19.
 
 **RQ5, participation bias (5 seeds).** The most active and best-connected users are served better
 than the least (a gap of about 0.014) in every scenario. When availability follows friend count and
@@ -63,7 +74,26 @@ random availability in 5 of 5 seeds, but only by 0.0009 (about 7% of the gap). T
 cells tested (friend count without privacy, activity with and without privacy) show no consistent
 change. This is weak evidence: one cell of four, with a small effect.
 
-**RQ6, ledger.** 146 of 146 ledgers verify and belong to their runs, every private model has a
+With availability taken from a real device trace (107,749 devices, available 21% of the time on
+average, assigned to users at random), accuracy falls further, and most under privacy: at ε = 8 it
+is 0.0250 with everyone available, 0.0223 with a random half, 0.0168 with trace availability and
+0.0160 when the trace is replayed round by round. Without privacy the same four are 0.0394,
+0.0372, 0.0325 and 0.0302. Realistic availability costs a private model about a third of its
+accuracy on top of the cost of the noise.
+
+**Sensitivity (3 seeds, ε = 8, hyperparameters not re-tuned).** Retention is 76% and 64% (large
+and small cohorts) at k = 10 with 19,141 users, 78% and 62% at k = 15, 80% and 68% at k = 20 with
+6,001 users, and 83% and 71% when only reviews of 4 stars or more are kept. H1 fails on every
+variant. Measured at list length 20 instead of 10, retention is one to three points lower.
+
+**Framework parity.** The same training run through Flower 1.43 and through the project's engine
+gives the same model on a small synthetic problem: after five rounds the largest parameter
+difference is 6 × 10⁻⁸, with and without noise (`docs/flower-parity.md`).
+
+**Reproducibility.** Every experiment was rerun with the training code frozen. The numbers
+reproduce exactly, and each run record carries a hash of the engine source files.
+
+**RQ6, ledger.** 162 of 162 ledgers verify and belong to their runs, every private model has a
 release receipt, 300 of 300 single-byte tampers were detected, a receipt costs about 2 ms, and a
 run asking for more rounds than its budget allowed was halted by the gate.
 
@@ -74,8 +104,9 @@ is not largest at the largest share, so not supported as stated. H5: supported b
 pre-registered sign rule for friend-count availability under privacy only, and weakly (see RQ5).
 
 See `results/report/report.html`. The hypotheses, their decision rules and what was expected in
-advance are in `PREREGISTRATION.md` (Amendment 1). An independent review of the code and what was
-changed after it are in section 9.5 of the design document.
+advance are in `PREREGISTRATION.md` (Amendments 1 and 2). An independent review of the code and
+what was changed after it are in section 9.5 of the design document. The one item still open is
+the pre-publication review by the dataset provider, which the owners must request.
 
 ## 3. Quick start without the dataset
 
@@ -131,7 +162,7 @@ data/raw/yelp_academic_dataset_user.json
 
 Step 2 stops with an error if step 1 has not run. Optional inspection scripts: `scripts/inspect_yelp.py --root data/raw` (aggregate-only inventory) and `scripts/metro_analysis.py --root data/raw` (the geographic analysis behind the choice of Philadelphia). I did not run the three data scripts for this README (they need the raw files and a long CPU run); the commands and order are taken from the code.
 
-**Run the experiments.** Every command takes `--root DIR` (default `.`) and writes only aggregates and model checkpoints, never user ids. Settings come from `experiments/frozen.json`, which was fixed on validation data before any test evaluation. Run `uv run python -m prism <command> --help` for all options. `make all-experiments` runs all of them in the order below.
+**Run the experiments.** Every command takes `--root DIR` (default `.`) and writes only aggregates and model checkpoints, never user ids. Settings come from `experiments/frozen.json`, which was fixed on validation data before any test evaluation. Run `uv run python -m prism <command> --help` for all options. `make all-experiments` runs all of them (the commands in the second table, added on 17 November 2026 in the evening, `sensitivity` and `free-riding`, run after `participation`).
 
 | Command | What it does and where it writes |
 |---|---|
@@ -148,6 +179,29 @@ Step 2 stops with an error if step 1 has not run. Optional inspection scripts: `
 
 Signing keys are created on first use in `keys/` (git-ignored). Model checkpoints go to `data/processed/models/`.
 
+**Added on the evening of 17 November 2026 (CHANGE-024).**
+
+| Command | What it does and where it writes |
+|---|---|
+| `prism sensitivity` | The pre-registered sensitivity analyses: the dataset rebuilt with k = 10, k = 20 and with reviews of 4 stars or more only (then k = 15), and a reduced RQ1 rerun on each (non-private reference plus epsilon 8 and 1, 3 seeds, both regimes, with the list-length readout at NDCG@20 and HR@10 and HR@20). Hyperparameters stay frozen from the main dataset. Writes `results/sensitivity.json`, `results/sensitivity/<variant>/dataset_card.json` (aggregate counts only) and the variant data under `data/processed_<variant>/` (git-ignored). Needs `data/processed/philly_*.csv.gz` from data step 1; it reuses the main item embeddings when they exist and are verified, otherwise it encodes the items. Options: `--variants k10,k20,stars4`, `--seeds`, `--epsilons`. |
+| `prism sensitivity --build-only` | Builds the variant datasets and card only, no training. A built variant is reused on the next run. |
+| `prism free-riding` | RQ4. A fraction of clients (0, 10%, 30%) sends all-zero updates or noise with the honest norm; measures the cost to everyone's NDCG@10, the free-riders' gain and detection by update norm and by cosine similarity (not applicable under secure aggregation). Clip-only runs, no DP noise. Writes `results/free_riding.json`. Resumable. |
+| `prism poisoning` (new modes) | Two committee-median modes are now in the default list: `committee_median_size4` and `committee_median_size20`. The server sees only committee sums and takes their coordinate-wise median. Choose modes with `--modes`. These runs have no DP noise. |
+| `prism participation` (trace scenarios) | Three further scenarios from a real device trace: `trace`, `trace_activity`, `trace_replay`. They run only if the trace file exists (see below); otherwise they are skipped with a note. `--trace-path FILE` points to another location. |
+
+**Optional device trace.** The trace scenarios use the FedScale `client_behave_trace` (25.6 MB, 107,749 devices). It is not part of the repository. Download it from the source and checksum given in `docs/data-access.md` (section "Device availability trace") and place it at:
+
+```
+data/external/fedscale/client_behave_trace
+```
+
+It is a Python pickle, so it is read only with a restricted loader (`src/prism/data/traces.py`), never with `pickle.load`. It is research-use only and git-ignored; do not commit or share it. Without it, everything else still runs.
+
+**Flower parity check (separate environment).** `scripts/flower_parity.py` runs a small synthetic federated training through Flower 1.43.0 and compares it with the in-process reference. Flower is not a project dependency and is not installed in the project environment: the script needs its own environment, whose creation commands are in `docs/flower-parity.md`. Then, from the repository root, run `_workspace/flower-env/Scripts/python.exe scripts/flower_parity.py` (about four minutes; `--skip-noise` runs only the noise-free variant). It writes `results/flower_parity.json`. It is not a `prism` command and not a Makefile target.
+
+**Provenance and resume.** Run records now store a hash of the engine source files. When a finished run is reused, its record is flagged `stale_code` if the engine code has changed. Set `PRISM_STRICT_RESUME=1` to rerun such records instead of reusing them.
+
+`make sensitivity` and `make free-riding` run the two new commands, and `make all-experiments` includes both.
 ## 5. Running the checks
 
 From the Makefile (or run the underlying command if `make` is not installed):
@@ -175,23 +229,32 @@ src/prism/
   seeding.py            independent named random streams per seed
   io.py                 atomic JSON, text and NPZ writes
   environment.py        reproducibility report (versions, git commit, lockfile hash)
-  data/                 loading, k-core filter, split, features, friend graph, synthetic dataset
+  data/                 loading, k-core filter, split, features, friend graph, synthetic dataset,
+                        dataset variants for the sensitivity analyses (variants.py), device
+                        trace reader with a restricted unpickler (traces.py)
   models/               the hybrid recommender (item-ID embeddings on a fixed content base)
   fl/                   round loop, sampling, clipping, aggregators, secure sum, gossip, availability
+                        (synthetic scenarios and trace-based schedules)
   privacy/              clipping and noise (dp.py), three accountants and their gate (accounting.py)
   ledger/               Merkle tree, signed receipts, append-only log, release gate
-  attacks/              inversion, friendship-link inference, membership, poisoning
+  attacks/              inversion, friendship-link inference, membership, poisoning (with the
+                        committee-median aggregator), free-riding
   eval/                 ranking metrics, baselines, statistics
-  experiments/          one module per `prism` command, plus the run engine and frozen settings
+  experiments/          one module per `prism` command (including sensitivity and free_riding),
+                        plus the run engine (with the engine hash and strict resume) and frozen settings
   report/               builds the HTML and Markdown report
-scripts/                data preparation (three steps above), dataset inspection, licence gate
+scripts/                data preparation (three steps above), dataset inspection, licence gate,
+                        flower_parity.py (needs its own environment, see docs/flower-parity.md)
 tests/                  pytest suite (unit, property, known-answer, control and end-to-end tests)
 experiments/            frozen.json: hyperparameters fixed on validation data
 docs/                   design and plan (docs/superpowers/), literature review, viva notes,
                         implementation and verification logs, Yelp compliance checklist
-results/                aggregate outputs only; safe to commit
+results/                aggregate outputs only; safe to commit (includes sensitivity.json,
+                        free_riding.json and flower_parity.json)
 results/archive/v1-content-only/   results of the earlier content-only model, kept as a record
-data/                   Yelp raw and processed data (git-ignored, never share)
+data/                   Yelp raw and processed data, variant datasets (processed_k10, processed_k20,
+                        processed_stars4) and the optional device trace under data/external/
+                        (git-ignored, never share)
 keys/                   ledger signing key (git-ignored)
 _workspace/             git-ignored scratch space for notes and throwaway experiments
 .github/workflows/      continuous integration
@@ -217,10 +280,14 @@ _workspace/             git-ignored scratch space for notes and throwaway experi
 - The study is on one dataset and one city, in a filtered form: a k = 15 core removes about 75% of Philadelphia businesses, so ranking over the filtered catalogue gives higher absolute NDCG than the raw catalogue would. The data is from the January 2022 release.
 - With about 9,913 users, the noise needed for epsilon 8 is large relative to the signal. A negative result for hypothesis H1 (at least 90% of non-private quality at epsilon 8) was expected and is valid. The what-if runs that divide the noise by k are simulations of a bigger population, not guarantees.
 - The membership attack is a loss-threshold test with reference models, not the strongest possible attack. A low score bounds this attack only. The model is trained on half the users, so the epsilon tested is that of the half-population model.
-- Poisoning is one strategy (a norm-bounded push of one item); attackers do not adapt to the aggregator. Robust aggregators need to see individual updates, so they cannot be combined with secure aggregation, and they run without DP noise.
-- Gossip simulates a random sample of users (3,000 nodes by default), in synchronous rounds, with random peers where a user has too few friends. Its local epsilon has no sampling amplification.
-- RQ5 availability is synthetic, not measured from devices. Epsilon is only nominal there, because the correlated scenarios deliberately violate the independence it assumes. With five seeds the smallest possible two-sided Wilcoxon p-value is 0.0625.
-- The k in {10, 20} sensitivity sweep and the analysis of ratings of 4 stars or more were not run. A ledger proves what was recorded and that it was not altered afterwards; it does not prove that the training happened as described.
+- Poisoning is one strategy (a norm-bounded push of one item); attackers do not adapt to the aggregator. The trimmed mean and the median need to see individual updates, so they cannot be combined with secure aggregation, and all robust modes run without DP noise.
+- Gossip simulates a random sample of users (3,000 nodes by default; the final run used 2,500 users and 3 seeds because 3,000 did not fit in this PC's memory beside the other experiments), in synchronous rounds, with random peers where a user has too few friends. Its local epsilon has no sampling amplification.
+- RQ5 availability is synthetic in four scenarios and trace-based in three. Epsilon is only nominal for the scenarios that correlate availability with user data (`activity`, `social`, `trace_activity`), because they violate the independence it assumes; it is exact for `trace` and `trace_replay`. The trace devices are not linked to real users: they come from another population and are assigned to users by chance or by rank. One round is assumed to take 30 minutes in the replay scenario; this is a modelling choice. With five seeds the smallest possible two-sided Wilcoxon p-value is 0.0625.
+- Free-riding and committee-median runs are clip-only: they add no DP noise, so no privacy guarantee applies to them. Free-riders do not adapt, and detection needs the server to see individual updates, so it is not possible under secure aggregation. Committees are simulated in the clear; no secure aggregation protocol runs.
+- The sensitivity runs (k = 10, k = 20, 4 stars or more) reuse the hyperparameters tuned on the main dataset; nothing was re-tuned, and they use fewer seeds and privacy levels than the main grid. They test sensitivity to preprocessing of the same Philadelphia sample, not to another city.
+- The Flower parity check is on a small synthetic problem (400 users, 5 rounds) with a custom strategy. It shows that the plumbing agrees to float32 rounding, not that anything holds at scale, and Flower is not used for the main results. It runs in a separate environment and is not a dependency.
+- A ledger proves what was recorded and that it was not altered afterwards; it does not prove that the training happened as described.
+- The pre-publication review by the dataset provider has not been done. It stays with the project owners and blocks any public presentation or publication of results.
 
 ## 9. Data and licence
 
@@ -232,5 +299,7 @@ The project code is MIT licensed. The Yelp data is not part of this repository a
 - Implementation plan: `docs/superpowers/plans/2026-11-17-prism-rebuild.md`.
 - Pre-registered hypotheses and Amendment 1: `PREREGISTRATION.md`. Frozen settings: `experiments/frozen.json`.
 - Literature review (standards, agency reports and official documentation only): `docs/literature-review.md`.
+- Flower parity check (what it shows and how to reproduce it): `docs/flower-parity.md`.
+- Device trace source, checksum and handling: `docs/data-access.md`, section "Device availability trace".
 - Explanations of every component for the oral examination: `docs/viva-notes.md`.
 - Roadmap and decision records: `PROJECT_ROADMAP.md`; progress log: `docs/implementation-log.md`.

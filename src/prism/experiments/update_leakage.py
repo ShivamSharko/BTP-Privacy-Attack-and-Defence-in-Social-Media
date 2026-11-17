@@ -37,7 +37,7 @@ from prism.data.bundle import DataBundle, load_bundle
 from prism.data.social import FRIENDS_FILE, SocialGraph, load_friend_graph
 from prism.eval.stats import user_bootstrap_ci
 from prism.experiments.regimes import Frozen, default_paths, load_frozen, make_run
-from prism.experiments.runner import Paths
+from prism.experiments.runner import Paths, payload_provenance
 from prism.fl.aggregate import clip_rows
 from prism.fl.client import make_delta_fn, split_history
 from prism.fl.secagg import FixedPoint, SecAggClient, secure_sum
@@ -358,6 +358,9 @@ def run(
         },
         "results": results,
         "limitations": list(LIMITATIONS),
+        "provenance": payload_provenance(
+            __file__, extra=("attacks/inversion.py", "attacks/links.py", "fl/secagg.py")
+        ),
         "wall_seconds": time.perf_counter() - started,
     }
     output = _clean(output)

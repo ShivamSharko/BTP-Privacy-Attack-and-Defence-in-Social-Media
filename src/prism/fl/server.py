@@ -28,7 +28,7 @@ from prism.fl.client import DeltaFn, make_delta_fn, split_history
 from prism.fl.fast import clipped_sum_fast
 from prism.fl.sampling import expected_cohort, poisson_cohort
 from prism.models.hybrid import Layout, content_base, init_flat, make_layout, score_matrix
-from prism.seeding import streams, torch_generator
+from prism.seeding import stream, streams, torch_generator
 
 ADAM_BETA1: float = 0.9
 ADAM_BETA2: float = 0.99
@@ -37,6 +37,9 @@ SELF_CHECK_USERS: int = 8
 SELF_CHECK_TOLERANCE: float = 1.0e-2
 
 ClientHook = Callable[[npt.NDArray[np.int64], torch.Tensor, torch.Tensor, int], torch.Tensor]
+# A custom aggregator receives the whole cohort's clipped updates (clients x parameters) and
+# its own random stream, and returns a sum-equivalent vector (float64).
+CustomAggregator = Callable[[torch.Tensor, np.random.Generator], torch.Tensor]
 
 
 @dataclass(frozen=True)
@@ -94,7 +97,7 @@ def train(
     eligible: npt.NDArray[np.int64] | None = None,
     availability: npt.NDArray[np.float64] | None = None,
     client_hook: ClientHook | None = None,
-    aggregator: AggregatorName = "sum",
+    aggregator: AggregatorName | CustomAggregator = "sum",
     trim_fraction: float = 0.1,
     authorise: Callable[[int], bool] | None = None,
     on_round: Callable[[RoundStats, torch.Tensor], None] | None = None,
@@ -112,6 +115,7 @@ def train(
     flat = init_flat(layout, model, rng["init"])
     delta_fn = make_delta_fn(layout, base, model, config.local_steps, config.local_lr)
     mask_generator = torch_generator(rng["masking"])
+    aggregation_rng = stream(seed, "aggregation")
     users_all = np.arange(bundle.n_users, dtype=np.int64) if eligible is None else eligible
     expected = expected_cohort(users_all.size, config.sample_rate, availability)
     optimiser = _ServerOptimiser(config, layout.total)
@@ -172,7 +176,11 @@ def train(
             if config.clip_norm is not None:
                 clipped_count += int((norms > config.clip_norm).sum())
         if aggregator != "sum" and collected:
-            total = robust_total(torch.cat(collected), aggregator, trim_fraction)
+            cohort_updates = torch.cat(collected)
+            if callable(aggregator):
+                total = aggregator(cohort_updates, aggregation_rng).to(torch.float64)
+            else:
+                total = robust_total(cohort_updates, aggregator, trim_fraction)
         mean_delta = noisy_mean(
             total, expected, config.noise_multiplier, config.clip_norm, rng["noise"]
         )

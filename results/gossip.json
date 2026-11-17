@@ -2,29 +2,29 @@
   "controls": {
     "gossip_beats_untrained": {
       "gating": true,
-      "gossip_ndcg10": 0.02084088068393567,
+      "gossip_ndcg10": 0.022143890336223854,
       "measured": "non-private gossip NDCG@10 over the untrained starting model, same nodes",
       "passed": true,
-      "ratio": 3.9862730925007046,
+      "ratio": 3.7762821710354286,
       "threshold": 1.1,
-      "untrained_ndcg10": 0.005228161794319411
+      "untrained_ndcg10": 0.005863939539812557
     },
     "gossip_learns": {
       "gating": false,
-      "gossip_ndcg10": 0.02084088068393567,
+      "gossip_ndcg10": 0.022143890336223854,
       "measured": "non-private gossip NDCG@10 over MostPopular NDCG@10, same nodes",
-      "most_popular_ndcg10": 0.027160071368643075,
+      "most_popular_ndcg10": 0.027488868533035143,
       "passed": false,
-      "ratio": 0.7673352695235163,
+      "ratio": 0.8055584503091539,
       "reason": "on a few thousand users even the federated model can be below MostPopular, so this comparison measures population size, not whether gossip works",
       "threshold": 1.1
     },
     "gossip_share_of_federated": {
-      "federated_ndcg10": 0.029224549039321347,
+      "federated_ndcg10": 0.02820341917304935,
       "gating": false,
-      "gossip_ndcg10": 0.02084088068393567,
+      "gossip_ndcg10": 0.022143890336223854,
       "measured": "non-private gossip NDCG@10 as a share of the non-private federated model, same nodes",
-      "ratio": 0.713129248150056,
+      "ratio": 0.7851491409730964,
       "reason": "reference only: how much of the server-based quality gossip recovers"
     }
   },
@@ -44,6 +44,12 @@
     "Few seeds: intervals over nodes describe sampling of users, not variation across runs.",
     "Run records are reused when the configuration matches; records produced on 17 November 2026 predate the commit of the code that produced them."
   ],
+  "provenance": {
+    "engine_sha256": "bd8c92813d7bb0b1c966138e0ac2e3e2383f8437290ee30b87f4045f117ccc89",
+    "git_commit": "be247fd303f116f1d464fd5bac397e5d7f28d11d",
+    "git_dirty": true,
+    "module_sha256": "037e019c9ca9ea978da829162acfc11df1d70b7352cb423d23e4fa80ab40cb35"
+  },
   "results": {
     "by_epsilon": {
       "8.0": {
@@ -57,46 +63,49 @@
           "parameters": 107679
         },
         "epsilon_claimed": {
-          "delta": 5e-05,
-          "federated": 7.983991011562229,
-          "gossip_local": 7.970675319487423,
-          "gossip_local_replace_adjacency": 19.482528439936274,
+          "delta": 4e-05,
+          "federated": 7.991097292721079,
+          "gossip_local": 7.969135198267194,
+          "gossip_local_replace_adjacency": 19.410722551722806,
           "target": 8.0
         },
         "federated_ndcg10": {
-          "max": 0.017603407214462154,
-          "mean": 0.017165252407050205,
-          "min": 0.016727097599638252,
+          "max": 0.02172190519153132,
+          "mean": 0.0204402880457845,
+          "min": 0.019425111305145758,
           "per_seed": [
-            0.017603407214462154,
-            0.016727097599638252
+            0.02172190519153132,
+            0.020173847640676427,
+            0.019425111305145758
           ]
         },
         "federated_rounds": [
+          400,
           400,
           400
         ],
         "gap": {
           "ci95": [
-            0.008743859878809648,
-            0.014655411575574574
+            0.01325815075297895,
+            0.018974045274467884
           ],
           "definition": "federated minus gossip, mean NDCG@10 over the same nodes",
           "interval_over": "nodes, seed 0 only",
-          "mean": 0.011771371581024637,
-          "mean_over_seeds": 0.011813480028479208
+          "mean": 0.016129659117777837,
+          "mean_over_seeds": 0.01506796435729418
         },
         "gossip_ndcg10": {
-          "max": 0.005832035633437514,
-          "mean": 0.005351772378570997,
-          "min": 0.00487150912370448,
+          "max": 0.00559224607375348,
+          "mean": 0.005372323688490319,
+          "min": 0.004983241384848646,
           "per_seed": [
-            0.005832035633437514,
-            0.00487150912370448
+            0.00559224607375348,
+            0.004983241384848646,
+            0.00554148360686883
           ]
         },
-        "local_noise_multiplier": 5.62487,
-        "most_popular_ndcg10": 0.027160071368643075
+        "local_noise_multiplier": 5.68207,
+        "most_popular_ndcg10": 0.027488868533035143
       },
       "nonprivate": {
         "bytes": {
@@ -109,65 +118,68 @@
           "parameters": 107679
         },
         "epsilon_claimed": {
-          "delta": 5e-05,
+          "delta": 4e-05,
           "federated": null,
           "gossip_local": null,
           "gossip_local_replace_adjacency": null,
           "target": null
         },
         "federated_ndcg10": {
-          "max": 0.029651449193016665,
-          "mean": 0.029224549039321347,
-          "min": 0.028797648885626026,
+          "max": 0.028944416238645722,
+          "mean": 0.02820341917304935,
+          "min": 0.026895708576879555,
           "per_seed": [
-            0.028797648885626026,
-            0.029651449193016665
+            0.028770132703622768,
+            0.028944416238645722,
+            0.026895708576879555
           ]
         },
         "federated_rounds": [
+          400,
           400,
           400
         ],
         "gap": {
           "ci95": [
-            0.005310833261934227,
-            0.01309847561700174
+            0.004901742504316056,
+            0.011413831947208677
           ],
           "definition": "federated minus gossip, mean NDCG@10 over the same nodes",
           "interval_over": "nodes, seed 0 only",
-          "mean": 0.009111440348799484,
-          "mean_over_seeds": 0.008383668355385676
+          "mean": 0.008032013672401639,
+          "mean_over_seeds": 0.006059528836825496
         },
         "gossip_ndcg10": {
-          "max": 0.0219955528310448,
-          "mean": 0.02084088068393567,
-          "min": 0.01968620853682654,
+          "max": 0.02453508183264275,
+          "mean": 0.022143890336223854,
+          "min": 0.02073811903122113,
           "per_seed": [
-            0.01968620853682654,
-            0.0219955528310448
+            0.02073811903122113,
+            0.02115847014480768,
+            0.02453508183264275
           ]
         },
         "local_noise_multiplier": 0.0,
-        "most_popular_ndcg10": 0.027160071368643075
+        "most_popular_ndcg10": 0.027488868533035143
       }
     },
-    "friend_peer_share": 0.432,
+    "friend_peer_share": 0.5172,
     "h2": {
       "claim": "gossip with local DP shows a substantial utility gap versus federated central DP at equal epsilon",
       "epsilon": 8.0,
-      "federated_ndcg10": 0.017165252407050205,
+      "federated_ndcg10": 0.0204402880457845,
       "gap_ci95": [
-        0.008743859878809648,
-        0.014655411575574574
+        0.01325815075297895,
+        0.018974045274467884
       ],
-      "gap_mean": 0.011771371581024637,
-      "gossip_ndcg10": 0.005351772378570997,
-      "most_popular_ndcg10": 0.027160071368643075,
+      "gap_mean": 0.016129659117777837,
+      "gossip_ndcg10": 0.005372323688490319,
+      "most_popular_ndcg10": 0.027488868533035143,
       "note": "a measurement, not a control; reading it is left to the analysis",
-      "relative_gap": 0.6882205835567622
+      "relative_gap": 0.7371698639247758
     },
-    "mean_degree": 3.674,
-    "nodes": 2000
+    "mean_degree": 5.9328,
+    "nodes": 2500
   },
   "settings": {
     "clip_norm": 5.0,
@@ -182,16 +194,17 @@
     "lr": 0.05,
     "mix_moments": true,
     "most_popular_counted_on": "histories of the node population",
-    "n_nodes": 2000,
+    "n_nodes": 2500,
     "optimiser": "adam",
     "phase": "final",
     "regime": "small",
     "rounds": 100,
     "seeds": [
       0,
-      1
+      1,
+      2
     ]
   },
   "status": "VALID",
-  "wall_seconds": 11.29
+  "wall_seconds": 10545.47
 }

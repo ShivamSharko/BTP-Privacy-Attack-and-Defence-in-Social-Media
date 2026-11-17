@@ -112,3 +112,37 @@ def group_gap(
         "low": float(np.percentile(gaps, 2.5)),
         "high": float(np.percentile(gaps, 97.5)),
     }
+
+
+TRACE_FLOOR = 0.05
+
+
+def trace_static(
+    shares: npt.NDArray[np.float64],
+    devices: npt.NDArray[np.int64],
+    floor: float = TRACE_FLOOR,
+) -> npt.NDArray[np.float64]:
+    """Per-user availability probability: the user's device active share, floored."""
+    return np.maximum(np.asarray(shares, dtype=np.float64)[devices], floor)
+
+
+def match_devices_by_rank(
+    shares: npt.NDArray[np.float64],
+    key: npt.NDArray[np.integer],
+    rng: np.random.Generator,
+) -> npt.NDArray[np.int64]:
+    """Index into ``shares`` for each user so that larger ``key`` gets a larger share.
+
+    ``shares`` holds one active share per sampled device and ``key`` one value per user (same
+    length); the result is a permutation, so each device is used once. Ties in ``key`` (and in
+    ``shares``) are broken at random. Like the rank-based scenarios this is a rank over all
+    users, so epsilon is nominal.
+    """
+    n = shares.size
+    if key.size != n:
+        raise ValueError("shares and key must have one entry per user")
+    user_order = np.lexsort((rng.random(n), key))
+    device_order = np.lexsort((rng.random(n), shares))
+    assignment = np.empty(n, dtype=np.int64)
+    assignment[user_order] = device_order
+    return assignment

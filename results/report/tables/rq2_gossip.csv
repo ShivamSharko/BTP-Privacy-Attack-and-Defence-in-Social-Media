@@ -1,3 +1,3 @@
 Setting,Gossip NDCG@10,Federated NDCG@10,MostPopular NDCG@10,Gap (federated minus gossip),Gap 95% interval (over users),"Epsilon claimed, gossip (local, add-or-remove)","Epsilon, gossip (local, replace adjacency, sensitivity 2C)","Epsilon of record, federated",Bytes: gossip over federated
-non-private,0.0208,0.0292,0.0272,0.0091,"[0.0053, 0.0131]",n/a,n/a,n/a,60.000
-epsilon 8.0,0.0054,0.0172,0.0272,0.0118,"[0.0087, 0.0147]",7.97,19.48,7.98,60.000
+non-private,0.0221,0.0282,0.0275,0.0080,"[0.0049, 0.0114]",n/a,n/a,n/a,60.000
+epsilon 8.0,0.0054,0.0204,0.0275,0.0161,"[0.0133, 0.0190]",7.97,19.41,7.99,60.000

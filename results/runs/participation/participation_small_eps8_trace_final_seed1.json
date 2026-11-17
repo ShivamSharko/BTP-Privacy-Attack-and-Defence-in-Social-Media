@@ -1,0 +1,113 @@
+{
+  "availability_scenario": "trace",
+  "config": {
+    "model": {
+      "content_scale": 0.4,
+      "dim": 16,
+      "temperature": 20.0,
+      "use_content": true,
+      "use_ids": true
+    },
+    "name": "participation",
+    "phase": "final",
+    "privacy_claim": true,
+    "regime": "small",
+    "seed": 1,
+    "target_epsilon": 8.0,
+    "train": {
+      "clip_norm": 5.0,
+      "hide_fraction": 0.5,
+      "local_lr": 1.0,
+      "local_steps": 1,
+      "momentum": 0.9,
+      "noise_multiplier": 0.91708,
+      "rounds": 400,
+      "sample_rate": 0.05,
+      "server_lr": 0.05,
+      "server_opt": "sgd"
+    },
+    "variant": "trace"
+  },
+  "config_hash": "3ddcdcadace84a9aed01d57d632805bdd13e84645bc376852ae8872023e8bf7e",
+  "diagnostics": {
+    "max_cohort": 132,
+    "mean_clipped_fraction": 0.6465112380504183,
+    "mean_cohort": 103.75,
+    "mean_update_norm_first": 26.21189208984375,
+    "mean_update_norm_last": 4.336146182105654,
+    "min_cohort": 79,
+    "nonfinite_updates": 0
+  },
+  "evaluated_on": "test",
+  "halted_by_gate": false,
+  "id": "participation_small_eps8_trace_final_seed1",
+  "items": 6319,
+  "ledger": {
+    "path": "ledger/participation/participation_small_eps8_trace_final_seed1.jsonl",
+    "public_key_hex": "9301c820a5d066f18a60cc3ad8836d83c8de83f6e6f3d9c547f7bbf56d5d7f3c",
+    "refused_rounds": [],
+    "root_hex": "81974a973f0c36b79eb3e8308ba9d631a05080c4f48ae2519ec8f498a791194a",
+    "size": 401,
+    "verified": true
+  },
+  "limitations": [
+    "Privacy unit is one user (add or remove one user's whole history); delta = 1/(10 n).",
+    "Epsilon assumes ideal Poisson sampling of clients, which real devices cannot guarantee.",
+    "Gaussian noise is floating point from a seeded generator, not a hardened sampler.",
+    "The clipping norm and hyperparameters were chosen on the same users' data; that selection is not covered by epsilon.",
+    "Single-process simulation: no real network, devices or trust boundary.",
+    "The 'diagnostics' block depends on who took part and would not be released in deployment."
+  ],
+  "metrics": {
+    "coverage@10": 0.16236746320620352,
+    "distinct@10": 1026.0,
+    "exposure_gini": 0.9941797280192766,
+    "hr@10": 0.10628409779753485,
+    "hr@20": 0.1676096181046676,
+    "mrr": 0.05175428867563232,
+    "ndcg@10": 0.01775565173846479,
+    "ndcg@20": 0.021710943317917522,
+    "recall@20": 0.029161501758091256,
+    "users_evaluated": 9898.0
+  },
+  "model_sha256": "aeb06ce4ea451e008b2a734dbd55e895ce44a4198beb17ea182bc9716bbc4eaf",
+  "ndcg_ci95": [
+    0.01652293385763543,
+    0.019073296285044474
+  ],
+  "parameters": 107679,
+  "privacy": {
+    "adjacency": "add-or-remove one user",
+    "at_delta_n2": 10.9945345760926,
+    "budget_epsilon": 8.0,
+    "delta": 1.0087763542822556e-05,
+    "delta_n2": 1.017629732958999e-08,
+    "excludes": "hyperparameter and clipping-norm selection",
+    "gate_ok": true,
+    "gate_reason": "ok",
+    "n_users": 9913,
+    "noise_multiplier": 0.91708,
+    "of_record": 7.982805525656229,
+    "pld": 7.972328674052427,
+    "prv": 7.982805525656229,
+    "rdp": 8.850436080117976,
+    "rounds": 400,
+    "sample_rate": 0.05,
+    "unamplified": 329.8567431806764,
+    "unit": "user"
+  },
+  "privacy_note": "exact",
+  "provenance": {
+    "code_sha256": "bd8c92813d7bb0b1c966138e0ac2e3e2383f8437290ee30b87f4045f117ccc89",
+    "git_commit": "be247fd303f116f1d464fd5bac397e5d7f28d11d",
+    "git_dirty": true,
+    "uv_lock_sha256": "4a11483b5839e22468be078a16640ae2ab9947e89047bf09060accf22a77c466"
+  },
+  "rounds_completed": 400,
+  "simulated_noise_multiplier": null,
+  "status": "ok",
+  "threads": 2,
+  "torch_version": "2.15.0+cpu",
+  "users": 9913,
+  "wall_seconds": 90.41
+}

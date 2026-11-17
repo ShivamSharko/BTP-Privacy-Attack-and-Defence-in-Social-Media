@@ -1,0 +1,3 @@
+Privacy level,trace NDCG@10,trace_replay NDCG@10,independent NDCG@10,always NDCG@10,trace minus independent,trace_replay minus independent,Seeds where rank-matching widens the activity gap (trace_activity vs trace),Mean change of the activity gap
+non-private,0.0325,0.0302,0.0372,0.0394,-0.0047,-0.0070,3 of 5,0.0010
+epsilon 8,0.0168,0.0160,0.0223,0.0250,-0.0055,-0.0063,3 of 5,0.0001

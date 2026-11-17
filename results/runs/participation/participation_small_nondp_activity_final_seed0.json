@@ -56,8 +56,10 @@
     "distinct@10": 2530.0,
     "exposure_gini": 0.9184662318107106,
     "hr@10": 0.20802182259042232,
+    "hr@20": 0.3194584764598909,
     "mrr": 0.09347410322047153,
     "ndcg@10": 0.038557839513356555,
+    "ndcg@20": 0.04922424975442712,
     "recall@20": 0.07204642690805453,
     "users_evaluated": 9898.0
   },
@@ -70,8 +72,8 @@
   "privacy": null,
   "privacy_note": "exact",
   "provenance": {
-    "code_sha256": "41ffd012c1e8db001bb920c3fc7bcea388b09da709bc49ce827abb76648e55c8",
-    "git_commit": "1718f84647e8c80d050a0950edea3c12ab982fcb",
+    "code_sha256": "bd8c92813d7bb0b1c966138e0ac2e3e2383f8437290ee30b87f4045f117ccc89",
+    "git_commit": "be247fd303f116f1d464fd5bac397e5d7f28d11d",
     "git_dirty": true,
     "uv_lock_sha256": "4a11483b5839e22468be078a16640ae2ab9947e89047bf09060accf22a77c466"
   },
@@ -81,5 +83,5 @@
   "threads": 2,
   "torch_version": "2.15.0+cpu",
   "users": 9913,
-  "wall_seconds": 72.29
+  "wall_seconds": 61.05
 }

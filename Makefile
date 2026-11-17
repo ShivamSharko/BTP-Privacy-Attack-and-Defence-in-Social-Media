@@ -10,7 +10,7 @@ CLEAN_PY := import pathlib, shutil; [shutil.rmtree(p, ignore_errors=True) for p 
 
 .DEFAULT_GOAL := help
 .PHONY: help setup lint format typecheck test audit licenses license-gate check env clean \
-	demo social baselines grid attacks social-experiments ledger report all-experiments
+	demo social baselines grid attacks social-experiments sensitivity free-riding ledger report all-experiments
 
 help:
 	@echo "Developer tasks"
@@ -33,9 +33,11 @@ help:
 	@echo "  grid                - RQ1 privacy-utility grid (long; resumable)"
 	@echo "  attacks             - RQ3 and RQ4: update-leakage, membership, poisoning"
 	@echo "  social-experiments  - RQ2 and RQ5: gossip, participation"
+	@echo "  sensitivity         - k-core (10, 20) and 4-star variants of RQ1 (builds data/processed_<name>)"
+	@echo "  free-riding         - RQ4: free-riding clients, cost, gain and detection"
 	@echo "  ledger              - RQ6: verify every ledger, measure overhead"
 	@echo "  report              - build results/report/report.html"
-	@echo "  all-experiments     - social, baselines, grid, attacks, social-experiments, ledger, report"
+	@echo "  all-experiments     - social, baselines, grid, attacks, social-experiments, sensitivity, free-riding, ledger, report"
 
 setup:
 	uv sync
@@ -92,10 +94,16 @@ social-experiments:
 	$(PRISM) gossip
 	$(PRISM) participation
 
+sensitivity:
+	$(PRISM) sensitivity
+
+free-riding:
+	$(PRISM) free-riding
+
 ledger:
 	$(PRISM) ledger
 
 report:
 	$(PRISM) report
 
-all-experiments: social baselines grid attacks social-experiments ledger report
+all-experiments: social baselines grid attacks social-experiments sensitivity free-riding ledger report

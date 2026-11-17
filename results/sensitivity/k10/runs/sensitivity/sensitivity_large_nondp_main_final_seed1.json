@@ -1,0 +1,85 @@
+{
+  "config": {
+    "model": {
+      "content_scale": 0.4,
+      "dim": 16,
+      "temperature": 20.0,
+      "use_content": true,
+      "use_ids": true
+    },
+    "name": "sensitivity",
+    "phase": "final",
+    "privacy_claim": true,
+    "regime": "large",
+    "seed": 1,
+    "target_epsilon": null,
+    "train": {
+      "clip_norm": null,
+      "hide_fraction": 0.5,
+      "local_lr": 1.0,
+      "local_steps": 1,
+      "momentum": 0.9,
+      "noise_multiplier": 0.0,
+      "rounds": 40,
+      "sample_rate": 0.5,
+      "server_lr": 0.05,
+      "server_opt": "adam"
+    },
+    "variant": "main"
+  },
+  "config_hash": "24c327fbfcc4be8e6be96c413df5045321d9e864b22633c2e28a3f5bde7b9f23",
+  "diagnostics": {
+    "max_cohort": 9773,
+    "mean_clipped_fraction": 0.0,
+    "mean_cohort": 9554.5,
+    "mean_update_norm_first": 28.777508256168538,
+    "mean_update_norm_last": 8.382594379289095,
+    "min_cohort": 9417,
+    "nonfinite_updates": 0
+  },
+  "evaluated_on": "test",
+  "halted_by_gate": false,
+  "id": "sensitivity_large_nondp_main_final_seed1",
+  "items": 9950,
+  "ledger": null,
+  "limitations": [
+    "Privacy unit is one user (add or remove one user's whole history); delta = 1/(10 n).",
+    "Epsilon assumes ideal Poisson sampling of clients, which real devices cannot guarantee.",
+    "Gaussian noise is floating point from a seeded generator, not a hardened sampler.",
+    "The clipping norm and hyperparameters were chosen on the same users' data; that selection is not covered by epsilon.",
+    "Single-process simulation: no real network, devices or trust boundary.",
+    "The 'diagnostics' block depends on who took part and would not be released in deployment."
+  ],
+  "metrics": {
+    "coverage@10": 0.2591959798994975,
+    "distinct@10": 2579.0,
+    "exposure_gini": 0.9702028314802358,
+    "hr@10": 0.14456692913385827,
+    "hr@20": 0.22036745406824146,
+    "mrr": 0.06643290232093325,
+    "ndcg@10": 0.03182375665081743,
+    "ndcg@20": 0.03986456188890135,
+    "recall@20": 0.06517681276900217,
+    "users_evaluated": 19050.0
+  },
+  "model_sha256": "293331b63a67a2e0951786f6115572c2404d6c5ebd487c0a0cb40f8a85c7e942",
+  "ndcg_ci95": [
+    0.030568945886095888,
+    0.03318414793135492
+  ],
+  "parameters": 169406,
+  "privacy": null,
+  "provenance": {
+    "code_sha256": "bd8c92813d7bb0b1c966138e0ac2e3e2383f8437290ee30b87f4045f117ccc89",
+    "git_commit": "be247fd303f116f1d464fd5bac397e5d7f28d11d",
+    "git_dirty": true,
+    "uv_lock_sha256": "4a11483b5839e22468be078a16640ae2ab9947e89047bf09060accf22a77c466"
+  },
+  "rounds_completed": 40,
+  "simulated_noise_multiplier": null,
+  "status": "ok",
+  "threads": 2,
+  "torch_version": "2.15.0+cpu",
+  "users": 19141,
+  "wall_seconds": 381.19
+}

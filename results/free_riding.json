@@ -1,0 +1,426 @@
+{
+  "controls": [
+    {
+      "measured": 1.0,
+      "name": "positive_zero_detection",
+      "passed": true,
+      "threshold": 0.95,
+      "what": "lowest norm-based detection AUC of the 'zero' behaviour over fractions and seeds (plaintext updates)"
+    },
+    {
+      "measured": 1.1533854040342761,
+      "name": "sanity_beats_most_popular",
+      "passed": true,
+      "threshold": 1.1,
+      "what": "overall NDCG@10 at fraction 0 over MostPopular's NDCG@10 (test split)"
+    }
+  ],
+  "experiment": "free_riding",
+  "invalid_reasons": [],
+  "limitations": [
+    "Two simple free-riding behaviours (all zeros; noise with the honest mean norm).",
+    "Free-riders do not adapt to detection; an adaptive free-rider could imitate honest updates.",
+    "Detection needs the server to see individual updates, so it is unavailable under secure aggregation; this is the conflict the experiment illustrates, not a detector proposal.",
+    "Detection scores are computed on the clipped updates a server would receive, over the last 20 rounds only.",
+    "Clip-only runs with the plain sum: no DP noise, so no privacy guarantee applies.",
+    "Three seeds by default; min and max over seeds are reported, per-seed bootstrap intervals treat users as independent draws.",
+    "Run records are reused when the configuration matches; records produced on 17 November 2026 predate the commit of the code that produced them."
+  ],
+  "noise_readout": {
+    "caught_auc": 0.8,
+    "caught_by_cosine": false,
+    "evades_norm_detection": false,
+    "evasion_band": 0.1,
+    "per_fraction": [
+      {
+        "cosine_auc": 0.5082581821661415,
+        "fraction": 0.1,
+        "norm_auc": 0.9877829875925839
+      },
+      {
+        "cosine_auc": 0.5072348524404622,
+        "fraction": 0.3,
+        "norm_auc": 0.991226832888919
+      }
+    ],
+    "statement": "noise with the honest mean norm evades the norm score (AUC near 0.5) but is caught by the cosine score"
+  },
+  "provenance": {
+    "engine_sha256": "bd8c92813d7bb0b1c966138e0ac2e3e2383f8437290ee30b87f4045f117ccc89",
+    "git_commit": "be247fd303f116f1d464fd5bac397e5d7f28d11d",
+    "git_dirty": true,
+    "module_sha256": "49d99b8d337d95ec33cd384275b4a342cd4fda6a9bea67359be78b2220912578"
+  },
+  "results": {
+    "clean": {
+      "ndcg": {
+        "max": 0.03038054046313696,
+        "mean": 0.030061907014803,
+        "min": 0.029704413865119926,
+        "per_seed": [
+          0.03038054046313696,
+          0.030100766716152125,
+          0.029704413865119926
+        ]
+      }
+    },
+    "noise": {
+      "0.1": {
+        "cost_to_everyone": {
+          "clean_ndcg_mean": 0.030061907014803,
+          "relative_ndcg_drop": 0.020970321760482788
+        },
+        "detection": {
+          "cosine_auc": {
+            "max": 0.5146078051718945,
+            "mean": 0.5082581821661415,
+            "min": 0.503319570483922,
+            "per_seed": [
+              0.5068471708426081,
+              0.503319570483922,
+              0.5146078051718945
+            ]
+          },
+          "norm_auc": {
+            "max": 0.9881663553507113,
+            "mean": 0.9877829875925839,
+            "min": 0.9873899812708339,
+            "per_seed": [
+              0.9877926261562063,
+              0.9873899812708339,
+              0.9881663553507113
+            ]
+          },
+          "plaintext_updates": "low norm or low cosine to the others is suspicious; AUC of separating free-riders from contributors over the last 20 rounds",
+          "secure_aggregation": "not_applicable"
+        },
+        "free_rider_gain": {
+          "definition": "mean NDCG@10 of free-riders minus contributors, same model",
+          "difference_mean": -0.0015624157735412922,
+          "per_seed": [
+            {
+              "ci95_high": 0.0033465992507382674,
+              "ci95_low": -0.007208219478412608,
+              "difference": -0.0020193676194704482
+            },
+            {
+              "ci95_high": 0.007486808065939353,
+              "ci95_low": -0.0035661339735259703,
+              "difference": 0.001610557788175468
+            },
+            {
+              "ci95_high": 0.0004499720623485638,
+              "ci95_low": -0.008835356426372627,
+              "difference": -0.004278437489328896
+            }
+          ]
+        },
+        "ndcg": {
+          "max": 0.029724045301087854,
+          "mean": 0.029431499151968868,
+          "min": 0.0292097971909946,
+          "per_seed": [
+            0.0292097971909946,
+            0.029360654963824145,
+            0.029724045301087854
+          ]
+        },
+        "ndcg_contributors": {
+          "max": 0.030152407753292833,
+          "mean": 0.029587780372069494,
+          "min": 0.029199566641911267,
+          "per_seed": [
+            0.029411366721004386,
+            0.029199566641911267,
+            0.030152407753292833
+          ]
+        },
+        "ndcg_free_riders": {
+          "max": 0.030810124430086735,
+          "mean": 0.028025364598528207,
+          "min": 0.025873970263963937,
+          "per_seed": [
+            0.027391999101533938,
+            0.030810124430086735,
+            0.025873970263963937
+          ]
+        }
+      },
+      "0.3": {
+        "cost_to_everyone": {
+          "clean_ndcg_mean": 0.030061907014803,
+          "relative_ndcg_drop": 0.036918432537012394
+        },
+        "detection": {
+          "cosine_auc": {
+            "max": 0.5102132630133069,
+            "mean": 0.5072348524404622,
+            "min": 0.5019519551540544,
+            "per_seed": [
+              0.5019519551540544,
+              0.5102132630133069,
+              0.5095393391540252
+            ]
+          },
+          "norm_auc": {
+            "max": 0.9915366171711161,
+            "mean": 0.991226832888919,
+            "min": 0.9906870342022043,
+            "per_seed": [
+              0.9915366171711161,
+              0.9906870342022043,
+              0.9914568472934365
+            ]
+          },
+          "plaintext_updates": "low norm or low cosine to the others is suspicious; AUC of separating free-riders from contributors over the last 20 rounds",
+          "secure_aggregation": "not_applicable"
+        },
+        "free_rider_gain": {
+          "definition": "mean NDCG@10 of free-riders minus contributors, same model",
+          "difference_mean": -0.0015666730767173963,
+          "per_seed": [
+            {
+              "ci95_high": 0.0029264020046545687,
+              "ci95_low": -0.0040822353662166916,
+              "difference": -0.0006730458909880374
+            },
+            {
+              "ci95_high": 0.0018714834068161382,
+              "ci95_low": -0.004917511790529329,
+              "difference": -0.0014970905858866235
+            },
+            {
+              "ci95_high": 0.0008378796155798419,
+              "ci95_low": -0.00591900744159226,
+              "difference": -0.002529882753277528
+            }
+          ]
+        },
+        "ndcg": {
+          "max": 0.029087780016748638,
+          "mean": 0.028952068528743057,
+          "min": 0.028717181117494422,
+          "per_seed": [
+            0.028717181117494422,
+            0.029087780016748638,
+            0.029051244451986105
+          ]
+        },
+        "ndcg_contributors": {
+          "max": 0.02981036263517809,
+          "mean": 0.029422243589322054,
+          "min": 0.02891906768552266,
+          "per_seed": [
+            0.02891906768552266,
+            0.029537300447265415,
+            0.02981036263517809
+          ]
+        },
+        "ndcg_free_riders": {
+          "max": 0.028246021794534622,
+          "mean": 0.02785557051260466,
+          "min": 0.027280479881900563,
+          "per_seed": [
+            0.028246021794534622,
+            0.02804020986137879,
+            0.027280479881900563
+          ]
+        }
+      }
+    },
+    "zero": {
+      "0.1": {
+        "cost_to_everyone": {
+          "clean_ndcg_mean": 0.030061907014803,
+          "relative_ndcg_drop": 0.02151156118837063
+        },
+        "detection": {
+          "cosine_auc": {
+            "max": 0.5138888888888888,
+            "mean": 0.5070405324730555,
+            "min": 0.5010077437148616,
+            "per_seed": [
+              0.5062249648154162,
+              0.5010077437148616,
+              0.5138888888888888
+            ]
+          },
+          "norm_auc": {
+            "max": 1.0,
+            "mean": 1.0,
+            "min": 1.0,
+            "per_seed": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          "plaintext_updates": "low norm or low cosine to the others is suspicious; AUC of separating free-riders from contributors over the last 20 rounds",
+          "secure_aggregation": "not_applicable"
+        },
+        "free_rider_gain": {
+          "definition": "mean NDCG@10 of free-riders minus contributors, same model",
+          "difference_mean": -0.0016579099144855998,
+          "per_seed": [
+            {
+              "ci95_high": 0.0029371532047058314,
+              "ci95_low": -0.007520158150052109,
+              "difference": -0.0022925808572431434
+            },
+            {
+              "ci95_high": 0.007636452649377407,
+              "ci95_low": -0.003292592759594483,
+              "difference": 0.0017345557605990165
+            },
+            {
+              "ci95_high": 0.00021430421716986227,
+              "ci95_low": -0.00898855949657562,
+              "difference": -0.004415704646812672
+            }
+          ]
+        },
+        "ndcg": {
+          "max": 0.02967868104158632,
+          "mean": 0.02941522846261496,
+          "min": 0.029200146573688527,
+          "per_seed": [
+            0.029200146573688527,
+            0.029366857772570025,
+            0.02967868104158632
+          ]
+        },
+        "ndcg_contributors": {
+          "max": 0.030120786851344998,
+          "mean": 0.0295810472471827,
+          "min": 0.029193367147899076,
+          "per_seed": [
+            0.029428987742304017,
+            0.029193367147899076,
+            0.030120786851344998
+          ]
+        },
+        "ndcg_free_riders": {
+          "max": 0.030927922908498093,
+          "mean": 0.027923137332697096,
+          "min": 0.025705082204532326,
+          "per_seed": [
+            0.02713640688506088,
+            0.030927922908498093,
+            0.025705082204532326
+          ]
+        }
+      },
+      "0.3": {
+        "cost_to_everyone": {
+          "clean_ndcg_mean": 0.030061907014803,
+          "relative_ndcg_drop": 0.03256281905899257
+        },
+        "detection": {
+          "cosine_auc": {
+            "max": 0.5094339622641509,
+            "mean": 0.5034635134704604,
+            "min": 0.49459345597528437,
+            "per_seed": [
+              0.49459345597528437,
+              0.5094339622641509,
+              0.5063631221719457
+            ]
+          },
+          "norm_auc": {
+            "max": 1.0,
+            "mean": 1.0,
+            "min": 1.0,
+            "per_seed": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          "plaintext_updates": "low norm or low cosine to the others is suspicious; AUC of separating free-riders from contributors over the last 20 rounds",
+          "secure_aggregation": "not_applicable"
+        },
+        "free_rider_gain": {
+          "definition": "mean NDCG@10 of free-riders minus contributors, same model",
+          "difference_mean": -0.0016294511479958789,
+          "per_seed": [
+            {
+              "ci95_high": 0.00306755839728009,
+              "ci95_low": -0.003896861513111078,
+              "difference": -0.000477626979105826
+            },
+            {
+              "ci95_high": 0.0016558370361425315,
+              "ci95_low": -0.005202148442519755,
+              "difference": -0.0017304992304748093
+            },
+            {
+              "ci95_high": 0.0006559725552098122,
+              "ci95_low": -0.006053235991018947,
+              "difference": -0.002680227234407001
+            }
+          ]
+        },
+        "ndcg": {
+          "max": 0.029182055400419224,
+          "mean": 0.029083006576111712,
+          "min": 0.02894819281148865,
+          "per_seed": [
+            0.02894819281148865,
+            0.029118771516427267,
+            0.029182055400419224
+          ]
+        },
+        "ndcg_contributors": {
+          "max": 0.029986286041577926,
+          "mean": 0.029572041165595284,
+          "min": 0.029091461603261252,
+          "per_seed": [
+            0.029091461603261252,
+            0.029638375851946674,
+            0.029986286041577926
+          ]
+        },
+        "ndcg_free_riders": {
+          "max": 0.028613834624155426,
+          "mean": 0.027942590017599408,
+          "min": 0.027306058807170925,
+          "per_seed": [
+            0.028613834624155426,
+            0.027907876621471865,
+            0.027306058807170925
+          ]
+        }
+      }
+    }
+  },
+  "settings": {
+    "aggregator": "sum",
+    "behaviours": [
+      "zero",
+      "noise"
+    ],
+    "clip_norm": 5.0,
+    "detection_rounds": 20,
+    "fractions": [
+      0.0,
+      0.1,
+      0.3
+    ],
+    "most_popular_ndcg@10": 0.026064060555694032,
+    "noise": "none (clip only)",
+    "phase": "final",
+    "regime": "small",
+    "rounds": 400,
+    "runs": 15,
+    "sample_rate": 0.05,
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "skipped_runs": 3,
+    "users": 9913
+  },
+  "status": "VALID",
+  "wall_seconds": 5488.9
+}

@@ -1,0 +1,36 @@
+{
+  "features": {
+    "items_encoded": 0,
+    "items_reused": 3759,
+    "reuse_verified": true
+  },
+  "friends": {
+    "edges": 52855.0,
+    "isolated_share": 0.13781300666546567,
+    "max_degree": 2542.0,
+    "mean_degree": 19.04341560079265,
+    "median_degree": 6.0,
+    "users": 5551.0,
+    "users_with_friends": 4786.0
+  },
+  "interactions": 209961,
+  "items": 3759,
+  "k_core": 15,
+  "min_stars": 4.0,
+  "per_user_interactions": {
+    "max": 934,
+    "mean": 37.824,
+    "median": 25.0,
+    "min": 15
+  },
+  "protocol": "per-user chronological 70/10/20; ties broken by review_id",
+  "reviews_after_star_filter": 870006,
+  "source_reviews": 1312661,
+  "split_counts": {
+    "test": 39986,
+    "train": 151644,
+    "val": 18331
+  },
+  "users": 5551,
+  "variant": "stars4"
+}

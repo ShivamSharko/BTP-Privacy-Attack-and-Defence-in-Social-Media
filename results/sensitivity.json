@@ -1,0 +1,395 @@
+{
+  "controls": [
+    {
+      "measured": "non-private NDCG@10 divided by MostPopular NDCG@10",
+      "passed": true,
+      "regime": "large",
+      "threshold": 1.1,
+      "value": 1.581220041406373,
+      "variant": "k10"
+    },
+    {
+      "measured": "non-private NDCG@10 divided by MostPopular NDCG@10",
+      "passed": true,
+      "regime": "small",
+      "threshold": 1.1,
+      "value": 1.666073992525034,
+      "variant": "k10"
+    },
+    {
+      "measured": "non-private NDCG@10 divided by MostPopular NDCG@10",
+      "passed": true,
+      "regime": "large",
+      "threshold": 1.1,
+      "value": 1.3280036651927336,
+      "variant": "k20"
+    },
+    {
+      "measured": "non-private NDCG@10 divided by MostPopular NDCG@10",
+      "passed": true,
+      "regime": "small",
+      "threshold": 1.1,
+      "value": 1.379151607858234,
+      "variant": "k20"
+    },
+    {
+      "measured": "non-private NDCG@10 divided by MostPopular NDCG@10",
+      "passed": true,
+      "regime": "large",
+      "threshold": 1.1,
+      "value": 1.2597615555345774,
+      "variant": "stars4"
+    },
+    {
+      "measured": "non-private NDCG@10 divided by MostPopular NDCG@10",
+      "passed": true,
+      "regime": "small",
+      "threshold": 1.1,
+      "value": 1.2716395028727288,
+      "variant": "stars4"
+    }
+  ],
+  "experiment": "sensitivity",
+  "invalid_reasons": [],
+  "limitations": [
+    "Hyperparameters (rounds, sample rate, learning rates, clip norm) stay frozen at the values tuned on the main dataset; no re-tuning was done on any variant, so a variant with different size or sparsity may be favoured or hurt by them.",
+    "The reduced experiment uses fewer seeds and privacy levels than the main grid, and no clip-only or what-if runs.",
+    "Noise is recalibrated for each variant's user count, so epsilon means the same on every dataset but the noise per user differs.",
+    "The k-core and positive-feedback variants are subsets (or supersets) of the same Philadelphia Yelp sample; they test sensitivity to preprocessing, not to the city or the platform.",
+    "The reference row k15 is the main dataset, taken from the main run records restricted to the seeds of this run when they exist, and may carry no NDCG@20."
+  ],
+  "provenance": {
+    "engine_sha256": "bd8c92813d7bb0b1c966138e0ac2e3e2383f8437290ee30b87f4045f117ccc89",
+    "git_commit": "be247fd303f116f1d464fd5bac397e5d7f28d11d",
+    "git_dirty": true,
+    "module_sha256": "a99051dfd482a8a7fd0b38f0ce5180b15ffdf30d5703a67857a25af88a3300a0"
+  },
+  "results": {
+    "k10": {
+      "large": {
+        "conclusion_stable": {
+          "h1_verdict_same": true,
+          "personalisation_sign_same": true,
+          "stable": true
+        },
+        "epsilons": {
+          "8": {
+            "ndcg@10": 0.0238360798685459,
+            "personalisation_retained": 0.3515416726924041,
+            "retention": 0.7616416653100301,
+            "retention_hr@10": 0.7897006283109523,
+            "retention_hr@20": 0.7876333306600368,
+            "retention_ndcg@20": 0.7580241025072348
+          }
+        },
+        "h1_met": false,
+        "interactions": 537666,
+        "item_ridge_ndcg@10": 0.037642777232233325,
+        "items": 9950,
+        "most_popular_ndcg@10": 0.019792097776932544,
+        "nondp_ndcg@10": 0.03129566166636026,
+        "seeds": [
+          0,
+          1,
+          2
+        ],
+        "users": 19141
+      },
+      "small": {
+        "conclusion_stable": {
+          "h1_verdict_same": true,
+          "personalisation_sign_same": false,
+          "stable": false
+        },
+        "epsilons": {
+          "8": {
+            "ndcg@10": 0.021188449545171763,
+            "personalisation_retained": 0.10592062506046203,
+            "retention": 0.6425590810659529,
+            "retention_hr@10": 0.6848513228752049,
+            "retention_hr@20": 0.6623555521542817,
+            "retention_ndcg@20": 0.6229655509123766
+          }
+        },
+        "h1_met": false,
+        "interactions": 537666,
+        "item_ridge_ndcg@10": 0.037642777232233325,
+        "items": 9950,
+        "most_popular_ndcg@10": 0.019792097776932544,
+        "nondp_ndcg@10": 0.03297509936365985,
+        "seeds": [
+          0,
+          1,
+          2
+        ],
+        "users": 19141
+      }
+    },
+    "k15": {
+      "large": {
+        "epsilons": {
+          "8": {
+            "ndcg@10": 0.028306309801086768,
+            "personalisation_retained": 0.2152711829189858,
+            "retention": 0.775940743082353,
+            "retention_hr@10": 0.8029564925247775,
+            "retention_hr@20": 0.7957189901207463,
+            "retention_ndcg@20": 0.756574812815657
+          }
+        },
+        "h1_met": false,
+        "interactions": 410193,
+        "item_ridge_ndcg@10": 0.0452462893980681,
+        "items": 6319,
+        "most_popular_ndcg@10": 0.026064060555694032,
+        "nondp_ndcg@10": 0.03647998903710426,
+        "seeds": [
+          0,
+          1,
+          2
+        ],
+        "users": 9913
+      },
+      "small": {
+        "epsilons": {
+          "8": {
+            "ndcg@10": 0.024601348337276212,
+            "personalisation_retained": -0.10922483120448605,
+            "retention": 0.6235164010196048,
+            "retention_hr@10": 0.6737712740575791,
+            "retention_hr@20": 0.6809068961897764,
+            "retention_ndcg@20": 0.60951004544569
+          }
+        },
+        "h1_met": false,
+        "interactions": 410193,
+        "item_ridge_ndcg@10": 0.0452462893980681,
+        "items": 6319,
+        "most_popular_ndcg@10": 0.026064060555694032,
+        "nondp_ndcg@10": 0.039455815912856296,
+        "seeds": [
+          0,
+          1,
+          2
+        ],
+        "users": 9913
+      }
+    },
+    "k20": {
+      "large": {
+        "conclusion_stable": {
+          "h1_verdict_same": true,
+          "personalisation_sign_same": true,
+          "stable": true
+        },
+        "epsilons": {
+          "8": {
+            "ndcg@10": 0.03381010948421118,
+            "personalisation_retained": 0.1989818207076108,
+            "retention": 0.80215649581375,
+            "retention_hr@10": 0.8223770134958641,
+            "retention_hr@20": 0.8093090909090911,
+            "retention_ndcg@20": 0.7740054624550853
+          }
+        },
+        "h1_met": false,
+        "interactions": 299332,
+        "item_ridge_ndcg@10": 0.05221893532844341,
+        "items": 4284,
+        "most_popular_ndcg@10": 0.0317386316249533,
+        "nondp_ndcg@10": 0.04214901912613999,
+        "seeds": [
+          0,
+          1,
+          2
+        ],
+        "users": 6001
+      },
+      "small": {
+        "conclusion_stable": {
+          "h1_verdict_same": true,
+          "personalisation_sign_same": true,
+          "stable": true
+        },
+        "epsilons": {
+          "8": {
+            "ndcg@10": 0.029847323825139608,
+            "personalisation_retained": -0.15716690931934565,
+            "retention": 0.6818756605663383,
+            "retention_hr@10": 0.7352434295562258,
+            "retention_hr@20": 0.7161077672685585,
+            "retention_ndcg@20": 0.6482202893022059
+          }
+        },
+        "h1_met": false,
+        "interactions": 299332,
+        "item_ridge_ndcg@10": 0.05221893532844341,
+        "items": 4284,
+        "most_popular_ndcg@10": 0.0317386316249533,
+        "nondp_ndcg@10": 0.043772384836774536,
+        "seeds": [
+          0,
+          1,
+          2
+        ],
+        "users": 6001
+      }
+    },
+    "stars4": {
+      "large": {
+        "conclusion_stable": {
+          "h1_verdict_same": true,
+          "personalisation_sign_same": true,
+          "stable": true
+        },
+        "epsilons": {
+          "8": {
+            "ndcg@10": 0.03146917002469724,
+            "personalisation_retained": 0.16673011898257814,
+            "retention": 0.8281805953497708,
+            "retention_hr@10": 0.8674065420560747,
+            "retention_hr@20": 0.8480410802586537,
+            "retention_ndcg@20": 0.8108178185084164
+          }
+        },
+        "h1_met": false,
+        "interactions": 202903,
+        "item_ridge_ndcg@10": 0.044745902652289365,
+        "items": 3759,
+        "most_popular_ndcg@10": 0.03016281619138573,
+        "nondp_ndcg@10": 0.03799795624456362,
+        "seeds": [
+          0,
+          1,
+          2
+        ],
+        "users": 5551
+      },
+      "small": {
+        "conclusion_stable": {
+          "h1_verdict_same": true,
+          "personalisation_sign_same": true,
+          "stable": true
+        },
+        "epsilons": {
+          "8": {
+            "ndcg@10": 0.027344397555651823,
+            "personalisation_retained": -0.3439859364691968,
+            "retention": 0.7129063143873015,
+            "retention_hr@10": 0.7652421652421653,
+            "retention_hr@20": 0.7658663688814442,
+            "retention_ndcg@20": 0.706593018882609
+          }
+        },
+        "h1_met": false,
+        "interactions": 202903,
+        "item_ridge_ndcg@10": 0.044745902652289365,
+        "items": 3759,
+        "most_popular_ndcg@10": 0.03016281619138573,
+        "nondp_ndcg@10": 0.038356228586855244,
+        "seeds": [
+          0,
+          1,
+          2
+        ],
+        "users": 5551
+      }
+    }
+  },
+  "settings": {
+    "epsilons": [
+      8.0
+    ],
+    "evaluated_on": "test",
+    "frozen": {
+      "epsilons": [
+        1.0,
+        2.0,
+        4.0,
+        8.0,
+        16.0
+      ],
+      "model": {
+        "content_scale": 0.4,
+        "dim": 16,
+        "temperature": 20.0,
+        "use_content": true,
+        "use_ids": true
+      },
+      "notes": "Validation NDCG@10 at seed 0: MostPopular 0.0174, ItemKNN 0.0308, item-item ridge 0.0342. large: non-private 0.0305, clip-only 0.0296 (lr 0.05), epsilon 8 0.0215. small: non-private 0.0314, clip-only 0.0317 (adam), epsilon 8 0.0190. Private runs use the private_server_* settings; so does the clip-only diagnostic. Model dimension 8 and clip norms 2 and 10 were tried and were not better under DP.",
+      "regimes": {
+        "large": {
+          "clip_norm": 5.0,
+          "momentum": 0.9,
+          "private_server_lr": 0.02,
+          "private_server_opt": "adam",
+          "rounds": 40,
+          "sample_rate": 0.5,
+          "server_lr": 0.05,
+          "server_opt": "adam"
+        },
+        "small": {
+          "clip_norm": 5.0,
+          "momentum": 0.9,
+          "private_server_lr": 0.05,
+          "private_server_opt": "sgd",
+          "rounds": 400,
+          "sample_rate": 0.05,
+          "server_lr": 0.02,
+          "server_opt": "adam"
+        }
+      },
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "tuned_on": "validation split only (phase tune: train history, validation targets), 17 Nov 2026 12:37-12:57 IST, 29 runs in results/runs/tune-s1, tune-s2, tune-s3; frozen before any test-split evaluation of this model",
+      "version": 1
+    },
+    "h1": {
+      "epsilon": 8.0,
+      "threshold": 0.9
+    },
+    "phase": "final",
+    "reference_row": {
+      "name": "k15",
+      "source": "requested seeds of the main run records (final phase)"
+    },
+    "regimes": [
+      "large",
+      "small"
+    ],
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "variants": {
+      "k10": {
+        "k_core": 10,
+        "min_stars": null,
+        "name": "k10"
+      },
+      "k20": {
+        "k_core": 20,
+        "min_stars": null,
+        "name": "k20"
+      },
+      "stars4": {
+        "k_core": 15,
+        "min_stars": 4.0,
+        "name": "stars4"
+      }
+    }
+  },
+  "status": "VALID",
+  "wall_seconds": 93.29
+}

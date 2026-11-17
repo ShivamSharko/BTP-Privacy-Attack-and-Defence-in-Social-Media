@@ -329,3 +329,31 @@ def test_non_private_training_beats_most_popular(bundle: DataBundle) -> None:
         bundle.n_items,
     )["ndcg@10"]
     assert model_ndcg > 1.3 * popular
+
+
+def test_a_custom_aggregator_receives_the_clipped_cohort_and_its_own_stream(
+    bundle: DataBundle,
+) -> None:
+    seen: list[tuple[int, float]] = []
+
+    def aggregate(deltas: torch.Tensor, rng: np.random.Generator) -> torch.Tensor:
+        seen.append((deltas.shape[0], float(deltas.norm(dim=1).max())))
+        assert 0.0 <= rng.random() < 1.0
+        return deltas.sum(dim=0).to(torch.float64)
+
+    config = _config(rounds=2, clip_norm=0.05)
+    custom = train(bundle, "tune", MODEL, config, seed=0, aggregator=aggregate)
+    plain = train(bundle, "tune", MODEL, config, seed=0, force_materialised=True)
+    assert len(seen) == 2
+    assert all(size > 0 and largest <= 0.05 * (1 + 1e-5) for size, largest in seen)
+    assert [s.cohort for s in custom.stats] == [s.cohort for s in plain.stats]
+    assert np.allclose(custom.flat, plain.flat, rtol=1e-5, atol=1e-7)
+    with pytest.raises(ValueError):
+        train(
+            bundle,
+            "tune",
+            MODEL,
+            _config(rounds=1, clip_norm=0.05, noise_multiplier=1.0),
+            seed=0,
+            aggregator=aggregate,
+        )

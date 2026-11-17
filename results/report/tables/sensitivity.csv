@@ -1,0 +1,9 @@
+Variant,Regime,Users,Items,Interactions,MostPopular NDCG@10,Item-item ridge NDCG@10,Non-private NDCG@10,NDCG@10 at epsilon 8,Retention at list length 10,Retention at list length 20,Personalisation retained,H1 verdict same as main dataset
+k-core 10,large,"19,141","9,950","537,666",0.0198,0.0376,0.0313,0.0238,0.762,0.758,0.352,yes
+k-core 10,small,"19,141","9,950","537,666",0.0198,0.0376,0.0330,0.0212,0.643,0.623,0.106,yes
+"k-core 15 (main dataset, reference)",large,"9,913","6,319","410,193",0.0261,0.0452,0.0365,0.0283,0.776,0.757,0.215,n/a
+"k-core 15 (main dataset, reference)",small,"9,913","6,319","410,193",0.0261,0.0452,0.0395,0.0246,0.624,0.610,-0.109,n/a
+k-core 20,large,"6,001","4,284","299,332",0.0317,0.0522,0.0421,0.0338,0.802,0.774,0.199,yes
+k-core 20,small,"6,001","4,284","299,332",0.0317,0.0522,0.0438,0.0298,0.682,0.648,-0.157,yes
+4 stars or more,large,"5,551","3,759","202,903",0.0302,0.0447,0.0380,0.0315,0.828,0.811,0.167,yes
+4 stars or more,small,"5,551","3,759","202,903",0.0302,0.0447,0.0384,0.0273,0.713,0.707,-0.344,yes

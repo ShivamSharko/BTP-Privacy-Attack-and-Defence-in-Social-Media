@@ -281,7 +281,7 @@ The general path builds every user's full update (users x 107,679 numbers per ch
 
 Evaluation (`evaluate_nodes`) scores each node with its own model on its own history and targets, and the federated model is scored on exactly the same users.
 
-**Numbers to remember.** Default 3,000 nodes (sampled from users with at least one friend), 100 rounds, degree 4, epsilon none and 8, 3 seeds. Each node sends 4 x 107,679 x 4 bytes, about 1.7 MB, per round. H2 (pre-registered): gossip at epsilon 8 has lower NDCG@10 than server-based central DP at epsilon 8, with a 95% bootstrap interval of the per-user difference excluding 0. Result: [see report].
+**Numbers to remember.** Default 3,000 nodes (sampled from users with at least one friend), 100 rounds, degree 4, epsilon none and 8, 3 seeds. The reported run used 2,500 users and 3 seeds, because 3,000 users did not fit in this PC's memory beside the other experiments. Each node sends 4 x 107,679 x 4 bytes, about 1.7 MB, per round. H2 (pre-registered): gossip at epsilon 8 has lower NDCG@10 than server-based central DP at epsilon 8, with a 95% bootstrap interval of the per-user difference excluding 0. Result: [see report].
 
 **What it does not do.** Local DP adds noise at every node, so the total noise is much larger than a central sum gets for the same epsilon. There is no sampling amplification, so epsilon composes over all rounds. Rounds are synchronous, only a sample of users is simulated, and the local learning rate was tuned on synthetic data only.
 
@@ -379,6 +379,8 @@ The three aggregation modes (`fl/aggregate.py: robust_total`, `experiments/poiso
 
 Modes 2 and 3 need to see individual updates, so they cannot be combined with secure aggregation, and they run without DP noise.
 
+Two more modes were added on the evening of 17 November 2026 (CHANGE-024): `committee_median_size4` and `committee_median_size20`, where the server sees only committee sums and takes their median (section 25). The same attack harness is also used for free-riding (section 24).
+
 ---
 
 ## 17. Availability and participation bias (RQ5)
@@ -391,7 +393,7 @@ Modes 2 and 3 need to see individual updates, so they cannot be combined with se
 
 **Numbers to remember.** 5 seeds; with 5 seeds the smallest possible two-sided Wilcoxon p is 0.0625, so the sign pattern (5 of 5) is the evidence and the test is reported as underpowered. H5: correlated availability gives a larger gap than independent. Result: [see report].
 
-**What it does not do.** Availability is synthetic and rank-based, not measured from device traces.
+**What it does not do.** The four scenarios above are synthetic and rank-based. Three further scenarios use a real device trace (section 26), though the devices are not linked to real users.
 
 **Likely questions.**
 - *Why is the epsilon "nominal"?* Because the assumption behind it is deliberately broken in two of the four scenarios.
@@ -476,7 +478,7 @@ Modes 2 and 3 need to see individual updates, so they cannot be combined with se
 - **Atomic writes** (`io.py`): each file is written to a temporary file in the same folder, flushed and synced, then moved over the target with `os.replace`. A reader never sees a half-written result.
 - **Config hash** (`config.py: config_hash`): SHA-256 of the RFC 8785 canonical JSON of the run configuration. It is stored in every record and every ledger receipt. `runner.py: _finished` skips a run only if status is `ok` and the hash matches, so changing a setting re-runs it.
 - **Resume and failure:** a failed run is recorded as `failed` and retried next time, never mistaken for done. Other statuses are `accounting_inconsistent`, `ledger_invalid`, `refused_before_first_round`.
-- **Record contents:** model SHA-256, thread count, torch version, git commit and `uv.lock` hash (`environment.py`).
+- **Record contents:** model SHA-256, thread count, torch version, git commit and `uv.lock` hash (`environment.py`), and a hash of the engine source files (section 28). A record made by different engine code is flagged `stale_code` on resume, and `PRISM_STRICT_RESUME=1` reruns it.
 
 **Numbers to remember.** Same seed and lockfile give identical run records on this PC; across machines, floating-point differences can appear. The Yelp data cannot be shared, so third parties reproduce on synthetic data with `prism demo-small`.
 
@@ -487,19 +489,191 @@ Modes 2 and 3 need to see individual updates, so they cannot be combined with se
 
 ---
 
-## 22. What was cut, and why
+## 22. Sensitivity analyses: k-core and 4 stars
 
-- **Committee-median robustness mode** (ADR-025 mode c): first on the cut list, not built.
-- **The k in {10, 20} sensitivity sweep** and **the analysis of ratings of 4 stars or more**: would need the dataset and embeddings rebuilt; listed as open in the pre-registration amendment.
-- **Trace-based availability, free-riding analysis**: availability is synthetic only.
-- **Flower, Ray, RecBole, DVC, MLflow, Streamlit, PyG**: listed in the old stack but never installed. Flower's Ray runtime is experimental on Windows and its DP support is a preview; the in-process engine is simpler and testable.
+**What it is.** Three extra versions of the dataset and a reduced rerun of the privacy-utility experiment (RQ1) on each. `k10` keeps users and businesses with at least 10 interactions, `k20` at least 20, and `stars4` keeps only reviews of 4 stars or more and then applies k = 15. The main dataset is k = 15 with every review counted.
+
+**Why it is there.** The pre-registration promised it. The k = 15 choice and the habit of counting every review as a positive were our decisions, and the headline result (privacy costs a lot at 9,913 users) should not be a side effect of them.
+
+**How it works.**
+1. `data/variants.py: VARIANTS` defines the three variants. `select_interactions` applies the star filter, then `filtering.iterative_kcore`. `build_variant` then does the same steps as the main build: the per-user chronological 70/10/20 split (`chronological_split`, leakage check), integer ids, pooled user vectors from train only, and the friend graph restricted to the variant's users.
+2. Item text embeddings are not recomputed when avoidable: `_item_vectors` reuses the main build's vectors by business, but only after re-encoding a sample of 64 businesses and checking that the cosine with the stored vector is at least 0.999. That proves the embedded text and model are unchanged.
+3. Files go to `data/processed_<name>` (git-ignored). The aggregate card (counts only, no identifiers) goes to `results/sensitivity/<name>/dataset_card.json`.
+4. `experiments/sensitivity.py: run` rebuilds each variant if needed, then for each regime and seed trains the non-private reference and one model per epsilon (default epsilon 8 and 1, seeds 0 to 2). The noise multiplier is recalibrated for each variant's user count, so epsilon means the same everywhere. MostPopular and item-item ridge are recomputed on each variant.
+5. `conclusion_stable` compares each variant with the main dataset (row "k15", rebuilt from the main run records when they exist): is the H1 verdict at epsilon 8 the same, and does personalisation retained keep its sign?
+6. Control: the non-private model must reach at least 1.1 times MostPopular's NDCG@10, otherwise the retention numbers are not interpretable and the file is INVALID.
+7. `prism sensitivity --build-only` builds the datasets and trains nothing.
+
+**Numbers to remember.** Users, businesses, interactions: k = 10 has 19,141, 9,950 and 557,772; k = 20 has 6,001, 4,284 and 311,935; 4 stars or more has 5,551, 3,759 and 209,961; the main dataset (k = 15) has 9,913, 6,319 and 410,193. Hyperparameters stayed frozen at the main-dataset values. H1 fails on every variant, so the conclusion does not depend on the filter. The retention figures themselves: see results/report/report.html.
+
+**What it does not do.** No re-tuning on any variant, so a variant of a different size may be favoured or hurt by the frozen settings. Fewer seeds and privacy levels than the main grid, and no clip-only or what-if runs. All variants come from the same Philadelphia sample, so this tests sensitivity to preprocessing, not to another city or platform. The reference row can lack NDCG@20 when it has to be taken from the summary file instead of run records.
+
+**Likely questions.**
+- *Why not re-tune on each variant?* Then differences would mix an effect of the data with an effect of tuning. We kept the settings fixed and say that a variant may be favoured or hurt by them.
+- *Does a 4-star filter mean "the user liked it"?* It is a rough proxy for positive feedback. The main dataset counts every review as an interaction.
+- *What if H1 had passed on a variant?* It would show the conclusion depends on the filter. It failed everywhere, so the claim is stable across these three choices.
+
+---
+
+## 23. The list-length readout
+
+**What it is.** The retention at epsilon 8 and 1, computed from NDCG@20, HR@10 and HR@20 as well as NDCG@10, inside the sensitivity result.
+
+**Why it is there.** An examiner can ask whether the answer depends on looking at a list of 10. This shows retention at two list lengths and with a second metric.
+
+**How it works.** `experiments/sensitivity.py: list_length_readout` takes, per regime and epsilon, the mean private metric over the mean non-private metric across the seeds that both runs share. A missing metric or no shared seed gives `None`, not zero. The values appear per variant as `retention_ndcg@20`, `retention_hr@10` and `retention_hr@20`.
+
+**Numbers to remember.** Retention measured at list length 20 is one to three points lower than at list length 10. The conclusion does not change.
+
+**What it does not do.** It is a readout on the sensitivity runs, not a second hypothesis test, and it has no confidence interval.
+
+**Likely questions.**
+- *Why is retention lower at 20?* We measured it and did not test an explanation. The size of the difference (one to three points) is what matters: it does not move any verdict.
+- *Is NDCG@10 a cherry-picked cut?* It was fixed in the pre-registration; the readout shows the choice does not change the verdict.
+
+---
+
+## 24. Free-riding clients
+
+**What it is.** A free-rider is a client that takes part in training but does not do the work: it wants the trained model without paying for the computation. We simulate two behaviours. `zero` sends an all-zero update. `noise` sends Gaussian noise rescaled to the mean L2 norm of the honest updates in the same chunk, so its length does not give it away.
+
+**Why it is there.** It was a Should item in the roadmap and a known weakness of open training. It also shows a conflict: the server can only detect a free-rider if it sees individual updates, which secure aggregation prevents.
+
+**How it works.** `attacks/free_riding.py` and `experiments/free_riding.py`.
+- `choose_free_riders` picks a prefix of one random permutation, so the sets nest as the fraction grows (it reuses `poisoning.choose_malicious`). `make_free_rider_hook` replaces those clients' updates before clipping.
+- All runs are clip-only (no noise) with the plain sum, regime `small`, sampling rate 0.02, 200 rounds, free-rider fractions 0, 0.1 and 0.3, three seeds.
+- **Cost:** `_cell` reports the relative drop in overall NDCG@10 against the 0% run.
+- **Gain:** the mean NDCG@10 of free-riders minus that of contributors under the same final model, with a bootstrap interval per seed (`bootstrap_difference`). Free-riders still get recommendations from their own history at serving time.
+- **Detection:** `detection_scores` gives, for every client-round, the update norm and the cosine similarity to the mean of the other updates in the same chunk, computed on the clipped updates the server would receive. `DetectionCollector` keeps them (with the free-rider label, never user ids) for the last 20 rounds, and `detection_aucs` turns them into the AUC of separating free-riders from contributors (low norm and low cosine are suspicious).
+- **Secure aggregation:** the detection result is recorded as `not_applicable`. The server sees only the sum, and one masked vector looks uniformly random (section 11), so there are no per-client norms or cosines to compute. A zero-update client also changes the sum exactly as if it had stayed away.
+- **Controls:** the `zero` behaviour must be caught by the norm score (AUC at least 0.95), and the fraction-0 model must reach at least 1.1 times MostPopular. A failure marks the file INVALID. Whether `noise` evades the norm score (AUC within 0.1 of 0.5) and is caught by the cosine score (AUC at least 0.8) is a readout (`noise_readout`), not a control.
+
+**Numbers to remember.** Fractions 0, 10, 30%; 200 rounds at rate 0.02; detection over the last 20 rounds. Cost, gain and AUC values: see results/report/report.html.
+
+**What it does not do.** Only two simple behaviours, and free-riders do not adapt; an adaptive one could imitate honest updates. Clip-only runs have no DP noise, so no privacy guarantee applies. The experiment illustrates a conflict and does not propose a detector. Intervals are min and max over three seeds. The AUCs cover only the last 20 rounds.
+
+**Likely questions.**
+- *Why does the noise behaviour use the honest norm?* A zero update is trivially caught by its norm. Matching the norm removes that signal, so we test the next-simplest score, the direction of the update.
+- *So can a server defend against free-riding?* Only when it sees individual updates. With secure aggregation it cannot, whatever the score.
+- *Is a free-rider hurt by not contributing?* We measure that directly as the gain (free-riders against contributors on the same model); the sign is in the report.
+
+---
+
+## 25. Committee-median aggregation
+
+**What it is.** A middle way between the two earlier robust options (ADR-025, mode c). The cohort is split at random into committees. Each committee's updates are summed, as under secure aggregation, so the server sees only the committee sums. The server then takes the coordinate-wise median of those sums and multiplies it by the number of committees, so the result is on the scale of a plain sum.
+
+**Why it is there.** The coordinate-wise median and the trimmed mean (section 16) need to see every update, so they cannot be used with secure aggregation. A committee hides each update among the others in its committee and still lets the server filter whole committees that look wrong.
+
+**How it works.** `attacks/poisoning.py: make_committee_median` builds a custom aggregator function that `fl/server.py: train` accepts in place of the built-in names, so the engine itself is unchanged. With `committee_size` the number of committees is round(cohort / size); with fewer than two committees it falls back to the plain sum. `clean_committee_share(f, size)` is (1 - f) to the power size: the chance that a committee of random accounts has no attacker when a share f of accounts is attacker-controlled. `experiments/poisoning.py` adds two modes, `committee_median_size4` and `committee_median_size20`, and `committee_tradeoff` collects clean quality, exposure and the clean share per size.
+
+**Numbers to remember.** Chance a committee has no attacker: at 10% attackers 66% for size 4 and 12% for size 20; at 20% attackers 41% and 1.2%; at 30% 24% and 0.08% (plain arithmetic). With the default rate 0.02 a round has about 198 clients, so roughly 50 committees of 4 or 10 committees of 20. The median is robust only while most committees are clean. Measured exposure and quality: see results/report/report.html.
+
+**The trade-off.** A small committee protects an update poorly (hidden among only 3 others) but most committees stay clean, so the median can discard the attacker. A large committee hides each update well (among 19 others) but almost every committee contains an attacker, so the median has little to discard. Neither size gives both.
+
+**What it does not do.** Committees are simulated: the sums are computed in the clear and no secure aggregation protocol runs. There is no DP noise, so no privacy guarantee applies to these modes. Attackers are not adaptive. The server assigns accounts to committees at random; a real deployment would need that assignment to be unpredictable to attackers, or they could cluster in one committee. The median of sums scaled by the committee count is a biased estimate of the true sum.
+
+**Likely questions.**
+- *Is this secure aggregation plus robustness?* It combines the two ideas in a simulation. Only the committee sums are visible to the server, but no protocol is run and no noise is added.
+- *Why two sizes?* To show the trade-off. One size would hide it.
+- *Why is a size-4 committee weak?* An honest-but-curious server that knows 3 members could recover the fourth update by subtraction.
+
+---
+
+## 26. Trace-based availability
+
+**What it is.** The synthetic availability scenarios of section 17 are joined by three that use a real device trace: the FedScale `client_behave_trace`. It lists, for 107,749 devices, the time intervals when each was available. The mean share of time a device is available is 0.21. The file is 25.6 MB.
+
+**Why it is there.** It replaces a hand-made assumption ("availability follows activity") with measured availability patterns, and checks the RQ5 result against it.
+
+**How it works.** `data/traces.py` and `experiments/participation.py`, `fl/availability.py`.
+- `trace`: devices are assigned to users at random (`assign_devices`, without replacement because there are more devices than users). A user's join probability is `sample_rate` times the device's active share, floored at 0.05 (`trace_static`).
+- `trace_activity`: the same devices, but rank-matched to history length so the most active users get the most available devices (`match_devices_by_rank`).
+- `trace_replay`: availability replayed round by round (`trace_schedule`, `availability_schedule`). Each user gets a random device and a random time offset; in round r the user is available if the device is active at offset + r x 1800 seconds (time wraps around the trace length). `replay_hook` zeroes the update of every client that is unavailable. For the SGD server optimiser the rate is multiplied by 1 / (mean availability), a constant that does not depend on user data (`server_lr_factor`); Adam is left alone.
+- `trace_readout` compares overall NDCG@10 of the trace scenarios with `independent` and `always`. It is not a control and not part of the H5 verdict.
+- The trace file goes at `data/external/fedscale/client_behave_trace`. It is optional: without it the three scenarios are skipped, with a note in the result.
+
+**Why epsilon is exact for random assignment and replay.** The device assignment, the offsets and the schedule are fixed without looking at any user's data. Selection is still Poisson at the nominal rate, and a zero update (from an unavailable client) is within the clipping norm. So the accountant's assumptions hold. **Why it is only nominal for rank-matching.** `trace_activity` gives each user a device by a rank over all users' history lengths. Adding or removing one user shifts other users' ranks and so their devices and probabilities, which the add-or-remove analysis does not allow for. This is the same reason `activity` and `social` are nominal.
+
+**The 30-minute assumption.** One round is taken as 30 minutes, so 400 rounds span about 8.3 days. The real timing of a round is not measured; it is a modelling choice.
+
+**Why a restricted loader.** The trace is a Python pickle from the internet, and loading a pickle can run any code it contains. `RestrictedUnpickler.find_class` allows exactly one global, `collections.OrderedDict`, and refuses everything else. `load_device_traces` also checks the structure (lists of integer intervals, sorted and non-overlapping), keeps only intervals and trace length per device, and drops the device model string. It is never read with `pickle.load`.
+
+**What it does not do.** The devices are not linked to real Yelp users: they come from another population and are assigned by chance (or rank). Devices are sampled without regard to model, region or trace length. The trace is for research use only (the FedScale repository is Apache-2.0, its dataset notes say research use); it lives under `data/`, is git-ignored and is not redistributed. Results: see results/report/report.html.
+
+**Likely questions.**
+- *Is this real user behaviour?* Real device behaviour, assigned to Yelp users by us. It shows what measured availability looks like, not what these users do.
+- *Why is a zero update allowed in the exactness argument?* Clipping bounds every update by C, and zero is inside that bound, so an unavailable client does not break sensitivity.
+- *What if the 30 minutes were 10?* The pattern of who is available per round would change; we did not run that.
+
+---
+
+## 27. Flower parity
+
+**What it is.** A one-off check that the same federated algorithm, run through the Flower framework, gives the same model as our in-process reference. The script is `scripts/flower_parity.py`, the write-up `docs/flower-parity.md`, the result `results/flower_parity.json`.
+
+**Why it is there.** The main experiments use our own engine. A reader may ask whether that engine behaves like a standard framework. Flower is the best-known one.
+
+**How it works.** Flower 1.43.0, simulation runtime, on Windows. Synthetic data (400 users, 300 items, dimension 8), 5 rounds, fixed cohorts precomputed with the engine's own sampling stream, and a fixed per-client history split seeded by (seed, round, client id) on both sides. A custom Flower strategy selects exactly those clients, clips their updates, sums, divides by the expected cohort and takes an SGD step. The reference does the same with prism's own functions (`make_delta_fn`, `clip_rows`, `noisy_mean`). Optionally Gaussian noise is added once per round from the same seeded stream on both sides.
+
+**Numbers to remember.** After five rounds the largest parameter difference between the Flower run and the reference is about 6e-08, with and without noise. That is float32 rounding level, not bit-identical.
+
+**What it does not show.** Nothing about scale: it is a small synthetic problem and five rounds. Not that the client mathematics is right, because the same prism client function runs on both sides. Not equivalence to `prism.fl.server.train` itself (only its aggregation step is checked directly). Nothing about Flower's own differential-privacy wrappers, as clipping and noise are in a custom strategy. Not that cohort selection and splits are equivalent under Flower's own random selection; they were fixed on purpose.
+
+**Why a separate environment.** The project environment is not touched. Flower and its simulation backend are heavy and Ray on Windows is documented as experimental. The script is never imported by `prism` and is not a dependency (ADR-055 still stands). See `docs/flower-parity.md` for the commands.
+
+**Likely questions.**
+- *So are you running on Flower?* No. The main results use the in-process engine. Flower is a check of plumbing.
+- *Why are the numbers not identical?* Floating-point addition order differs; the gap is about one unit in the last place.
+- *Does this validate the privacy accounting?* No. It checks that clipping, summing and the server step agree; the accountants are checked in section 9.
+
+---
+
+## 28. Provenance: the engine hash, stale records and strict resume
+
+**What it is.** A way to tell which code produced a result, independent of git.
+
+**Why it is there.** The independent review (design section 9.5) found that run records did not identify the code that made them, and that a resumed run could silently reuse a record from older code. The records of 17 November also came from code that had not yet been committed, so a git commit alone does not identify them.
+
+**How it works.** `experiments/runner.py`.
+- `ENGINE_FILES` lists 21 source files a training run depends on: configuration, seeding, data bundle, model, the round loop and its parts, the accountants, the ledger, metrics, calibration and the runner. `code_sha256` hashes their relative paths and contents (line endings normalised) with SHA-256. It can be recomputed at any commit.
+- Experiment, attack and report modules are deliberately not in it, so adding an experiment does not make existing runs stale. Result files carry `payload_provenance`: `engine_sha256`, a `module_sha256` for the experiment module and its helpers, the git commit and a dirty flag.
+- Every run record stores `provenance.code_sha256`. `_finished` reuses a record only if its status is ok and its configuration hash matches. It adds `stale_code`, true when the stored engine hash differs from the current one, and also true for records that predate the hash.
+- `PRISM_STRICT_RESUME=1` makes `_finished` refuse a stale record, so it is rerun instead of reused.
+
+**Numbers to remember.** 21 engine files. The clean rerun reproduced the earlier numbers exactly; every run record now carries the hash.
+
+**What it does not do.** It is not a signature and proves nothing about who ran the code. It does not cover the data, the lockfile (a separate hash is stored with the environment report) or the experiment modules (their hash is `module_sha256`). A stale flag says the engine changed, not that the results would differ.
+
+**Likely questions.**
+- *Why not just the git commit?* The first runs were made before the code was committed, and a dirty working tree has no commit. A content hash works either way.
+- *Why leave experiment files out?* A new experiment should not invalidate old runs of other experiments.
+- *When would you set strict resume?* Before a final rerun, to be sure nothing is reused from different engine code.
+
+---
+
+## 29. What was cut, and why
+
+Updated on the evening of 17 November 2026 (CHANGE-024): the first group below was cut in the morning and is now built and run.
+
+**Built later the same day (sections 22 to 28):**
+- Committee-median robustness mode (ADR-025 mode c).
+- The k in {10, 20} sensitivity sweep and the analysis of ratings of 4 stars or more.
+- Trace-based availability and the free-riding analysis.
+- The Flower parity check, as a separate script and environment.
+- Engine provenance hash with stale-record flag and strict resume.
+
+**Still not done:**
+- **The dataset provider's pre-publication review.** It stays with the owners and blocks any public use of results.
+- **Flower, Ray, RecBole, DVC, MLflow, Streamlit, PyG as dependencies**: listed in the old stack but never installed. Flower's Ray runtime is experimental on Windows and its DP support is a preview; the in-process engine is simpler and testable. Flower is used only in the parity script (section 27).
 - **A real secure aggregation protocol**: no secret sharing, no network, no double masking.
 - **A hosted dashboard, pushing to GitHub**: the Yelp terms and the project budget (zero) rule them out. The report is a static HTML file.
 - **Conference and journal papers**: excluded from all research by the owners' decision on 17 November 2026. The literature review uses standards, agency reports, official documentation, vendor write-ups and repositories only. Because of this, some questions (measured attack rates, formal secure aggregation proofs) are not answered from literature.
 
 **Likely questions.**
-- *What would you do next?* Build the real protocol with double masking, run the k sensitivity sweep, use device traces, and test a stronger membership attack.
-- *Does cutting committee-median weaken the result?* Poisoning still compares secure sum, trimmed mean and median, which covers the main trade-off.
+- *What would you do next?* Build the real protocol with double masking, test a stronger membership attack, test adaptive attackers and adaptive free-riders, link devices to users with a real deployment's data, and submit the findings to the dataset provider for review.
+- *Was committee-median cut?* It was cut in the morning and built in the evening. Poisoning now compares secure sum, trimmed mean, median and two committee sizes (section 25).
+- *What is still open?* The dataset provider's pre-publication review, which the owners must arrange. Nothing may be presented or published before it.
 
 ---
 
@@ -512,7 +686,7 @@ Modes 2 and 3 need to see individual updates, so they cannot be combined with se
 5. **Three accountants must agree;** the value of record is the larger of PRV and PLD at delta = 1/(10 n) (about 1e-5), with delta = 1/n^2 reported too.
 6. **The model has 107,679 parameters:** ID embeddings (dimension 16) on a fixed public content base. The earlier content-only model could not personalise.
 7. **Privacy has a real cost with 9,913 users.** The pre-registered H1 (at least 90% of non-private quality at epsilon 8) was expected to fail (validation retention about 0.70 and 0.61); the final value is [see report].
-8. **Without secure aggregation the server can read histories and friendships from raw updates;** secure aggregation removes per-user vectors, but our implementation is a simulation, not a deployable protocol.
+8. **Without secure aggregation the server can read histories and friendships from raw updates, and can also spot free-riders and filter attackers;** secure aggregation removes per-user vectors, so it takes all of that away together. Our implementation is a simulation, not a deployable protocol. Committees of clients are a middle way, with a size trade-off.
 9. **Every attack has controls.** If the positive control fails, the result is INVALID, so a low score means something.
 10. **The ledger proves a record was not altered,** not that training happened as recorded; the gate blocks over-budget rounds and logs the refusal.
 
@@ -540,3 +714,11 @@ Modes 2 and 3 need to see individual updates, so they cannot be combined with se
 - **Poisson sampling.** Each user joins independently with the same probability.
 - **Amplification.** The smaller privacy loss per round that comes from only sometimes including each user.
 - **Lineage.** One training run as a chain of rounds under one budget.
+- **k-core.** The part of the data left after repeatedly removing users and businesses with fewer than k interactions.
+- **Sensitivity analysis.** Repeating an experiment with one choice changed (here k or the star filter) to see whether the conclusion moves.
+- **Free-rider.** A client that takes part in training and receives the model but sends an update that costs nothing (zeros, or noise of honest size).
+- **Committee.** A random group of clients whose updates are summed together; the server sees only the group sum. The median of committee sums is the robust aggregate.
+- **Provenance hash.** A SHA-256 of the engine source files, stored in each run record, that identifies the code that produced it independent of git.
+- **Stale record.** A stored run made by engine code that differs from the current code; flagged as `stale_code` and rerun under `PRISM_STRICT_RESUME=1`.
+- **Restricted unpickler.** A pickle reader that refuses every global except one named class, so a malicious file cannot run code.
+- **Parity check.** A comparison showing two implementations of one algorithm give the same output within floating-point rounding.

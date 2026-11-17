@@ -8,17 +8,26 @@ correlated with friend count). For each trained model the per-user NDCG@10 is
 grouped by activity tercile and by friend-count band, and the top-minus-bottom gap
 is compared with the gap under independent availability, seed by seed.
 
+Three further scenarios use a real device trace (FedScale ``client_behave_trace``), run only
+when the trace file exists: "trace" (devices assigned to users at random, static probability
+= the device active share), "trace_activity" (the same devices, rank-matched so the most
+active users get the most available devices) and "trace_replay" (availability replayed round
+by round from the trace, one round = 30 minutes, an assumption).
+
 Privacy note. Noise is calibrated at the maximum sampling rate, so the epsilon shown
-for the "activity" and "social" scenarios is NOMINAL: it assumes availability is
-independent of the user's data, which these scenarios deliberately violate.
+for the "activity", "social" and "trace_activity" scenarios is NOMINAL: it assumes availability
+is independent of the user's data, which these scenarios deliberately violate. For "trace" and
+"trace_replay" it is EXACT: the device assignment and the schedule do not depend on user data.
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import sys
 import time
 import traceback
+from collections.abc import Callable
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from functools import lru_cache
 from pathlib import Path
@@ -26,15 +35,24 @@ from typing import Any
 
 import numpy as np
 import numpy.typing as npt
+import torch
 
 from prism.config import RunConfig, config_hash
 from prism.data.bundle import DataBundle, load_bundle
 from prism.data.social import FRIENDS_FILE, load_friend_graph
+from prism.data.traces import (
+    DeviceTrace,
+    active_share,
+    assign_devices,
+    availability_schedule,
+    load_device_traces,
+    trace_summary,
+)
 from prism.eval.baselines import popularity_score_fn
 from prism.eval.metrics import ranking_metrics
 from prism.eval.stats import paired_tests
 from prism.experiments.regimes import FROZEN_PATH, Frozen, default_paths, load_frozen, make_run
-from prism.experiments.runner import KEY_FILE, Paths, _clean, _finished, run_one
+from prism.experiments.runner import KEY_FILE, Paths, _clean, _finished, payload_provenance, run_one
 from prism.fl.availability import (
     SCENARIOS,
     availability_vector,
@@ -42,6 +60,8 @@ from prism.fl.availability import (
     group_means,
     groups_by_activity,
     groups_by_degree,
+    match_devices_by_rank,
+    trace_static,
 )
 from prism.fl.server import evaluate_per_user
 from prism.io import atomic_write_json
@@ -49,6 +69,13 @@ from prism.ledger.receipts import load_or_create_key
 from prism.seeding import stream
 
 NAME = "participation"
+TRACE_SCENARIOS: tuple[str, ...] = ("trace", "trace_activity", "trace_replay")
+ALL_SCENARIOS: tuple[str, ...] = (*SCENARIOS, *TRACE_SCENARIOS)
+SECONDS_PER_ROUND = 1800
+TRACE_SOURCE = (
+    "https://raw.githubusercontent.com/SymbioticLab/FedScale/master/benchmark/dataset/data/"
+    "device_info/client_behave_trace"
+)
 COHORT_TOLERANCE = 0.15
 BASELINE_FACTOR = 1.2
 ALPHA = 0.05
@@ -65,7 +92,28 @@ LIMITATIONS: tuple[str, ...] = (
     "The per-run records and the signed ledger releases of these runs carry the epsilon without a "
     "'nominal' marker; only this file marks it (records written after this change also carry "
     "privacy_note and availability_scenario).",
-    "Availability is synthetic (rank-based, deterministic), not measured from device traces.",
+    "Availability in the 'always', 'independent', 'activity' and 'social' scenarios is synthetic "
+    "(rank-based, deterministic), not measured from device traces.",
+    "The 'trace_activity' epsilon is NOMINAL for the same reason as 'activity': devices are "
+    "matched to users by a rank over all users' history lengths. The 'trace' and 'trace_replay' "
+    "epsilons are exact: the assignment, the offsets and the schedule do not depend on user data, "
+    "selection is still Poisson at the nominal rate, and a zero update is within the clipping "
+    "norm.",
+    "The device trace comes from a different population of devices: devices are assigned to "
+    "Yelp users at random (or by rank), and there is no real link between a user and a device.",
+    "One training round = 30 minutes (1800 s) in the 'trace_replay' scenario, so 400 rounds span "
+    "about 8.3 days; this mapping is a modelling choice, not measured, and traces are read "
+    "cyclically (time modulo the trace length).",
+    "Devices are sampled from the 107,749 devices of the trace without regard to device model, "
+    "region or trace length.",
+    "In 'trace_replay' the server still divides by the full expected cohort. For runs whose "
+    "server optimiser is SGD the rate is multiplied by 1 / (mean availability over the schedule), "
+    "which exactly restores the step size; for Adam runs the rate is left alone because Adam "
+    "rescales the average itself (its epsilon constant is then relatively larger). The factor "
+    "used is stored in each run record as server_lr_factor.",
+    "The trace is for research use only (the FedScale repository dataset notes; the "
+    "repository licence is Apache-2.0); the file is under data/, is git-ignored and is never "
+    "redistributed.",
     "Groups are terciles of history length or fixed friend-count bands (0, 1 to 5, more than 5).",
     "Five seeds: a two-sided Wilcoxon test over five seeds cannot go below p = 0.0625, so the "
     "decision rests on the sign pattern.",
@@ -99,12 +147,23 @@ def epsilon_note(scenario: str, epsilon: float | None) -> str:
         return "non-private run"
     if scenario in ("always", "independent"):
         return f"epsilon {epsilon:g} holds: availability is independent of user data"
+    if scenario == "trace":
+        return (
+            f"epsilon {epsilon:g} is EXACT: devices are assigned to users at random, "
+            "independently of their data"
+        )
+    if scenario == "trace_replay":
+        return (
+            f"epsilon {epsilon:g} is EXACT: devices, offsets and schedule do not depend on user "
+            "data, selection is Poisson at the nominal rate and a zero update is within the "
+            "clipping norm"
+        )
     return NOMINAL_NOTE.format(epsilon=epsilon)
 
 
 def privacy_marker(scenario: str, epsilon: float | None) -> str:
     """Text stored in run records: the nominal note, or "exact" when epsilon is not nominal."""
-    if epsilon is None or scenario in ("always", "independent"):
+    if epsilon is None or scenario in ("always", "independent", "trace", "trace_replay"):
         return "exact"
     return NOMINAL_NOTE.format(epsilon=epsilon)
 
@@ -138,8 +197,74 @@ def _inputs(processed: Path) -> tuple[npt.NDArray[np.int64], npt.NDArray[np.int6
     return activity, degree
 
 
-def _vector(scenario: str, processed: Path) -> npt.NDArray[np.float64]:
+@lru_cache(maxsize=2)
+def _traces(path: str) -> list[DeviceTrace]:
+    return load_device_traces(Path(path))
+
+
+@lru_cache(maxsize=2)
+def _shares(path: str) -> npt.NDArray[np.float64]:
+    return np.array([active_share(t) for t in _traces(path)], dtype=np.float64)
+
+
+def _trace_devices(
+    scenario: str, seed: int, activity: npt.NDArray[np.int64], trace_path: Path
+) -> npt.NDArray[np.int64]:
+    """Device index per user: random, and for "trace_activity" rank-matched to history length."""
+    devices = assign_devices(activity.size, len(_traces(str(trace_path))), stream(seed, "trace"))
+    if scenario == "trace_activity":
+        shares = _shares(str(trace_path))[devices]
+        devices = devices[match_devices_by_rank(shares, activity, stream(seed, "trace_match"))]
+    return devices
+
+
+def trace_schedule(seed: int, n_users: int, rounds: int, trace_path: Path) -> npt.NDArray[np.bool_]:
+    """Round-by-round availability of "trace_replay": random devices, random time offsets."""
+    traces = _traces(str(trace_path))
+    devices = assign_devices(n_users, len(traces), stream(seed, "trace"))
+    finish = np.array([t.finish_time for t in traces], dtype=np.int64)
+    offsets = stream(seed, "trace_offsets").integers(0, finish[devices])
+    return availability_schedule(
+        traces, devices, offsets.astype(np.int64), rounds, SECONDS_PER_ROUND
+    )
+
+
+def server_lr_factor(schedule: npt.NDArray[np.bool_]) -> float:
+    """1 / (mean availability over the whole schedule): a constant independent of user data."""
+    mean = float(schedule.mean())
+    if mean <= 0.0:
+        raise ValueError("the schedule has no available client at all")
+    return 1.0 / mean
+
+
+def replay_hook(
+    schedule: npt.NDArray[np.bool_],
+) -> Callable[[npt.NDArray[np.int64], torch.Tensor, torch.Tensor, int], torch.Tensor]:
+    """Client hook that zeroes the update of every client unavailable in this round.
+
+    Training rounds are 1-based, so round ``r`` reads schedule row ``r - 1``. The input is not
+    modified; a non-finite update of an unavailable client also becomes zeros.
+    """
+
+    def hook(
+        users: npt.NDArray[np.int64], deltas: torch.Tensor, flat: torch.Tensor, round_index: int
+    ) -> torch.Tensor:
+        del flat
+        available = torch.from_numpy(schedule[round_index - 1, users])
+        return torch.where(available[:, None], deltas, torch.zeros_like(deltas))
+
+    return hook
+
+
+def _vector(
+    scenario: str, processed: Path, seed: int = 0, trace_path: Path | None = None
+) -> npt.NDArray[np.float64]:
     activity, degree = _inputs(processed)
+    if scenario in ("trace", "trace_activity"):
+        if trace_path is None:
+            raise ValueError("a trace path is required for the trace scenarios")
+        devices = _trace_devices(scenario, seed, activity, trace_path)
+        return trace_static(_shares(str(trace_path)), devices)
     return availability_vector(
         scenario,  # type: ignore[arg-type]
         activity,
@@ -154,17 +279,31 @@ def _worker(
     scenario: str,
     threads: int,
     privacy_note: str = "exact",
+    trace_path: Path | None = None,
+    lr_factor: float | None = None,
 ) -> dict[str, Any]:
-    """Top-level (picklable) worker: rebuild the availability vector, train, record."""
+    """Top-level (picklable) worker: rebuild the availability, train, record.
+
+    ``config`` already carries the scaled ``server_lr`` of "trace_replay"; ``lr_factor`` is only
+    stored in the record.
+    """
     try:
-        vector = _vector(scenario, paths.processed)
-        return run_one(
-            config,
-            paths,
-            threads=threads,
-            availability=vector,
-            extra={"privacy_note": privacy_note, "availability_scenario": scenario},
-        )
+        extra: dict[str, Any] = {"privacy_note": privacy_note, "availability_scenario": scenario}
+        if scenario == "trace_replay":
+            if trace_path is None:
+                raise ValueError("a trace path is required for the trace scenarios")
+            n_users = _bundle(str(paths.processed)).n_users
+            schedule = trace_schedule(config.seed, n_users, config.train.rounds, trace_path)
+            extra["server_lr_factor"] = lr_factor
+            return run_one(
+                config,
+                paths,
+                threads=threads,
+                client_hook=replay_hook(schedule),
+                extra=extra,
+            )
+        vector = _vector(scenario, paths.processed, config.seed, trace_path)
+        return run_one(config, paths, threads=threads, availability=vector, extra=extra)
     except Exception as error:
         record = {
             "id": config.identifier,
@@ -255,12 +394,65 @@ def h5_readout(
     }
 
 
+def trace_readout(
+    cells: dict[str, dict[str, Any]], epsilons: tuple[float | None, ...]
+) -> dict[str, Any] | None:
+    """Overall NDCG@10 of the trace scenarios against "independent" and "always", and whether
+    rank-matching real availability to activity widens the activity gap in every seed.
+
+    None when no trace scenario ran. Not a control and not part of the H5 verdict.
+    """
+    if not any(s in cells for s in TRACE_SCENARIOS):
+        return None
+    names = ("trace", "trace_replay", "independent", "always")
+    overall: dict[str, Any] = {}
+    widen: dict[str, Any] = {}
+    for eps in epsilons:
+        key = epsilon_key(eps)
+        means: dict[str, float | None] = {
+            name: cells[name][key]["overall_ndcg10"]["mean"] if key in cells.get(name, {}) else None
+            for name in names
+        }
+        row: dict[str, Any] = dict(means)
+        for scenario in ("trace", "trace_replay"):
+            for other in ("independent", "always"):
+                a, b = means[scenario], means[other]
+                row[f"{scenario}_minus_{other}"] = None if a is None or b is None else a - b
+        overall[key] = row
+        cell = cells.get("trace_activity", {}).get(key)
+        change = None if cell is None else (cell["gap_change_vs_trace"] or {}).get("activity")
+        entry = _h5_entry(change)
+        widen[key] = (
+            None
+            if entry is None
+            else {
+                "all_seeds_widened": entry["all_seeds_improved"],
+                "seeds": entry["seeds"],
+                "seeds_improved": entry["seeds_improved"],
+                "mean_difference": entry["mean_difference"],
+                "sign_test_p_all_improved": entry["sign_test_p_all_improved"],
+            }
+        )
+    return {
+        "overall_ndcg10": overall,
+        "rank_matching_widens_activity_gap": widen,
+        "rule": "trace_activity activity gap larger than the trace activity gap in every seed "
+        "(paired across seeds); not part of the H5 verdict",
+    }
+
+
 def _train_all(
-    configs: dict[Key, RunConfig], paths: Paths, workers: int, threads: int
+    configs: dict[Key, RunConfig],
+    paths: Paths,
+    workers: int,
+    threads: int,
+    trace_path: Path | None = None,
+    lr_factors: dict[Key, float] | None = None,
 ) -> dict[Key, dict[str, Any]]:
     """Run every configuration not already finished (resumable)."""
     records: dict[Key, dict[str, Any]] = {}
     pending: list[Key] = []
+    factors = lr_factors or {}
     for key, config in configs.items():
         done = _finished(config, paths)
         if done is None or not paths.checkpoint(config).exists():
@@ -273,13 +465,26 @@ def _train_all(
     if workers <= 1:
         for key in pending:
             records[key] = _worker(
-                configs[key], paths, key[0], threads, privacy_marker(key[0], key[1])
+                configs[key],
+                paths,
+                key[0],
+                threads,
+                privacy_marker(key[0], key[1]),
+                trace_path,
+                factors.get(key),
             )
         return records
     with ProcessPoolExecutor(max_workers=workers) as pool:
         futures = {
             pool.submit(
-                _worker, configs[key], paths, key[0], threads, privacy_marker(key[0], key[1])
+                _worker,
+                configs[key],
+                paths,
+                key[0],
+                threads,
+                privacy_marker(key[0], key[1]),
+                trace_path,
+                factors.get(key),
             ): key
             for key in pending
         }
@@ -294,16 +499,21 @@ def run(
     paths: Paths,
     frozen: Frozen,
     *,
-    scenarios: tuple[str, ...] = ("always", "independent", "activity", "social"),
+    scenarios: tuple[str, ...] = ALL_SCENARIOS,
     epsilons: tuple[float | None, ...] = (None, 8.0),
     seeds: tuple[int, ...] = (0, 1, 2, 3, 4),
     regime: str = "small",
     workers: int = 4,
     threads: int = 2,
+    trace_path: Path | None = None,
 ) -> dict[str, Any]:
-    """Run every scenario at every epsilon and seed, then summarise group gaps."""
+    """Run every scenario at every epsilon and seed, then summarise group gaps.
+
+    ``trace_path`` defaults to the repository location of the FedScale trace; the three trace
+    scenarios are skipped, with a note, when that file does not exist.
+    """
     started = time.time()
-    unknown = [s for s in scenarios if s not in SCENARIOS]
+    unknown = [s for s in scenarios if s not in ALL_SCENARIOS]
     if unknown:
         raise ValueError(f"unknown scenarios: {unknown}")
     bundle = _bundle(str(paths.processed))
@@ -313,12 +523,48 @@ def run(
     if degree is None:
         notes.append("no friend graph found: the 'social' scenario and degree groups are skipped")
         active = [s for s in active if s != "social"]
+    trace_file = (
+        paths.processed.parent / "external" / "fedscale" / "client_behave_trace"
+        if trace_path is None
+        else trace_path
+    )
+    trace_info: dict[str, Any] | None = None
+    if any(s in TRACE_SCENARIOS for s in active):
+        if trace_file.is_file():
+            trace_info = {
+                "file": trace_file.name,
+                "source": TRACE_SOURCE,
+                "sha256": hashlib.sha256(trace_file.read_bytes()).hexdigest(),
+                "seconds_per_round": SECONDS_PER_ROUND,
+                "round_mapping": "one round = 30 minutes (an assumption); times wrap modulo each "
+                "device trace length",
+                "summary": trace_summary(_traces(str(trace_file))),
+            }
+        else:
+            skipped = ", ".join(s for s in active if s in TRACE_SCENARIOS)
+            notes.append(
+                f"no device trace found at {trace_file.name}: the trace scenarios ({skipped}) "
+                "are skipped"
+            )
+            active = [s for s in active if s not in TRACE_SCENARIOS]
     act_groups = groups_by_activity(activity)
     deg_groups = None if degree is None else groups_by_degree(degree)
-    vectors = {s: _vector(s, paths.processed) for s in active}
+    n_rounds = frozen.regimes[regime].rounds
+    vectors: dict[str, npt.NDArray[np.float64]] = {}
+    cohort_vectors: dict[str, npt.NDArray[np.float64]] = {}
+    for s in active:
+        if s == "trace_replay":
+            replay = trace_schedule(0, bundle.n_users, n_rounds, trace_file)
+            vectors[s] = replay.mean(axis=0)
+            cohort_vectors[s] = np.ones(bundle.n_users)  # selection is at the nominal rate
+        else:
+            vectors[s] = _vector(s, paths.processed, 0, trace_file)
+            cohort_vectors[s] = vectors[s]
 
     # Building configs in the parent calibrates noise (cached) before any worker starts.
     configs: dict[Key, RunConfig] = {}
+    lr_factors: dict[Key, float] = {}
+    replay_factor: dict[int, float] = {}
     for scenario in active:
         for eps in epsilons:
             for seed in seeds:
@@ -333,7 +579,22 @@ def run(
                     paths=paths,
                     variant=scenario,
                 )
-    records = _train_all(configs, paths, workers, threads)
+                if scenario == "trace_replay":
+                    if seed not in replay_factor:
+                        schedule = trace_schedule(seed, bundle.n_users, n_rounds, trace_file)
+                        replay_factor[seed] = server_lr_factor(schedule)
+                    config = configs[(scenario, eps, seed)]
+                    # SGD is linear in the averaged update, so scaling its rate exactly undoes
+                    # the smaller average. Adam normalises the average by its running scale, so
+                    # its rate must NOT be scaled; the only effect there is a relatively larger
+                    # Adam epsilon.
+                    factor = replay_factor[seed] if config.train.server_opt == "sgd" else 1.0
+                    scaled = config.train.server_lr * factor
+                    configs[(scenario, eps, seed)] = config.model_copy(
+                        update={"train": config.train.model_copy(update={"server_lr": scaled})}
+                    )
+                    lr_factors[(scenario, eps, seed)] = factor
+    records = _train_all(configs, paths, workers, threads, trace_file, lr_factors)
 
     invalid: list[str] = []
     failed = sorted(
@@ -394,6 +655,7 @@ def run(
                 "activity_gap": _gap_summary(act_gaps),
                 "degree_gap": _gap_summary(deg_gaps) if deg_gaps is not None else None,
                 "gap_change_vs_independent": None,
+                "gap_change_vs_trace": None,
             }
             if scenario != "independent" and seeds_of("independent", eps):
                 change: dict[str, Any] = {
@@ -403,6 +665,14 @@ def run(
                 if deg_gaps is not None:
                     change["degree"] = _change(deg_gaps, gaps_of("independent", eps, "deg_gap"))
                 cell["gap_change_vs_independent"] = change
+            if scenario == "trace_activity" and seeds_of("trace", eps):
+                versus: dict[str, Any] = {
+                    "activity": _change(act_gaps, gaps_of("trace", eps, "act_gap")),
+                    "degree": None,
+                }
+                if deg_gaps is not None:
+                    versus["degree"] = _change(deg_gaps, gaps_of("trace", eps, "deg_gap"))
+                cell["gap_change_vs_trace"] = versus
             cells[scenario][epsilon_key(eps)] = cell
 
     availability: dict[str, Any] = {
@@ -421,8 +691,8 @@ def run(
         if seed != 0 or record.get("status") != "ok":
             continue
         mean_cohort = float(record["diagnostics"]["mean_cohort"])
-        expected = rate * float(vectors[scenario].sum())
-        ratio, ok = cohort_check(mean_cohort, rate, float(vectors[scenario].sum()))
+        expected = rate * float(cohort_vectors[scenario].sum())
+        ratio, ok = cohort_check(mean_cohort, rate, float(cohort_vectors[scenario].sum()))
         sampling_rows.append(
             {
                 "scenario": scenario,
@@ -485,6 +755,7 @@ def run(
         return out
 
     h5 = h5_readout(changes_for("activity", "activity"), changes_for("social", "degree"))
+    trace_out = trace_readout(cells, epsilons)
 
     result: dict[str, Any] = {
         "experiment": NAME,
@@ -501,11 +772,13 @@ def run(
             "users": bundle.n_users,
             "availability_mean": 0.5,
             "availability_floor": 0.05,
+            "trace": trace_info,
         },
         "results": {
             "cells": cells,
             "availability": availability,
             "h5": h5,
+            "trace_readout": trace_out,
             "notes": notes,
             "group_sizes": {
                 "activity": np.bincount(act_groups, minlength=3).tolist(),
@@ -515,6 +788,7 @@ def run(
             },
         },
         "limitations": list(LIMITATIONS),
+        "provenance": payload_provenance(__file__, extra=("fl/availability.py", "data/traces.py")),
         "wall_seconds": round(time.time() - started, 1),
     }
     result = _clean(result)
@@ -547,7 +821,8 @@ def cli(argv: list[str] | None = None) -> int:
     parser.add_argument("--threads", type=int, default=2)
     parser.add_argument("--regime", default="small")
     parser.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2, 3, 4])
-    parser.add_argument("--scenarios", nargs="+", default=list(SCENARIOS))
+    parser.add_argument("--scenarios", nargs="+", default=list(ALL_SCENARIOS))
+    parser.add_argument("--trace-path", type=Path, default=None)
     parser.add_argument(
         "--epsilons", nargs="+", default=["none", "8"], help="numbers, or 'none' for non-private"
     )
@@ -564,6 +839,7 @@ def cli(argv: list[str] | None = None) -> int:
         regime=args.regime,
         workers=args.workers,
         threads=args.threads,
+        trace_path=args.trace_path,
     )
     print(_summary(result))
     return 0 if result["status"] == "VALID" else 1

@@ -1,0 +1,175 @@
+{
+  "experiment": "flower_parity",
+  "invalid_reasons": [],
+  "limitations": [
+    "The problem is a small synthetic dataset (400 users, 300 items) and only five rounds.",
+    "Server-side clipping and aggregation are implemented as a custom Flower strategy, not with Flower's built-in differential-privacy wrappers.",
+    "Cohort selection and the client-side visible/hidden split are fixed to remove framework-controlled randomness, and the client update function is the same prism code on both sides, so the check covers the federated plumbing and the aggregation rule, not the client mathematics.",
+    "The reference is not prism.fl.server.train itself, whose split uses one shared stream; its aggregation step is checked separately against noisy_mean and the engine's SGD step.",
+    "The main experiments still use the in-process engine."
+  ],
+  "results": {
+    "engine_step_check": {
+      "noise_multiplier_0": {
+        "identical": true,
+        "max_abs_diff": 0.0
+      },
+      "noise_multiplier_1": {
+        "identical": true,
+        "max_abs_diff": 0.0
+      }
+    },
+    "gaussian": {
+      "all_rounds_allclose": true,
+      "clients_selected_by_flower": [
+        43,
+        35,
+        42,
+        41,
+        47
+      ],
+      "cohort_sizes": [
+        43,
+        35,
+        42,
+        41,
+        47
+      ],
+      "final": {
+        "allclose": true,
+        "bit_identical": false,
+        "max_abs_diff": 5.960464477539063e-08,
+        "relative_l2_diff": 4.800320750888982e-08
+      },
+      "flower_seconds": 93.65388131141663,
+      "noise_multiplier": 1.0,
+      "per_round": [
+        {
+          "allclose": true,
+          "bit_identical": false,
+          "max_abs_diff": 6.51925802230835e-09,
+          "relative_l2_diff": 1.786637849035887e-08,
+          "round": 1
+        },
+        {
+          "allclose": true,
+          "bit_identical": false,
+          "max_abs_diff": 9.313225746154785e-09,
+          "relative_l2_diff": 2.4808348828055596e-08,
+          "round": 2
+        },
+        {
+          "allclose": true,
+          "bit_identical": false,
+          "max_abs_diff": 1.6763806343078613e-08,
+          "relative_l2_diff": 3.2809151046729694e-08,
+          "round": 3
+        },
+        {
+          "allclose": true,
+          "bit_identical": false,
+          "max_abs_diff": 5.960464477539063e-08,
+          "relative_l2_diff": 4.2075850820220573e-08,
+          "round": 4
+        },
+        {
+          "allclose": true,
+          "bit_identical": false,
+          "max_abs_diff": 5.960464477539063e-08,
+          "relative_l2_diff": 4.800320750888982e-08,
+          "round": 5
+        }
+      ],
+      "reference_seconds": 13.095048904418945,
+      "variant": "gaussian"
+    },
+    "noise_free": {
+      "all_rounds_allclose": true,
+      "clients_selected_by_flower": [
+        43,
+        35,
+        42,
+        41,
+        47
+      ],
+      "cohort_sizes": [
+        43,
+        35,
+        42,
+        41,
+        47
+      ],
+      "final": {
+        "allclose": true,
+        "bit_identical": false,
+        "max_abs_diff": 5.960464477539063e-08,
+        "relative_l2_diff": 4.305208147730963e-08
+      },
+      "flower_seconds": 108.76523733139038,
+      "noise_multiplier": 0.0,
+      "per_round": [
+        {
+          "allclose": true,
+          "bit_identical": false,
+          "max_abs_diff": 6.984919309616089e-09,
+          "relative_l2_diff": 1.696699382565022e-08,
+          "round": 1
+        },
+        {
+          "allclose": true,
+          "bit_identical": false,
+          "max_abs_diff": 8.789356797933578e-09,
+          "relative_l2_diff": 2.2066515091021753e-08,
+          "round": 2
+        },
+        {
+          "allclose": true,
+          "bit_identical": false,
+          "max_abs_diff": 1.525040715932846e-08,
+          "relative_l2_diff": 2.8071702515012158e-08,
+          "round": 3
+        },
+        {
+          "allclose": true,
+          "bit_identical": false,
+          "max_abs_diff": 5.960464477539063e-08,
+          "relative_l2_diff": 3.801285235400426e-08,
+          "round": 4
+        },
+        {
+          "allclose": true,
+          "bit_identical": false,
+          "max_abs_diff": 5.960464477539063e-08,
+          "relative_l2_diff": 4.305208147730963e-08,
+          "round": 5
+        }
+      ],
+      "reference_seconds": 30.854575634002686,
+      "variant": "noise_free"
+    }
+  },
+  "settings": {
+    "clients": 400,
+    "clip_norm": 0.5,
+    "expected_cohort": 40.0,
+    "flower_execution_mode": "simulation runtime (flwr.simulation.run_simulation, Ray backend, message-based Strategy/ServerApp/ClientApp API)",
+    "flower_version": "1.43.0",
+    "model_dim": 8,
+    "model_parameters": 2764,
+    "momentum": 0.0,
+    "noise_multiplier_in_noise_variant": 1.0,
+    "platform": "Windows-11-10.0.26300-SP0",
+    "python_version": "3.12.16",
+    "rounds": 5,
+    "sample_rate": 0.1,
+    "seed": 7,
+    "server_lr": 1.0,
+    "server_opt": "sgd",
+    "tolerance": {
+      "atol": 1e-06,
+      "rtol": 1e-05
+    }
+  },
+  "status": "VALID",
+  "wall_seconds": 249.49258542060852
+}

@@ -1,0 +1,111 @@
+{
+  "config": {
+    "model": {
+      "content_scale": 0.4,
+      "dim": 16,
+      "temperature": 20.0,
+      "use_content": true,
+      "use_ids": true
+    },
+    "name": "gossip",
+    "phase": "final",
+    "privacy_claim": true,
+    "regime": "small",
+    "seed": 2,
+    "target_epsilon": 8.0,
+    "train": {
+      "clip_norm": 5.0,
+      "hide_fraction": 0.5,
+      "local_lr": 1.0,
+      "local_steps": 1,
+      "momentum": 0.9,
+      "noise_multiplier": 0.87922,
+      "rounds": 400,
+      "sample_rate": 0.05,
+      "server_lr": 0.05,
+      "server_opt": "sgd"
+    },
+    "variant": "federated-final-n2500"
+  },
+  "config_hash": "475165b2b19f0503641d49b7d9dc3552a3d339170b16f18f8c14e7b6300ef17f",
+  "diagnostics": {
+    "max_cohort": 156,
+    "mean_clipped_fraction": 0.7178266526065606,
+    "mean_cohort": 124.335,
+    "mean_update_norm_first": 24.715039970338808,
+    "mean_update_norm_last": 5.025666267641129,
+    "min_cohort": 90,
+    "nonfinite_updates": 0
+  },
+  "evaluated_on": "test",
+  "halted_by_gate": false,
+  "id": "gossip_small_eps8_federated-final-n2500_final_seed2",
+  "items": 6319,
+  "ledger": {
+    "path": "ledger/gossip/gossip_small_eps8_federated-final-n2500_final_seed2.jsonl",
+    "public_key_hex": "9301c820a5d066f18a60cc3ad8836d83c8de83f6e6f3d9c547f7bbf56d5d7f3c",
+    "refused_rounds": [],
+    "root_hex": "40cca42f8fea1295566d08805fc9ef593603a7ffb4256c6b4766131dbea2f57c",
+    "size": 401,
+    "verified": true
+  },
+  "limitations": [
+    "Privacy unit is one user (add or remove one user's whole history); delta = 1/(10 n).",
+    "Epsilon assumes ideal Poisson sampling of clients, which real devices cannot guarantee.",
+    "Gaussian noise is floating point from a seeded generator, not a hardened sampler.",
+    "The clipping norm and hyperparameters were chosen on the same users' data; that selection is not covered by epsilon.",
+    "Single-process simulation: no real network, devices or trust boundary.",
+    "The 'diagnostics' block depends on who took part and would not be released in deployment."
+  ],
+  "metrics": {
+    "coverage@10": 0.15809463522709288,
+    "distinct@10": 999.0,
+    "exposure_gini": 0.9940885655301419,
+    "hr@10": 0.10830470802182258,
+    "hr@20": 0.1777126692261063,
+    "mrr": 0.05242473847953582,
+    "ndcg@10": 0.018551111322580173,
+    "ndcg@20": 0.02332405192986154,
+    "recall@20": 0.031369141423342774,
+    "users_evaluated": 9898.0
+  },
+  "model_sha256": "0d14fa4946cddcdccd72df40589f94f03c358b7869e4245d09a95e923f9b58b9",
+  "ndcg_ci95": [
+    0.01733783642192325,
+    0.01979361942034174
+  ],
+  "parameters": 107679,
+  "privacy": {
+    "adjacency": "add-or-remove one user",
+    "at_delta_n2": 10.753455452332412,
+    "budget_epsilon": 8.0,
+    "delta": 4e-05,
+    "delta_n2": 1.6e-07,
+    "excludes": "hyperparameter and clipping-norm selection",
+    "gate_ok": true,
+    "gate_reason": "ok",
+    "n_users": 2500,
+    "noise_multiplier": 0.87922,
+    "of_record": 7.991097292721079,
+    "pld": 7.9805530799999,
+    "prv": 7.991097292721079,
+    "rdp": 8.958093733013074,
+    "rounds": 400,
+    "sample_rate": 0.05,
+    "unamplified": 347.5261328457891,
+    "unit": "user"
+  },
+  "provenance": {
+    "code_sha256": "bd8c92813d7bb0b1c966138e0ac2e3e2383f8437290ee30b87f4045f117ccc89",
+    "git_commit": "be247fd303f116f1d464fd5bac397e5d7f28d11d",
+    "git_dirty": true,
+    "uv_lock_sha256": "4a11483b5839e22468be078a16640ae2ab9947e89047bf09060accf22a77c466"
+  },
+  "rounds_completed": 400,
+  "simulated_noise_multiplier": null,
+  "status": "ok",
+  "threads": 4,
+  "torch_version": "2.15.0+cpu",
+  "users": 2500,
+  "wall_seconds": 67.08
+}

@@ -16,7 +16,7 @@ import torch
 from prism.config import ModelConfig, Phase
 from prism.data.bundle import DataBundle
 from prism.fl.client import make_delta_fn
-from prism.fl.server import ClientHook
+from prism.fl.server import ClientHook, CustomAggregator
 from prism.models.hybrid import Layout, content_base, make_layout, score_matrix
 
 TOP_K: int = 10
@@ -113,3 +113,50 @@ def target_exposure(
         eligible += int(keep.sum())
         exposed += int((top == target_item).any(dim=1).sum())
     return exposed / eligible if eligible else 0.0
+
+
+def clean_committee_share(attacker_fraction: float, committee_size: int) -> float:
+    """Chance that a committee of ``committee_size`` random accounts holds no attacker."""
+    return float((1.0 - attacker_fraction) ** committee_size)
+
+
+def make_committee_median(
+    n_committees: int | None = None, committee_size: int | None = None
+) -> CustomAggregator:
+    """Aggregator: random committees, each summed (secure aggregation), then a median of sums.
+
+    The server sees only the committee sums, never an individual update. The coordinate-wise
+    median of the sums is multiplied by the number of committees so that it is sum-equivalent.
+    With ``committee_size`` the number of committees is cohort / size, rounded. Fewer than two
+    committees (a tiny cohort) falls back to the plain sum.
+    """
+    if (n_committees is None) == (committee_size is None):
+        raise ValueError("give exactly one of n_committees and committee_size")
+    if (n_committees is not None and n_committees < 1) or (
+        committee_size is not None and committee_size < 1
+    ):
+        raise ValueError("committee counts and sizes must be positive")
+
+    def aggregate(deltas: torch.Tensor, rng: np.random.Generator) -> torch.Tensor:
+        clients = int(deltas.shape[0])
+        if n_committees is not None:
+            count = n_committees
+        else:
+            assert committee_size is not None
+            count = round(clients / committee_size)
+        count = min(count, clients)
+        if count < 2:
+            return deltas.sum(dim=0).to(torch.float64)
+        order = rng.permutation(clients)
+        sums = torch.stack(
+            [
+                deltas[torch.from_numpy(part)].sum(dim=0).to(torch.float64)
+                for part in np.array_split(order, count)
+            ]
+        )
+        ordered = sums.sort(dim=0).values
+        middle = count // 2
+        median = ordered[middle] if count % 2 else (ordered[middle - 1] + ordered[middle]) / 2.0
+        return median * count
+
+    return aggregate

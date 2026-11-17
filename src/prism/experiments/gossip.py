@@ -38,7 +38,7 @@ from prism.experiments.regimes import (
     load_frozen,
     make_run,
 )
-from prism.experiments.runner import Paths, _finished, run_one
+from prism.experiments.runner import Paths, _finished, payload_provenance, run_one
 from prism.fl.gossip import GossipConfig, evaluate_nodes, gossip_train
 from prism.fl.server import evaluate_per_user
 from prism.io import atomic_write_json, atomic_write_npz
@@ -441,6 +441,7 @@ def run(
             "h2": h2,
         },
         "limitations": list(LIMITATIONS),
+        "provenance": payload_provenance(__file__, extra=("fl/gossip.py",)),
         "wall_seconds": round(time.time() - started, 2),
     }
     atomic_write_json(paths.results / f"{NAME}.json", output)

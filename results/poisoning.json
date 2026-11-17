@@ -1,4 +1,58 @@
 {
+  "committee_tradeoff": {
+    "committee_median_size20": {
+      "clean_ndcg_at_fraction_0": 0.022036363819344287,
+      "committee_size": 20,
+      "per_fraction": [
+        {
+          "clean_committee_share": 1.0,
+          "fraction": 0.0,
+          "target_exposure": 0.0
+        },
+        {
+          "clean_committee_share": 0.12157665459056935,
+          "fraction": 0.1,
+          "target_exposure": 0.8475278519389867
+        },
+        {
+          "clean_committee_share": 0.011529215046068483,
+          "fraction": 0.2,
+          "target_exposure": 0.9042331437924137
+        },
+        {
+          "clean_committee_share": 0.0007979226629761189,
+          "fraction": 0.3,
+          "target_exposure": 0.9478973417466054
+        }
+      ]
+    },
+    "committee_median_size4": {
+      "clean_ndcg_at_fraction_0": 0.003980504619176488,
+      "committee_size": 4,
+      "per_fraction": [
+        {
+          "clean_committee_share": 1.0,
+          "fraction": 0.0,
+          "target_exposure": 0.0
+        },
+        {
+          "clean_committee_share": 0.6561,
+          "fraction": 0.1,
+          "target_exposure": 0.0002619662437783017
+        },
+        {
+          "clean_committee_share": 0.4096000000000001,
+          "fraction": 0.2,
+          "target_exposure": 0.9426653533213432
+        },
+        {
+          "clean_committee_share": 0.24009999999999995,
+          "fraction": 0.3,
+          "target_exposure": 0.943615548524587
+        }
+      ]
+    }
+  },
   "controls": [
     {
       "measured": 8742.661389884433,
@@ -23,6 +77,8 @@
     "per_fraction": [
       {
         "exposure": {
+          "committee_median_size20": 0.8475278519389867,
+          "committee_median_size4": 0.0002619662437783017,
           "plaintext_median": 0.004303722746450856,
           "plaintext_trimmed_mean": 0.0011227040720000502,
           "secure_sum_norm_bound": 0.9459325786654665
@@ -33,6 +89,8 @@
       },
       {
         "exposure": {
+          "committee_median_size20": 0.9042331437924137,
+          "committee_median_size4": 0.9426653533213432,
           "plaintext_median": 0.04855142506015567,
           "plaintext_trimmed_mean": 0.0027370566432663138,
           "secure_sum_norm_bound": 0.9537360304155449
@@ -43,6 +101,8 @@
       },
       {
         "exposure": {
+          "committee_median_size20": 0.9478973417466054,
+          "committee_median_size4": 0.943615548524587,
           "plaintext_median": 0.16199596170719474,
           "plaintext_trimmed_mean": 0.05972524496925306,
           "secure_sum_norm_bound": 0.8819390083611856
@@ -60,11 +120,232 @@
     "Attackers do not adapt to the aggregator; an adaptive attacker could do better against the trimmed mean and the median.",
     "The robust modes run without DP noise, so no privacy guarantee applies to them.",
     "Coordinate-wise robust aggregators need the server to see each individual update, which secure aggregation prevents; the robust modes are therefore not compatible with it.",
+    "A committee of 4 hides an individual update among only 3 others, so the committee modes give much weaker secure-aggregation protection than the secure-sum mode.",
+    "Committees are simulated: the committee sums are computed in the clear in this simulation, no secure-aggregation protocol runs.",
+    "The committee modes add no DP noise, so no privacy guarantee applies to them.",
     "Three seeds by default; min and max over seeds are reported, not confidence intervals.",
     "Run records are reused when the configuration matches; records produced on 17 November 2026 predate the commit of the code that produced them.",
     "Exposure is the share of other users whose top-10 contains the target, on one target item per seed drawn from the least popular third."
   ],
+  "provenance": {
+    "engine_sha256": "bd8c92813d7bb0b1c966138e0ac2e3e2383f8437290ee30b87f4045f117ccc89",
+    "git_commit": "be247fd303f116f1d464fd5bac397e5d7f28d11d",
+    "git_dirty": true,
+    "module_sha256": "cbc306947ffc25a38f0550931226fec364aa522f0f2d3170ba1b4e0a82b956f0"
+  },
   "results": {
+    "committee_median_size20": {
+      "0.0": {
+        "clean_committee_share": 1.0,
+        "committee_size": 20,
+        "exposure": {
+          "max": 0.0,
+          "mean": 0.0,
+          "min": 0.0,
+          "per_seed": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "exposure_ratio": 0.0,
+        "ndcg": {
+          "max": 0.02226169031654865,
+          "mean": 0.022036363819344287,
+          "min": 0.021621693702015762,
+          "per_seed": [
+            0.022225707439468445,
+            0.021621693702015762,
+            0.02226169031654865
+          ]
+        },
+        "utility_drop": 0.0
+      },
+      "0.1": {
+        "clean_committee_share": 0.12157665459056935,
+        "committee_size": 20,
+        "exposure": {
+          "max": 0.861345009543056,
+          "mean": 0.8475278519389867,
+          "min": 0.835447300482658,
+          "per_seed": [
+            0.8457912457912458,
+            0.861345009543056,
+            0.835447300482658
+          ]
+        },
+        "exposure_ratio": 8401.543596271176,
+        "ndcg": {
+          "max": 0.0182887539702125,
+          "mean": 0.01791888346459927,
+          "min": 0.017568598163747416,
+          "per_seed": [
+            0.017568598163747416,
+            0.0182887539702125,
+            0.017899298259837885
+          ]
+        },
+        "utility_drop": 0.18684935448064033
+      },
+      "0.2": {
+        "clean_committee_share": 0.011529215046068483,
+        "committee_size": 20,
+        "exposure": {
+          "max": 0.9194037392622537,
+          "mean": 0.9042331437924137,
+          "min": 0.8914141414141414,
+          "per_seed": [
+            0.8914141414141414,
+            0.9194037392622537,
+            0.9018815507008461
+          ]
+        },
+        "exposure_ratio": 8963.663154414198,
+        "ndcg": {
+          "max": 0.01837461957992605,
+          "mean": 0.017785352705349963,
+          "min": 0.0169578199122198,
+          "per_seed": [
+            0.0169578199122198,
+            0.01837461957992605,
+            0.018023618623904045
+          ]
+        },
+        "utility_drop": 0.19290891858767725
+      },
+      "0.3": {
+        "clean_committee_share": 0.0007979226629761189,
+        "committee_size": 20,
+        "exposure": {
+          "max": 0.9604617604617605,
+          "mean": 0.9478973417466054,
+          "min": 0.9367965367965368,
+          "per_seed": [
+            0.9604617604617605,
+            0.9464337279815189,
+            0.9367965367965368
+          ]
+        },
+        "exposure_ratio": 9396.5063487341,
+        "ndcg": {
+          "max": 0.017474598959224073,
+          "mean": 0.016651530793718287,
+          "min": 0.016185168571925132,
+          "per_seed": [
+            0.016185168571925132,
+            0.017474598959224073,
+            0.016294824850005666
+          ]
+        },
+        "utility_drop": 0.24436123263217346
+      }
+    },
+    "committee_median_size4": {
+      "0.0": {
+        "clean_committee_share": 1.0,
+        "committee_size": 4,
+        "exposure": {
+          "max": 0.0,
+          "mean": 0.0,
+          "min": 0.0,
+          "per_seed": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "exposure_ratio": 0.0,
+        "ndcg": {
+          "max": 0.0040367584914194924,
+          "mean": 0.003980504619176488,
+          "min": 0.0038761701868929104,
+          "per_seed": [
+            0.00402858517921706,
+            0.0040367584914194924,
+            0.0038761701868929104
+          ]
+        },
+        "utility_drop": 0.0
+      },
+      "0.1": {
+        "clean_committee_share": 0.6561,
+        "committee_size": 4,
+        "exposure": {
+          "max": 0.0007858987313349051,
+          "mean": 0.0002619662437783017,
+          "min": 0.0,
+          "per_seed": [
+            0.0,
+            0.0007858987313349051,
+            0.0
+          ]
+        },
+        "exposure_ratio": 2.596871374574305,
+        "ndcg": {
+          "max": 0.0034312600937223213,
+          "mean": 0.003192307045827176,
+          "min": 0.0030167437709426,
+          "per_seed": [
+            0.0034312600937223213,
+            0.0030167437709426,
+            0.0031289172728166076
+          ]
+        },
+        "utility_drop": 0.19801448528713914
+      },
+      "0.2": {
+        "clean_committee_share": 0.4096000000000001,
+        "committee_size": 4,
+        "exposure": {
+          "max": 0.9531506503346382,
+          "mean": 0.9426653533213432,
+          "min": 0.9309343434343434,
+          "per_seed": [
+            0.9309343434343434,
+            0.943911066195048,
+            0.9531506503346382
+          ]
+        },
+        "exposure_ratio": 9344.641647474475,
+        "ndcg": {
+          "max": 0.003637730586704913,
+          "mean": 0.003457069546317871,
+          "min": 0.0032877920015447677,
+          "per_seed": [
+            0.0034456860507039323,
+            0.003637730586704913,
+            0.0032877920015447677
+          ]
+        },
+        "utility_drop": 0.131499677286371
+      },
+      "0.3": {
+        "clean_committee_share": 0.24009999999999995,
+        "committee_size": 4,
+        "exposure": {
+          "max": 0.9454545454545454,
+          "mean": 0.943615548524587,
+          "min": 0.9418134565405718,
+          "per_seed": [
+            0.9435786435786436,
+            0.9418134565405718,
+            0.9454545454545454
+          ]
+        },
+        "exposure_ratio": 9354.060932524231,
+        "ndcg": {
+          "max": 0.004558243011037356,
+          "mean": 0.0040616730159840275,
+          "min": 0.0036226643813625356,
+          "per_seed": [
+            0.0036226643813625356,
+            0.004558243011037356,
+            0.004004111655552192
+          ]
+        },
+        "utility_drop": -0.020391484139096944
+      }
+    },
     "plaintext_median": {
       "0.0": {
         "exposure": {
@@ -372,7 +653,9 @@
     "modes": [
       "secure_sum_norm_bound",
       "plaintext_trimmed_mean",
-      "plaintext_median"
+      "plaintext_median",
+      "committee_median_size4",
+      "committee_median_size20"
     ],
     "noise": "none (clip only)",
     "phase": "final",
@@ -384,11 +667,11 @@
       1,
       2
     ],
-    "skipped_runs": 36,
+    "skipped_runs": 12,
     "trim_fraction": 0.35,
     "users": 9913,
     "utility_drop": "(clean mean NDCG@10 - NDCG@10) / clean mean NDCG@10, same mode"
   },
   "status": "VALID",
-  "wall_seconds": 7.0
+  "wall_seconds": 5139.4
 }

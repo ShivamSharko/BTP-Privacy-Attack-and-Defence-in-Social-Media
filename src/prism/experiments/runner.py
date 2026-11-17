@@ -54,14 +54,71 @@ LIMITATIONS: tuple[str, ...] = (
 )
 
 
-def code_sha256() -> str:
-    """SHA-256 over every source file of the ``prism`` package (path and contents)."""
+ENGINE_FILES: tuple[str, ...] = (
+    "config.py",
+    "io.py",
+    "seeding.py",
+    "environment.py",
+    "data/bundle.py",
+    "models/hybrid.py",
+    "fl/sampling.py",
+    "fl/client.py",
+    "fl/fast.py",
+    "fl/aggregate.py",
+    "fl/server.py",
+    "privacy/dp.py",
+    "privacy/accounting.py",
+    "ledger/merkle.py",
+    "ledger/receipts.py",
+    "ledger/log.py",
+    "ledger/gate.py",
+    "eval/metrics.py",
+    "experiments/calibration.py",
+    "experiments/regimes.py",
+    "experiments/runner.py",
+)
+
+
+def engine_files() -> list[Path]:
+    """Source files a training run depends on: data loading, model, round loop, accounting, ledger."""
+    package = Path(__file__).resolve().parents[1]
+    return [package / name for name in ENGINE_FILES]
+
+
+def _hash_files(paths: list[Path]) -> str:
     package = Path(__file__).resolve().parents[1]
     digest = hashlib.sha256()
-    for path in sorted(package.rglob("*.py")):
+    for path in sorted(paths):
         digest.update(path.relative_to(package).as_posix().encode("utf-8"))
-        digest.update(path.read_bytes())
+        digest.update(path.read_bytes().replace(b"\r\n", b"\n"))
     return digest.hexdigest()
+
+
+def code_sha256() -> str:
+    """SHA-256 of the engine files (path and contents, line endings normalised).
+
+    It identifies the code that produced a training run independently of git, so it can be
+    recomputed at any commit. Experiment, attack and report modules are not part of it: adding
+    an experiment does not make existing runs stale.
+    """
+    return _hash_files(engine_files())
+
+
+def payload_provenance(module_file: str, extra: tuple[str, ...] = ()) -> dict[str, Any]:
+    """Provenance block for an experiment's result file.
+
+    ``module_sha256`` covers the experiment module and any ``extra`` package-relative files it
+    relies on (for example an attack module).
+    """
+    package = Path(__file__).resolve().parents[1]
+    environment = collect_environment_report()
+    files = [Path(module_file).resolve(), *[package / name for name in extra]]
+    return {
+        "engine_sha256": code_sha256(),
+        "module_sha256": _hash_files(files),
+        "git_commit": environment.git_commit,
+        "git_dirty": environment.git_dirty,
+    }
 
 
 @dataclass(frozen=True)

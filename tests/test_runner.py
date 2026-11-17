@@ -202,3 +202,28 @@ def test_records_identify_the_code_and_stale_records_are_flagged(
     rerun = run_grid([config], paths, workers=1, threads=1)[0]
     assert not rerun["skipped"]
     assert rerun["provenance"]["code_sha256"] == "0" * 64
+
+
+def test_engine_hash_covers_the_training_path_and_ignores_experiment_modules() -> None:
+    from prism.experiments import runner
+
+    files = [path.as_posix() for path in runner.engine_files()]
+    for needed in (
+        "fl/server.py",
+        "fl/fast.py",
+        "fl/aggregate.py",
+        "privacy/accounting.py",
+        "models/hybrid.py",
+        "eval/metrics.py",
+        "ledger/gate.py",
+        "experiments/runner.py",
+    ):
+        assert any(name.endswith(needed) for name in files), needed
+    assert not any(
+        name.endswith(("experiments/gossip.py", "report/build.py", "cli.py")) for name in files
+    )
+    assert runner.code_sha256() == runner.code_sha256()
+    provenance = runner.payload_provenance(runner.__file__)
+    assert set(provenance) == {"engine_sha256", "module_sha256", "git_commit", "git_dirty"}
+    assert provenance["engine_sha256"] == runner.code_sha256()
+    assert len(provenance["module_sha256"]) == 64

@@ -1,0 +1,5 @@
+Variant,Max absolute difference,Relative L2 difference,Within tolerance
+"engine step, noise multiplier 0",0.000000000,n/a,yes
+"engine step, noise multiplier 1",0.000000000,n/a,yes
+gaussian,0.000000060,0.000000048,yes
+noise free,0.000000060,0.000000043,yes

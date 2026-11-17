@@ -213,3 +213,69 @@ def test_changed_trim_fraction_reruns_trimmed_runs_only(
     go(0.1)
     assert not calls
     assert "predate the commit" in " ".join(poisoning.LIMITATIONS)
+
+
+COMMITTEE_MODES = ("secure_sum_norm_bound", "committee_median_size4", "committee_median_size20")
+
+
+def _committee_run(paths: Paths) -> dict[str, Any]:
+    return poisoning.run(
+        paths, _frozen(), fractions=FRACTIONS, modes=COMMITTEE_MODES, seeds=(0,),
+        sample_rate=0.3, rounds=10, workers=1, threads=1,
+    )  # fmt: skip
+
+
+def test_default_modes_and_committee_constants() -> None:
+    import inspect
+
+    default = inspect.signature(poisoning.run).parameters["modes"].default
+    assert "committee_median_size4" in default and "committee_median_size20" in default
+    assert poisoning.COMMITTEE_SIZES == {"committee_median_size4": 4, "committee_median_size20": 20}
+
+
+def test_committee_modes_end_to_end_and_resume(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    write_synthetic_dataset(tmp_path / "processed")
+    paths = _paths(tmp_path)
+    result = _committee_run(paths)
+    assert result["provenance"].keys() >= {"engine_sha256", "module_sha256", "git_commit"}
+    for mode, size in (("committee_median_size4", 4), ("committee_median_size20", 20)):
+        cell = result["results"][mode]["0.3"]
+        assert cell["committee_size"] == size
+        assert cell["clean_committee_share"] == pytest.approx(0.7**size)
+        assert result["results"][mode]["0.0"]["clean_committee_share"] == 1.0
+    assert "clean_committee_share" not in result["results"]["secure_sum_norm_bound"]["0.3"]
+    tradeoff = result["committee_tradeoff"]
+    assert set(tradeoff) == {"committee_median_size4", "committee_median_size20"}
+    entry = tradeoff["committee_median_size4"]
+    assert entry["committee_size"] == 4 and entry["clean_ndcg_at_fraction_0"] > 0
+    assert {row["fraction"] for row in entry["per_fraction"]} == {0.0, 0.3}
+    assert set(entry["per_fraction"][0]) >= {
+        "fraction", "target_exposure", "clean_committee_share"
+    }  # fmt: skip
+    joined = " ".join(result["limitations"])
+    assert "committee of 4" in joined and "no DP noise" in joined
+    records = [read_json(p) for p in (tmp_path / "results" / "runs" / "poisoning").glob("*.json")]
+    sizes = {r["committee_size"] for r in records if r.get("aggregator") == "committee_median"}
+    assert sizes == {4, 20}
+
+    calls: list[Any] = []
+    real = poisoning.run_one
+
+    def counting(*args: Any, **kwargs: Any) -> dict[str, Any]:
+        calls.append(kwargs["extra"])
+        return real(*args, **kwargs)  # type: ignore[no-any-return]
+
+    monkeypatch.setattr(poisoning, "run_one", counting)
+    assert _committee_run(paths)["settings"]["skipped_runs"] == 6 and not calls
+    # a record whose stored committee size differs from the requested one is rerun
+    from prism.io import atomic_write_json
+
+    for path in (tmp_path / "results" / "runs" / "poisoning").glob("*.json"):
+        record = read_json(path)
+        if record.get("committee_size") == 4:
+            record["committee_size"] = 5
+            atomic_write_json(path, record)
+    _committee_run(paths)
+    assert len(calls) == 2 and all(c["committee_size"] == 4 for c in calls)

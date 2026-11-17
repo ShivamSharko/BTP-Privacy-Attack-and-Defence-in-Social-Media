@@ -15,7 +15,19 @@ from prism.io import atomic_write_json
 from prism.report import build
 
 STAMP = "2026-11-17 12:00:00 UTC"
-SECTIONS = ("baselines", "rq1", "rq2", "rq3", "rq4", "rq5", "rq6")
+SECTIONS = (
+    "baselines",
+    "rq1",
+    "rq2",
+    "rq3",
+    "rq4",
+    "rq5",
+    "rq6",
+    "sensitivity",
+    "parity",
+    "provenance",
+)
+FIGURE_SECTIONS = ("baselines", "rq1", "rq2", "rq3", "rq4", "rq5", "rq6", "sensitivity")
 
 
 def _paths(root: Path) -> Paths:
@@ -230,9 +242,25 @@ def _payloads() -> dict[str, dict[str, Any]]:
                     }
                     for f in (0.0, 0.1, 0.2, 0.3)
                 }
-                for mode, scale in (("secure_sum", 1.0), ("plaintext_trimmed_mean", 0.3))
+                for mode, scale in (
+                    ("secure_sum", 1.0),
+                    ("plaintext_trimmed_mean", 0.3),
+                    ("committee_median_size4", 0.6),
+                    ("committee_median_size20", 0.2),
+                )
             },
-            "h4": {"holds": True, "trimmed_mean_lower_everywhere": True, "gap_grows": True},
+            "h4": {"holds": True, "lower_at_every_share": True, "gap_largest_at_max_share": True},
+            "committee_tradeoff": {
+                mode: {
+                    "committee_size": size,
+                    "clean_ndcg_at_fraction_0": 0.041,
+                    "per_fraction": [
+                        {"fraction": 0.1, "target_exposure": 0.05, "clean_committee_share": 0.34},
+                        {"fraction": 0.3, "target_exposure": 0.2, "clean_committee_share": 0.0},
+                    ],
+                }
+                for mode, size in (("committee_median_size4", 4), ("committee_median_size20", 20))
+            },
             "limitations": ["Fake accounts follow a simple script."],
         },
         "participation": {
@@ -264,11 +292,133 @@ def _payloads() -> dict[str, dict[str, Any]]:
                             },
                         }
                     }
-                    for s in ("independent", "activity")
+                    for s in ("independent", "activity", "trace", "trace_activity", "trace_replay")
+                },
+                "availability": {
+                    "independent": {"mean": 0.5, "activity_groups": [0.5, 0.5, 0.5]},
+                    "trace": {"mean": 0.33, "activity_groups": [0.3, 0.33, 0.36]},
+                },
+                "trace_readout": {
+                    "overall_ndcg10": {
+                        "8": {
+                            "trace": 0.04,
+                            "trace_replay": 0.039,
+                            "independent": 0.041,
+                            "always": 0.05,
+                            "trace_minus_independent": -0.001,
+                            "trace_replay_minus_independent": -0.002,
+                        }
+                    },
+                    "rank_matching_widens_activity_gap": {
+                        "8": {"seeds": 5, "seeds_improved": 5, "mean_difference": 0.01}
+                    },
                 },
                 "h5": {"holds": False},
             },
+            "settings": {
+                "trace": {
+                    "seconds_per_round": 1800,
+                    "summary": {"devices": 107749.0, "mean_active_share": 0.31},
+                }
+            },
             "limitations": ["Availability is synthetic."],
+        },
+        "sensitivity": {
+            "experiment": "sensitivity",
+            "status": "VALID",
+            "invalid_reasons": [],
+            "controls": [
+                {
+                    "variant": "k10",
+                    "regime": "large",
+                    "measured": "non-private over MostPopular",
+                    "value": 1.5,
+                    "threshold": 1.1,
+                    "passed": True,
+                }
+            ],
+            "results": {
+                name: {
+                    regime: {
+                        "users": 9000 + i,
+                        "items": 6000,
+                        "interactions": 400000,
+                        "most_popular_ndcg@10": 0.026,
+                        "item_ridge_ndcg@10": 0.045,
+                        "nondp_ndcg@10": 0.05,
+                        "h1_met": regime == "large",
+                        "epsilons": {
+                            "8": {
+                                "ndcg@10": 0.04,
+                                "retention": 0.8 + 0.05 * i,
+                                "personalisation_retained": 0.6,
+                                "retention_ndcg@20": 0.82,
+                            }
+                        },
+                        "conclusion_stable": {"h1_verdict_same": True},
+                    }
+                    for regime in ("large", "small")
+                }
+                for i, name in enumerate(("k10", "k15", "k20", "stars4"))
+            },
+            "limitations": ["Frozen hyperparameters on every variant."],
+        },
+        "free_riding": {
+            "experiment": "free_riding",
+            "status": "VALID",
+            "invalid_reasons": [],
+            "controls": [
+                {
+                    "name": "positive_zero_detection",
+                    "what": "norm AUC of zero free-riders",
+                    "measured": 0.99,
+                    "threshold": 0.95,
+                    "passed": True,
+                }
+            ],
+            "results": {
+                "clean": {"ndcg": {"mean": 0.05}},
+                "zero": {
+                    "0.1": {
+                        "ndcg": {"mean": 0.048},
+                        "cost_to_everyone": {"relative_ndcg_drop": 0.04},
+                        "free_rider_gain": {
+                            "difference_mean": -0.003,
+                            "per_seed": [{"ci95_low": -0.005, "ci95_high": -0.001}],
+                        },
+                        "detection": {
+                            "secure_aggregation": "not_applicable",
+                            "norm_auc": {"mean": 0.99},
+                            "cosine_auc": {"mean": 0.9},
+                        },
+                    }
+                },
+            },
+            "limitations": ["Two simple free-riding behaviours."],
+        },
+        "flower_parity": {
+            "experiment": "flower_parity",
+            "status": "VALID",
+            "invalid_reasons": [],
+            "settings": {
+                "flower_version": "1.43.0",
+                "flower_execution_mode": "simulation runtime",
+                "rounds": 5,
+                "clients": 400,
+                "tolerance": {"atol": 1e-06, "rtol": 1e-05},
+            },
+            "results": {
+                "gaussian": {
+                    "final": {"allclose": True, "max_abs_diff": 6e-08, "relative_l2_diff": 4.8e-08}
+                },
+                "noise_free": {
+                    "final": {"allclose": True, "max_abs_diff": 0.0, "relative_l2_diff": 0.0}
+                },
+                "engine_step_check": {
+                    "noise_multiplier_0": {"identical": True, "max_abs_diff": 0.0}
+                },
+            },
+            "limitations": ["Small synthetic problem."],
         },
         "ledger_audit": {
             "experiment": "ledger_audit",
@@ -286,6 +436,16 @@ def _payloads() -> dict[str, dict[str, Any]]:
             "limitations": ["One signing key."],
         },
     }
+
+
+def _with_provenance(payloads: dict[str, dict[str, Any]]) -> None:
+    for name in ("privacy_utility", "gossip", "sensitivity"):
+        payloads[name]["provenance"] = {
+            "engine_sha256": "a" * 64,
+            "module_sha256": "b" * 64,
+            "git_commit": "c0ffee1234567890",
+            "git_dirty": name == "gossip",
+        }
 
 
 def _recovery(auc: float) -> dict[str, Any]:
@@ -327,7 +487,15 @@ def fast(monkeypatch: pytest.MonkeyPatch) -> None:
 @pytest.fixture(scope="module")
 def full(tmp_path_factory: pytest.TempPathFactory) -> dict[str, Any]:
     root = tmp_path_factory.mktemp("full")
-    _write(root / "results", _payloads())
+    payloads = _payloads()
+    _with_provenance(payloads)
+    _write(root / "results", payloads)
+    current = build.code_sha256()
+    for name, code in (("r1", current), ("r2", current), ("r3", "0" * 64), ("r4", None)):
+        record: dict[str, Any] = {"status": "ok"}
+        if code is not None:
+            record["provenance"] = {"code_sha256": code}
+        atomic_write_json(root / "results" / "runs" / "demo" / f"{name}.json", record)
     first = build.build_report(_paths(root), timestamp=STAMP)
     markdown = first["markdown"].read_bytes()
     html = first["html"].read_text(encoding="utf-8")
@@ -361,8 +529,8 @@ def test_every_section_renders_with_a_figure(full: dict[str, Any]) -> None:
     for key in SECTIONS:
         match = re.search(rf'<section id="{key}".*?</section>', html, flags=re.S)
         assert match is not None, key
-        assert "data:image/png;base64," in match.group(0), key
-    assert html.count("data:image/png;base64,") >= 9  # RQ1 and RQ3 carry two figures
+        assert ("data:image/png;base64," in match.group(0)) == (key in FIGURE_SECTIONS), key
+    assert html.count("data:image/png;base64,") >= 10  # RQ1 and RQ3 carry two figures
     for hypothesis in ("H1", "H2", "H3", "H4", "H5"):
         assert f"<td>{hypothesis}</td>" in html
 
@@ -484,7 +652,7 @@ def test_nan_and_none_render_as_na(tmp_path: Path, fast: None) -> None:
     )
     result = build.build_report(_paths(tmp_path), timestamp=STAMP)
     markdown = result["markdown"].read_text(encoding="utf-8")
-    assert "nan" not in markdown.lower().replace("nonsense", "")
+    assert re.search(r"nan", markdown.lower()) is None
     assert "None" not in markdown
     assert "n/a" in markdown
 
@@ -604,3 +772,103 @@ def test_rq2_table_shows_replace_adjacency_only_when_present(tmp_path: Path, fas
     new = build.build_report(_paths(tmp_path), timestamp=STAMP)
     markdown = new["markdown"].read_text(encoding="utf-8")
     assert "replace adjacency" in markdown and "55.50" in markdown
+
+
+def test_not_done_list_shrinks_when_results_exist(
+    tmp_path: Path, full: dict[str, Any], fast: None
+) -> None:
+    empty = build.build_report(_paths(tmp_path), timestamp=STAMP)["markdown"].read_text(
+        encoding="utf-8"
+    )
+    for line in (
+        "k-core (k = 10, 20) and 4-star sensitivity analyses",
+        "Free-riding clients",
+        "Flower parity check",
+        "Committee-median robustness mode",
+        "Trace-based client availability",
+        "Pre-publication review by the dataset provider",
+    ):
+        assert line in empty
+    assert "list length k" not in empty
+    done = full["markdown"].split("## Not done")[1]
+    assert "Pre-publication review by the dataset provider (owners' task" in done
+    for line in ("k-core", "Free-riding", "Flower parity", "Committee-median", "Trace-based"):
+        assert line not in done
+
+
+def test_flower_not_run_status_counts_as_not_done(tmp_path: Path, fast: None) -> None:
+    payloads = _payloads()
+    payloads["flower_parity"]["status"] = "NOT_RUN"
+    _write(tmp_path / "results", payloads)
+    result = build.build_report(_paths(tmp_path), timestamp=STAMP)
+    assert result["sections"]["parity"] == "not run"
+    assert "Flower parity check" in result["markdown"].read_text(encoding="utf-8")
+
+
+def test_sensitivity_section(full: dict[str, Any]) -> None:
+    markdown = full["markdown"]
+    assert "Sensitivity: k-core and positive-feedback variants" in markdown
+    assert "Frozen hyperparameters on every variant." in markdown
+    tables = {p.name: p for p in full["result"]["tables"]}
+    with open(tables["sensitivity.csv"], newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 8  # four variants, two regimes
+    assert {r["Variant"] for r in rows} >= {"k-core 10", "4 stars or more"}
+    assert rows[0]["Retention at list length 20"] == "0.820"
+
+
+def test_poisoning_additions(full: dict[str, Any]) -> None:
+    markdown = full["markdown"]
+    assert "committee median size4" in markdown and "committee median size20" in markdown
+    assert "Committee trade-off" in markdown
+    assert "Share of attacker-free committees" in markdown
+    assert "Free-riding clients" in markdown
+    assert "not applicable under secure aggregation" in markdown
+    assert "Two simple free-riding behaviours." in markdown
+    tables = {p.name for p in full["result"]["tables"]}
+    assert {"rq4_free_riding.csv", "rq4_committee.csv"} <= tables
+
+
+def test_participation_trace_additions(full: dict[str, Any]) -> None:
+    markdown = full["markdown"]
+    for scenario in ("trace_activity", "trace_replay"):
+        assert scenario in markdown
+    assert "Trace readout" in markdown
+    assert "107,749" in markdown
+    assert "Mean availability by scenario" in markdown
+
+
+def test_gossip_section_shows_nodes_and_seeds(tmp_path: Path, fast: None) -> None:
+    payloads = _payloads()
+    payloads["gossip"]["results"]["nodes"] = 3000
+    payloads["gossip"]["settings"] = {"seeds": [0, 1, 2]}
+    _write(tmp_path / "results", payloads)
+    markdown = build.build_report(_paths(tmp_path), timestamp=STAMP)["markdown"].read_text(
+        encoding="utf-8"
+    )
+    assert "3,000 nodes" in markdown
+    assert "3 seeds" in markdown
+
+
+def test_parity_section(full: dict[str, Any]) -> None:
+    markdown = full["markdown"]
+    assert "Framework parity" in markdown
+    assert "1.43.0" in markdown
+    assert "Small synthetic problem." in markdown
+    assert full["result"]["sections"]["parity"] == "VALID"
+
+
+def test_provenance_section(full: dict[str, Any]) -> None:
+    markdown = full["markdown"]
+    assert "aaaaaaaaaaaa" in markdown and "a" * 13 not in markdown
+    assert "| c0ffee12 |" in markdown
+    assert "3 of 4 run records carry a code hash" in markdown
+    assert "2 of those 3 equal the current engine hash" in markdown
+    assert "so it can be recomputed at any commit." in markdown
+    assert full["result"]["sections"]["provenance"] == "VALID"
+
+
+def test_new_sections_not_run_when_files_missing(tmp_path: Path, fast: None) -> None:
+    result = build.build_report(_paths(tmp_path), timestamp=STAMP)
+    for key in ("sensitivity", "parity", "provenance"):
+        assert result["sections"][key] == "not run"

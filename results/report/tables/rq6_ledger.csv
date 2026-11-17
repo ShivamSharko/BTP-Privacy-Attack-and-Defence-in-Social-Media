@@ -1,19 +1,19 @@
 Measurement,Value
-Ledgers verified,146 of 146
-Round receipts,"36,520"
-Release receipts,146
+Ledgers verified,162 of 162
+Round receipts,"42,920"
+Release receipts,162
 Refusal receipts,0
-Ledger bytes per round,303.3
-Private runs,146
+Ledger bytes per round,304.0
+Private runs,162
 Private runs without a valid release receipt,0
 Receipt coverage,1.000
 Single-byte tampers tried,300
 Tampers detected,300
 Detection rate,1.000
-Append time per receipt (ms),1.53
-Whole-ledger verification time (s),0.018
+Append time per receipt (ms),2.62
+Whole-ledger verification time (s),0.028
 Inclusion proof size (bytes),320
-Mean share of run time spent on receipts,0.0034
+Mean share of run time spent on receipts,0.0055
 Blocked-release demo: rounds asked,33
 Blocked-release demo: rounds allowed by budget,27
 Blocked-release demo: rounds completed,27

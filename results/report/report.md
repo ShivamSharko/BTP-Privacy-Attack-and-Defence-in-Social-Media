@@ -1,6 +1,6 @@
 # PRISM-Rec: privacy attack and defence measurements for a social-media recommender
 
-Generated 2026-11-17 10:41:36 UTC. Git commit 1718f84647e8c80d050a0950edea3c12ab982fcb. uv.lock sha256 4a11483b5839e22468be078a16640ae2ab9947e89047bf09060accf22a77c466.
+Generated 2026-11-17 17:38:25 UTC. Git commit be247fd303f116f1d464fd5bac397e5d7f28d11d. uv.lock sha256 4a11483b5839e22468be078a16640ae2ab9947e89047bf09060accf22a77c466.
 
 ## What was measured
 
@@ -23,7 +23,7 @@ PRISM-Rec is a recommender for a social review platform (users, businesses and a
 | Hypothesis | Statement | Decisive numbers | Verdict |
 | --- | --- | --- | --- |
 | H1 | The model at epsilon = 8 retains at least 90% of the non-private NDCG@10 of the same regime. | large: retention 0.778 (threshold 0.90); small: retention 0.645 (threshold 0.90) | not supported |
-| H2 | Gossip with local DP has lower NDCG@10 than federated training with central DP at epsilon = 8 (95% interval of the per-user gap excludes 0). | gap 0.0118, 95% interval [0.0087, 0.0147], relative gap 0.688 | supported |
+| H2 | Gossip with local DP has lower NDCG@10 than federated training with central DP at epsilon = 8 (95% interval of the per-user gap excludes 0). | gap 0.0161, 95% interval [0.0133, 0.0190], relative gap 0.737 | supported |
 | H3 | At epsilon = 8 membership inference has TPR at 1% FPR of at most 2%, and a server seeing only secure sums of 100 users recovers a history no better than the popularity prior plus 0.05 AUC. | membership TPR@1%FPR 0.0130; secure sum of 100 users: history AUC 0.848 vs prior 0.771 (+0.05 allowed) | not supported |
 | H4 | Plaintext trimmed-mean aggregation gives lower target exposure than the secure-sum mode at every attacker share, and the gap is largest at the largest share (30%). | trimmed mean lower at every share: yes; gap largest at the largest share: no | not supported |
 | H5 | Availability correlated with activity (or friend count) gives a larger NDCG@10 gap between the top and bottom groups than independent availability, in every seed. | activity: 2 of 5 seeds wider at non-private, 4 of 5 seeds wider at epsilon 8; social: 3 of 5 seeds wider at non-private, 5 of 5 seeds wider at epsilon 8 (sign pattern decides; Wilcoxon is underpowered) | supported |
@@ -101,22 +101,22 @@ Figure: NDCG@10 against epsilon. NDCG@10 of the private model at each epsilon of
 
 Status: **VALID**
 
-Training by gossip between friends with local noise on each device, compared with server-based federated training with central noise, on the same users and at the same epsilon. 2,000 nodes; share of gossip peers who are real friends: 0.432.
+Training by gossip between friends with local noise on each device, compared with server-based federated training with central noise, on the same users and at the same epsilon. 2,500 nodes, 3 seeds; share of gossip peers who are real friends: 0.517.
 
 ### Controls
 
 | Control | What was measured | Measured | Threshold | Result |
 | --- | --- | --- | --- | --- |
-| gossip beats untrained | non-private gossip NDCG@10 over the untrained starting model, same nodes | gating = yes; gossip_ndcg10 = 0.02084; ratio = 3.986; untrained_ndcg10 = 0.005228 | 1.1 | pass |
-| gossip learns | non-private gossip NDCG@10 over MostPopular NDCG@10, same nodes | gating = no; gossip_ndcg10 = 0.02084; most_popular_ndcg10 = 0.02716; ratio = 0.7673; reason = on a few thousand users even the federated model can be below MostPopular, so this comparison measures population size, not whether gossip works | 1.1 | FAIL |
-| gossip share of federated | non-private gossip NDCG@10 as a share of the non-private federated model, same nodes | federated_ndcg10 = 0.02922; gating = no; gossip_ndcg10 = 0.02084; ratio = 0.7131; reason = reference only: how much of the server-based quality gossip recovers | n/a | n/a |
+| gossip beats untrained | non-private gossip NDCG@10 over the untrained starting model, same nodes | gating = yes; gossip_ndcg10 = 0.02214; ratio = 3.776; untrained_ndcg10 = 0.005864 | 1.1 | pass |
+| gossip learns | non-private gossip NDCG@10 over MostPopular NDCG@10, same nodes | gating = no; gossip_ndcg10 = 0.02214; most_popular_ndcg10 = 0.02749; ratio = 0.8056; reason = on a few thousand users even the federated model can be below MostPopular, so this comparison measures population size, not whether gossip works | 1.1 | FAIL |
+| gossip share of federated | non-private gossip NDCG@10 as a share of the non-private federated model, same nodes | federated_ndcg10 = 0.0282; gating = no; gossip_ndcg10 = 0.02214; ratio = 0.7851; reason = reference only: how much of the server-based quality gossip recovers | n/a | n/a |
 
 ### Gossip versus federated training
 
 | Setting | Gossip NDCG@10 | Federated NDCG@10 | MostPopular NDCG@10 | Gap (federated minus gossip) | Gap 95% interval (over users) | Epsilon claimed, gossip (local, add-or-remove) | Epsilon, gossip (local, replace adjacency, sensitivity 2C) | Epsilon of record, federated | Bytes: gossip over federated |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| non-private | 0.0208 | 0.0292 | 0.0272 | 0.0091 | [0.0053, 0.0131] | n/a | n/a | n/a | 60.000 |
-| epsilon 8.0 | 0.0054 | 0.0172 | 0.0272 | 0.0118 | [0.0087, 0.0147] | 7.97 | 19.48 | 7.98 | 60.000 |
+| non-private | 0.0221 | 0.0282 | 0.0275 | 0.0080 | [0.0049, 0.0114] | n/a | n/a | n/a | 60.000 |
+| epsilon 8.0 | 0.0054 | 0.0204 | 0.0275 | 0.0161 | [0.0133, 0.0190] | 7.97 | 19.41 | 7.99 | 60.000 |
 
 Figure: Gossip against federated training. NDCG@10 of gossip and federated training at the same epsilon, with MostPopular for scale. The value axis starts at zero. (see report.html)
 
@@ -145,7 +145,7 @@ Two attacks on what a trained model or its updates reveal about a user. History 
 
 | Control | What was measured | Measured | Threshold | Result |
 | --- | --- | --- | --- | --- |
-| masked is chance | mean history AUC from one masked secure-aggregation payload | auc = 0.4996 | auc_within = 0.45, 0.55 | pass |
+| masked is chance | mean history AUC from one masked secure-aggregation payload | auc = 0.4991 | auc_within = 0.45, 0.55 | pass |
 | raw recovers history | mean history AUC and precision@10 when the server sees the raw clipped update | auc = 0.9999; precision_at_10 = 0.9995; prior_precision_at_10 = 0.0931 | min_auc = 0.8; min_precision_at_10_over_prior = 5 | pass |
 | negative independent | attack on a model trained on an independent random half (not the labelled members) | auc = 0.5015 | auc_target = 0.5; tolerance = 0.03 | pass |
 | positive overfit | attack on a non-private model trained for many more rounds on A_0 | auc = 0.8553; tpr_at_1pct_fpr = 0.3339 | auc_min = 0.55; tpr_at_1pct_fpr_min = 0.02 | pass |
@@ -159,7 +159,7 @@ Two attacks on what a trained model or its updates reveal about a user. History 
 | local noise, z = 1 | 0.5029 | [0.4991, 0.5070] | 0.0055 | 0.0931 | 0.7705 | 0.4869 |  |
 | local noise, z = 2 | 0.5013 | [0.4970, 0.5053] | 0.0056 | 0.0931 | 0.7705 | 0.4955 |  |
 | local noise, z = 5 | 0.5016 | [0.4977, 0.5054] | 0.0040 | 0.0931 | 0.7705 | 0.5180 |  |
-| one masked secure-aggregation payload | 0.4996 | [0.4955, 0.5038] | 0.0058 | 0.0931 | 0.7705 | 0.5039 |  |
+| one masked secure-aggregation payload | 0.4991 | [0.4951, 0.5028] | 0.0046 | 0.0931 | 0.7705 | 0.5135 |  |
 | secure sum of 10 users | 0.9679 | [0.9653, 0.9705] | 0.1260 | 0.0931 | 0.7705 | not applicable under secure aggregation |  |
 | secure sum of 100 users | 0.8485 | [0.8441, 0.8531] | 0.0557 | 0.0931 | 0.7705 | not applicable under secure aggregation |  |
 | secure sum of 100 users plus central DP noise | 0.4992 | [0.4953, 0.5031] | 0.0060 | 0.0931 | 0.7705 | not applicable under secure aggregation |  |
@@ -208,6 +208,14 @@ Fake accounts try to push one target item into other users' recommendations. Tar
 
 | Aggregation mode | Attacker share | Target exposure (mean) | Exposure min over seeds | Exposure max over seeds | NDCG@10 | Utility drop vs clean | Exposure over clean |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| committee median size20 | 0% | 0.0000 | 0.0000 | 0.0000 | 0.0220 | 0.000 | 0.000 |
+| committee median size20 | 10% | 0.8475 | 0.8354 | 0.8613 | 0.0179 | 0.187 | 8401.544 |
+| committee median size20 | 20% | 0.9042 | 0.8914 | 0.9194 | 0.0178 | 0.193 | 8963.663 |
+| committee median size20 | 30% | 0.9479 | 0.9368 | 0.9605 | 0.0167 | 0.244 | 9396.506 |
+| committee median size4 | 0% | 0.0000 | 0.0000 | 0.0000 | 0.0040 | 0.000 | 0.000 |
+| committee median size4 | 10% | 0.0003 | 0.0000 | 0.0008 | 0.0032 | 0.198 | 2.597 |
+| committee median size4 | 20% | 0.9427 | 0.9309 | 0.9532 | 0.0035 | 0.131 | 9344.642 |
+| committee median size4 | 30% | 0.9436 | 0.9418 | 0.9455 | 0.0041 | -0.020 | 9354.061 |
 | plaintext median | 0% | 0.0000 | 0.0000 | 0.0001 | 0.0049 | 0.000 | 0.334 |
 | plaintext median | 10% | 0.0043 | 0.0000 | 0.0128 | 0.0046 | 0.067 | 42.663 |
 | plaintext median | 20% | 0.0486 | 0.0000 | 0.1454 | 0.0039 | 0.200 | 481.290 |
@@ -221,7 +229,38 @@ Fake accounts try to push one target item into other users' recommendations. Tar
 | secure sum norm bound | 20% | 0.9537 | 0.9525 | 0.9548 | 0.0212 | 0.238 | 9454.385 |
 | secure sum norm bound | 30% | 0.8819 | 0.8166 | 0.9512 | 0.0168 | 0.397 | 8742.661 |
 
+### Committee trade-off
+
+| Committee size | Attacker share | Share of attacker-free committees | Target exposure | Clean NDCG@10 (no attackers) |
+| --- | --- | --- | --- | --- |
+| 4 | 0% | 1.000 | 0.0000 | 0.0040 |
+| 4 | 10% | 0.656 | 0.0003 | 0.0040 |
+| 4 | 20% | 0.410 | 0.9427 | 0.0040 |
+| 4 | 30% | 0.240 | 0.9436 | 0.0040 |
+| 20 | 0% | 1.000 | 0.0000 | 0.0220 |
+| 20 | 10% | 0.122 | 0.8475 | 0.0220 |
+| 20 | 20% | 0.012 | 0.9042 | 0.0220 |
+| 20 | 30% | 0.001 | 0.9479 | 0.0220 |
+
+### Free-riding clients
+
+| Behaviour | Free-rider share | Overall NDCG@10 | Drop vs 0% free-riders | Free-riders minus contributors NDCG@10 | Range over seeds of the 95% interval | Detection AUC by update norm (server sees updates) | Detection AUC by cosine (server sees updates) | Detection under secure aggregation |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| noise | 10% | 0.0294 | 0.021 | -0.0016 | [-0.0088, 0.0075] | 0.988 | 0.508 | not applicable under secure aggregation |
+| noise | 30% | 0.0290 | 0.037 | -0.0016 | [-0.0059, 0.0029] | 0.991 | 0.507 | not applicable under secure aggregation |
+| zero | 10% | 0.0294 | 0.022 | -0.0017 | [-0.0090, 0.0076] | 1.000 | 0.507 | not applicable under secure aggregation |
+| zero | 30% | 0.0291 | 0.033 | -0.0016 | [-0.0061, 0.0031] | 1.000 | 0.503 | not applicable under secure aggregation |
+
+### Free-riding controls
+
+| Control | What was measured | Measured | Threshold | Result |
+| --- | --- | --- | --- | --- |
+| positive zero detection | lowest norm-based detection AUC of the 'zero' behaviour over fractions and seeds (plaintext updates) | 1 | 0.95 | pass |
+| sanity beats most popular | overall NDCG@10 at fraction 0 over MostPopular's NDCG@10 (test split) | 1.153 | 1.1 | pass |
+
 H4 readout: trimmed mean lower at every share: yes; gap largest at the largest share: no.
+
+Free-riding clients send an update that costs nothing (zeros, or noise with the honest norm). NDCG@10 with no free-riders: 0.0301.
 
 Figure: Target exposure against attacker share. Mean target exposure per aggregation mode as the share of fake accounts grows; whiskers span the smallest and largest value over seeds. (see report.html)
 
@@ -231,9 +270,19 @@ Figure: Target exposure against attacker share. Mean target exposure per aggrega
 - Attackers do not adapt to the aggregator; an adaptive attacker could do better against the trimmed mean and the median.
 - The robust modes run without DP noise, so no privacy guarantee applies to them.
 - Coordinate-wise robust aggregators need the server to see each individual update, which secure aggregation prevents; the robust modes are therefore not compatible with it.
+- A committee of 4 hides an individual update among only 3 others, so the committee modes give much weaker secure-aggregation protection than the secure-sum mode.
+- Committees are simulated: the committee sums are computed in the clear in this simulation, no secure-aggregation protocol runs.
+- The committee modes add no DP noise, so no privacy guarantee applies to them.
 - Three seeds by default; min and max over seeds are reported, not confidence intervals.
 - Run records are reused when the configuration matches; records produced on 17 November 2026 predate the commit of the code that produced them.
 - Exposure is the share of other users whose top-10 contains the target, on one target item per seed drawn from the least popular third.
+- Two simple free-riding behaviours (all zeros; noise with the honest mean norm).
+- Free-riders do not adapt to detection; an adaptive free-rider could imitate honest updates.
+- Detection needs the server to see individual updates, so it is unavailable under secure aggregation; this is the conflict the experiment illustrates, not a detector proposal.
+- Detection scores are computed on the clipped updates a server would receive, over the last 20 rounds only.
+- Clip-only runs with the plain sum: no DP noise, so no privacy guarantee applies.
+- Three seeds by default; min and max over seeds are reported, per-seed bootstrap intervals treat users as independent draws.
+- Run records are reused when the configuration matches; records produced on 17 November 2026 predate the commit of the code that produced them.
 
 ## RQ5: availability and participation bias
 
@@ -246,20 +295,47 @@ Clients are not always available. When availability follows activity or friend c
 | Control | What was measured | Measured | Threshold | Result |
 | --- | --- | --- | --- | --- |
 | baseline | non-private 'always' NDCG@10 over MostPopular NDCG@10, test split | model = 0.03942; most_popular = 0.02606; ratio = 1.512 | at least 1.2x | pass |
-| sampling | realised mean cohort / (sample_rate x sum of availability), seed 0 | 8 cells, ratio 0.998 to 1 | within 15% of 1 | pass |
+| sampling | realised mean cohort / (sample_rate x sum of availability), seed 0 | 14 cells, ratio 0.995 to 1 | within 15% of 1 | pass |
 
 ### NDCG@10 by group and scenario
 
 | Scenario | Privacy level | Epsilon of record | Overall NDCG@10 | Activity groups NDCG@10 (least / middle / most active) | Activity gap (most minus least) | Friend-count groups NDCG@10 (0 / 1 to 5 / more than 5) | Friend-count gap | Paired Wilcoxon p, activity gap vs independent (underpowered: min 0.0625 with 5 seeds) | Epsilon note |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| activity | non-private | n/a | 0.0385 | 0.0335 / 0.0349 / 0.0470 | 0.0135 | 0.0310 / 0.0353 / 0.0458 | 0.0149 | 1.0000 | non-private run |
-| activity | epsilon 8 | 7.98 | 0.0222 | 0.0158 / 0.0195 / 0.0312 | 0.0154 | 0.0154 / 0.0199 / 0.0284 | 0.0130 | 0.1250 | epsilon 8 is NOMINAL: availability here is a rank over all users, so adding or removing one user shifts other users' inclusion probabilities and the add-or-remove analysis does not hold for anyone |
 | always | non-private | n/a | 0.0394 | 0.0333 / 0.0367 / 0.0483 | 0.0150 | 0.0319 / 0.0361 / 0.0469 | 0.0150 | 0.0625 | non-private run |
 | always | epsilon 8 | 7.98 | 0.0250 | 0.0185 / 0.0226 / 0.0338 | 0.0153 | 0.0169 / 0.0224 / 0.0321 | 0.0152 | 0.3125 | epsilon 8 holds: availability is independent of user data |
 | independent | non-private | n/a | 0.0372 | 0.0317 / 0.0345 / 0.0454 | 0.0137 | 0.0301 / 0.0342 / 0.0443 | 0.0141 | n/a | non-private run |
 | independent | epsilon 8 | 7.98 | 0.0223 | 0.0161 / 0.0199 / 0.0309 | 0.0148 | 0.0159 / 0.0199 / 0.0283 | 0.0124 | n/a | epsilon 8 holds: availability is independent of user data |
+| activity | non-private | n/a | 0.0385 | 0.0335 / 0.0349 / 0.0470 | 0.0135 | 0.0310 / 0.0353 / 0.0458 | 0.0149 | 1.0000 | non-private run |
+| activity | epsilon 8 | 7.98 | 0.0222 | 0.0158 / 0.0195 / 0.0312 | 0.0154 | 0.0154 / 0.0199 / 0.0284 | 0.0130 | 0.1250 | epsilon 8 is NOMINAL: availability here is a rank over all users, so adding or removing one user shifts other users' inclusion probabilities and the add-or-remove analysis does not hold for anyone |
 | social | non-private | n/a | 0.0367 | 0.0313 / 0.0338 / 0.0450 | 0.0137 | 0.0295 / 0.0323 / 0.0450 | 0.0154 | 1.0000 | non-private run |
 | social | epsilon 8 | 7.98 | 0.0223 | 0.0165 / 0.0201 / 0.0304 | 0.0139 | 0.0154 / 0.0198 / 0.0287 | 0.0133 | 0.1875 | epsilon 8 is NOMINAL: availability here is a rank over all users, so adding or removing one user shifts other users' inclusion probabilities and the add-or-remove analysis does not hold for anyone |
+| trace | non-private | n/a | 0.0325 | 0.0273 / 0.0294 / 0.0408 | 0.0135 | 0.0259 / 0.0295 / 0.0393 | 0.0133 | 1.0000 | non-private run |
+| trace | epsilon 8 | 7.98 | 0.0168 | 0.0114 / 0.0145 / 0.0244 | 0.0129 | 0.0115 / 0.0148 / 0.0217 | 0.0102 | 0.3125 | epsilon 8 is EXACT: devices are assigned to users at random, independently of their data |
+| trace_activity | non-private | n/a | 0.0353 | 0.0298 / 0.0317 / 0.0443 | 0.0145 | 0.0281 / 0.0320 / 0.0425 | 0.0144 | 0.4375 | non-private run |
+| trace_activity | epsilon 8 | 7.98 | 0.0160 | 0.0107 / 0.0136 / 0.0237 | 0.0130 | 0.0104 / 0.0140 / 0.0213 | 0.0109 | 0.4375 | epsilon 8 is NOMINAL: availability here is a rank over all users, so adding or removing one user shifts other users' inclusion probabilities and the add-or-remove analysis does not hold for anyone |
+| trace_replay | non-private | n/a | 0.0302 | 0.0257 / 0.0276 / 0.0374 | 0.0117 | 0.0232 / 0.0280 / 0.0364 | 0.0132 | 0.1250 | non-private run |
+| trace_replay | epsilon 8 | 7.98 | 0.0160 | 0.0105 / 0.0141 / 0.0236 | 0.0131 | 0.0107 / 0.0138 / 0.0213 | 0.0106 | 0.3125 | epsilon 8 is EXACT: devices, offsets and schedule do not depend on user data, selection is Poisson at the nominal rate and a zero update is within the clipping norm |
+
+### Mean availability by scenario
+
+| Scenario | Mean availability | By activity group (least / middle / most active) | By friend-count group (0 / 1 to 5 / more than 5) |
+| --- | --- | --- | --- |
+| always | 1.000 | 1.000 / 1.000 / 1.000 | 1.000 / 1.000 / 1.000 |
+| independent | 0.500 | 0.500 / 0.500 / 0.500 | 0.500 / 0.500 / 0.500 |
+| activity | 0.500 | 0.201 / 0.499 / 0.800 | 0.352 / 0.434 / 0.649 |
+| social | 0.500 | 0.372 / 0.453 / 0.675 | 0.153 / 0.425 / 0.772 |
+| trace | 0.209 | 0.208 / 0.210 / 0.210 | 0.209 / 0.208 / 0.211 |
+| trace_activity | 0.209 | 0.083 / 0.183 / 0.362 | 0.137 / 0.170 / 0.289 |
+| trace_replay | 0.208 | 0.206 / 0.209 / 0.208 | 0.207 / 0.206 / 0.209 |
+
+### Trace readout
+
+| Privacy level | trace NDCG@10 | trace_replay NDCG@10 | independent NDCG@10 | always NDCG@10 | trace minus independent | trace_replay minus independent | Seeds where rank-matching widens the activity gap (trace_activity vs trace) | Mean change of the activity gap |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| non-private | 0.0325 | 0.0302 | 0.0372 | 0.0394 | -0.0047 | -0.0070 | 3 of 5 | 0.0010 |
+| epsilon 8 | 0.0168 | 0.0160 | 0.0223 | 0.0250 | -0.0055 | -0.0063 | 3 of 5 | 0.0001 |
+
+Device trace: 107,749 devices, mean active share 0.206; one training round is 1,800 seconds of trace time (an assumption). Epsilon is exact for trace and trace_replay and nominal for trace_activity.
 
 H5 rule: Preregistration Amendment 1: 'Paired across seeds. With 5 seeds the two-sided Wilcoxon p cannot go below 0.0625, so the sign pattern (5 of 5) is reported as the evidence and the test is reported as underpowered.' Implemented as: H5 holds if, for at least one correlated scenario (activity with activity groups, social with friend-count groups) at either epsilon level, every seed's top-minus-bottom gap is larger than under independent availability.
 
@@ -271,7 +347,13 @@ Figure: NDCG@10 by activity group (epsilon 8). NDCG@10 of the least, middle and 
 
 - The epsilon shown for the 'activity' and 'social' scenarios is NOMINAL and the add-or-remove analysis does not hold for anyone in them. Availability there is a RANK over all users, so adding or removing one user shifts the ranks, and therefore the inclusion probabilities, of other users too; the noise was calibrated as if every inclusion probability were fixed.
 - The per-run records and the signed ledger releases of these runs carry the epsilon without a 'nominal' marker; only this file marks it (records written after this change also carry privacy_note and availability_scenario).
-- Availability is synthetic (rank-based, deterministic), not measured from device traces.
+- Availability in the 'always', 'independent', 'activity' and 'social' scenarios is synthetic (rank-based, deterministic), not measured from device traces.
+- The 'trace_activity' epsilon is NOMINAL for the same reason as 'activity': devices are matched to users by a rank over all users' history lengths. The 'trace' and 'trace_replay' epsilons are exact: the assignment, the offsets and the schedule do not depend on user data, selection is still Poisson at the nominal rate, and a zero update is within the clipping norm.
+- The device trace comes from a different population of devices: devices are assigned to Yelp users at random (or by rank), and there is no real link between a user and a device.
+- One training round = 30 minutes (1800 s) in the 'trace_replay' scenario, so 400 rounds span about 8.3 days; this mapping is a modelling choice, not measured, and traces are read cyclically (time modulo the trace length).
+- Devices are sampled from the 107,749 devices of the trace without regard to device model, region or trace length.
+- In 'trace_replay' the server still divides by the full expected cohort. For runs whose server optimiser is SGD the rate is multiplied by 1 / (mean availability over the schedule), which exactly restores the step size; for Adam runs the rate is left alone because Adam rescales the average itself (its epsilon constant is then relatively larger). The factor used is stored in each run record as server_lr_factor.
+- The trace is for research use only (the FedScale repository dataset notes; the repository licence is Apache-2.0); the file is under data/, is git-ignored and is never redistributed.
 - Groups are terciles of history length or fixed friend-count bands (0, 1 to 5, more than 5).
 - Five seeds: a two-sided Wilcoxon test over five seeds cannot go below p = 0.0625, so the decision rests on the sign pattern.
 - Run records are reused when the configuration matches; records produced on 17 November 2026 predate the commit of the code that produced them.
@@ -295,21 +377,21 @@ Every private run writes a signed, append-only ledger of its privacy receipts. T
 
 | Measurement | Value |
 | --- | --- |
-| Ledgers verified | 146 of 146 |
-| Round receipts | 36,520 |
-| Release receipts | 146 |
+| Ledgers verified | 162 of 162 |
+| Round receipts | 42,920 |
+| Release receipts | 162 |
 | Refusal receipts | 0 |
-| Ledger bytes per round | 303.3 |
-| Private runs | 146 |
+| Ledger bytes per round | 304.0 |
+| Private runs | 162 |
 | Private runs without a valid release receipt | 0 |
 | Receipt coverage | 1.000 |
 | Single-byte tampers tried | 300 |
 | Tampers detected | 300 |
 | Detection rate | 1.000 |
-| Append time per receipt (ms) | 1.53 |
-| Whole-ledger verification time (s) | 0.018 |
+| Append time per receipt (ms) | 2.62 |
+| Whole-ledger verification time (s) | 0.028 |
 | Inclusion proof size (bytes) | 320 |
-| Mean share of run time spent on receipts | 0.0034 |
+| Mean share of run time spent on receipts | 0.0055 |
 | Blocked-release demo: rounds asked | 33 |
 | Blocked-release demo: rounds allowed by budget | 27 |
 | Blocked-release demo: rounds completed | 27 |
@@ -324,6 +406,92 @@ Figure: Tamper detection. Single bytes flipped one at a time in a copy of one le
 - Tamper detection is tested with single-byte flips of one ledger file.
 - The blocked-release demonstration runs on the synthetic dataset.
 
+## Sensitivity: k-core and positive-feedback variants
+
+Status: **VALID**
+
+The privacy-utility result is repeated on variants of the dataset: the k-core filter at k = 10 and k = 20 (the main dataset uses k = 15) and a variant keeping only reviews of 4 stars or more. Hyperparameters stay frozen at the values tuned on the main dataset. The question is whether the epsilon 8 conclusion changes.
+
+### Controls
+
+| Control | What was measured | Measured | Threshold | Result |
+| --- | --- | --- | --- | --- |
+| k10 large | non-private NDCG@10 divided by MostPopular NDCG@10 | regime = large; value = 1.581; variant = k10 | 1.1 | pass |
+| k10 small | non-private NDCG@10 divided by MostPopular NDCG@10 | regime = small; value = 1.666; variant = k10 | 1.1 | pass |
+| k20 large | non-private NDCG@10 divided by MostPopular NDCG@10 | regime = large; value = 1.328; variant = k20 | 1.1 | pass |
+| k20 small | non-private NDCG@10 divided by MostPopular NDCG@10 | regime = small; value = 1.379; variant = k20 | 1.1 | pass |
+| stars4 large | non-private NDCG@10 divided by MostPopular NDCG@10 | regime = large; value = 1.26; variant = stars4 | 1.1 | pass |
+| stars4 small | non-private NDCG@10 divided by MostPopular NDCG@10 | regime = small; value = 1.272; variant = stars4 | 1.1 | pass |
+
+### Dataset variants at epsilon 8
+
+| Variant | Regime | Users | Items | Interactions | MostPopular NDCG@10 | Item-item ridge NDCG@10 | Non-private NDCG@10 | NDCG@10 at epsilon 8 | Retention at list length 10 | Retention at list length 20 | Personalisation retained | H1 verdict same as main dataset |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| k-core 10 | large | 19,141 | 9,950 | 537,666 | 0.0198 | 0.0376 | 0.0313 | 0.0238 | 0.762 | 0.758 | 0.352 | yes |
+| k-core 10 | small | 19,141 | 9,950 | 537,666 | 0.0198 | 0.0376 | 0.0330 | 0.0212 | 0.643 | 0.623 | 0.106 | yes |
+| k-core 15 (main dataset, reference) | large | 9,913 | 6,319 | 410,193 | 0.0261 | 0.0452 | 0.0365 | 0.0283 | 0.776 | 0.757 | 0.215 | n/a |
+| k-core 15 (main dataset, reference) | small | 9,913 | 6,319 | 410,193 | 0.0261 | 0.0452 | 0.0395 | 0.0246 | 0.624 | 0.610 | -0.109 | n/a |
+| k-core 20 | large | 6,001 | 4,284 | 299,332 | 0.0317 | 0.0522 | 0.0421 | 0.0338 | 0.802 | 0.774 | 0.199 | yes |
+| k-core 20 | small | 6,001 | 4,284 | 299,332 | 0.0317 | 0.0522 | 0.0438 | 0.0298 | 0.682 | 0.648 | -0.157 | yes |
+| 4 stars or more | large | 5,551 | 3,759 | 202,903 | 0.0302 | 0.0447 | 0.0380 | 0.0315 | 0.828 | 0.811 | 0.167 | yes |
+| 4 stars or more | small | 5,551 | 3,759 | 202,903 | 0.0302 | 0.0447 | 0.0384 | 0.0273 | 0.713 | 0.707 | -0.344 | yes |
+
+Figure: Retention at epsilon 8 by dataset variant. Private NDCG@10 divided by non-private NDCG@10 at epsilon 8 for each dataset variant and regime. The dashed line is the 0.90 target of H1. The value axis starts at zero. (see report.html)
+
+### Limitations
+
+- Hyperparameters (rounds, sample rate, learning rates, clip norm) stay frozen at the values tuned on the main dataset; no re-tuning was done on any variant, so a variant with different size or sparsity may be favoured or hurt by them.
+- The reduced experiment uses fewer seeds and privacy levels than the main grid, and no clip-only or what-if runs.
+- Noise is recalibrated for each variant's user count, so epsilon means the same on every dataset but the noise per user differs.
+- The k-core and positive-feedback variants are subsets (or supersets) of the same Philadelphia Yelp sample; they test sensitivity to preprocessing, not to the city or the platform.
+- The reference row k15 is the main dataset, taken from the main run records restricted to the seeds of this run when they exist, and may carry no NDCG@20.
+
+## Framework parity
+
+Status: **VALID**
+
+The same federated rounds were run through the Flower framework (version 1.43.0, simulation runtime (flwr.simulation.run_simulation, Ray backend, message-based Strategy/ServerApp/ClientApp API)) and through the in-process reference, on a small synthetic problem (400 clients, 5 rounds). The check asks whether the final model parameters agree within a tolerance of atol 1e-06 and rtol 1e-05. The main experiments still use the in-process engine.
+
+### Flower against the in-process reference
+
+| Variant | Max absolute difference | Relative L2 difference | Within tolerance |
+| --- | --- | --- | --- |
+| engine step, noise multiplier 0 | 0.000000000 | n/a | yes |
+| engine step, noise multiplier 1 | 0.000000000 | n/a | yes |
+| gaussian | 0.000000060 | 0.000000048 | yes |
+| noise free | 0.000000060 | 0.000000043 | yes |
+
+### Limitations
+
+- The problem is a small synthetic dataset (400 users, 300 items) and only five rounds.
+- Server-side clipping and aggregation are implemented as a custom Flower strategy, not with Flower's built-in differential-privacy wrappers.
+- Cohort selection and the client-side visible/hidden split are fixed to remove framework-controlled randomness, and the client update function is the same prism code on both sides, so the check covers the federated plumbing and the aggregation rule, not the client mathematics.
+- The reference is not prism.fl.server.train itself, whose split uses one shared stream; its aggregation step is checked separately against noisy_mean and the engine's SGD step.
+- The main experiments still use the in-process engine.
+
+## Provenance
+
+Status: **VALID**
+
+Which code produced each result file, and whether the training runs match the current engine.
+
+### Provenance of experiment results
+
+| Experiment | Engine hash | Module hash | Commit | Working tree dirty |
+| --- | --- | --- | --- | --- |
+| privacy_utility | bd8c92813d7b | aa60ce2f2ca6 | be247fd3 | yes |
+| gossip | bd8c92813d7b | 037e019c9ca9 | be247fd3 | yes |
+| update_leakage | bd8c92813d7b | 95bd6ca0bd85 | be247fd3 | yes |
+| membership | bd8c92813d7b | 53712760a764 | be247fd3 | yes |
+| poisoning | bd8c92813d7b | cbc306947ffc | be247fd3 | yes |
+| participation | bd8c92813d7b | 3bae8efe0d82 | be247fd3 | yes |
+| ledger_audit | bd8c92813d7b | 576b21576254 | be247fd3 | yes |
+| dataset_card | n/a | n/a | 8c621640 | yes |
+| sensitivity | bd8c92813d7b | a99051dfd482 | be247fd3 | yes |
+| free_riding | bd8c92813d7b | 49d99b8d337d | be247fd3 | yes |
+
+324 of 353 run records carry a code hash; 324 of those 324 equal the current engine hash (bd8c92813d7b). A record's code hash is computed from the contents of the engine source files, so it can be recomputed at any commit.
+
 ## How to read the privacy numbers
 
 The unit of privacy is one user: the guarantee hides whether one user's whole history was used in training, not a single review.
@@ -334,10 +502,4 @@ Not covered by epsilon: the choice of hyperparameters and clipping norm, which w
 
 ## Not done
 
-- Sensitivity sweep over the list length k in {10, 20}.
-- Analysis restricted to reviews of 4 stars or more.
-- Trace-based client availability (availability here is synthetic).
-- Free-riding clients.
-- Committee-median robustness mode.
-- Flower parity (the simulation is a single process, not the Flower framework).
-- Pre-publication review by the dataset provider.
+- Pre-publication review by the dataset provider (owners' task, required before any publication).

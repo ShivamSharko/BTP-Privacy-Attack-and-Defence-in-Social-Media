@@ -29,7 +29,7 @@ import numpy as np
 
 from prism.environment import collect_environment_report
 from prism.experiments.regimes import default_paths
-from prism.experiments.runner import Paths
+from prism.experiments.runner import Paths, code_sha256
 from prism.io import atomic_write_text, read_json
 
 TITLE = "PRISM-Rec: privacy attack and defence measurements for a social-media recommender"
@@ -41,14 +41,9 @@ NOT_SUPPORTED = "not supported"
 INVALID_VERDICT = "invalid (control failed)"
 SECAGG_TOLERANCE = 0.05  # H3 part 2: AUC allowed above the popularity prior
 
-DEFAULT_NOT_DONE: tuple[str, ...] = (
-    "Sensitivity sweep over the list length k in {10, 20}.",
-    "Analysis restricted to reviews of 4 stars or more.",
-    "Trace-based client availability (availability here is synthetic).",
-    "Free-riding clients.",
-    "Committee-median robustness mode.",
-    "Flower parity (the simulation is a single process, not the Flower framework).",
-    "Pre-publication review by the dataset provider.",
+PUBLICATION_REVIEW = (
+    "Pre-publication review by the dataset provider "
+    "(owners' task, required before any publication)."
 )
 
 PALETTE = ("#0072B2", "#E69F00", "#009E73", "#D55E00", "#CC79A7", "#56B4E9", "#F0E442", "#000000")
@@ -63,6 +58,9 @@ SECTION_ORDER: tuple[tuple[str, str], ...] = (
     ("rq4", "RQ4: fake-account promotion against aggregation modes"),
     ("rq5", "RQ5: availability and participation bias"),
     ("rq6", "RQ6: signed ledger audit"),
+    ("sensitivity", "Sensitivity: k-core and positive-feedback variants"),
+    ("parity", "Framework parity"),
+    ("provenance", "Provenance"),
 )
 
 PRIVACY_TEXT: tuple[str, ...] = (
@@ -350,6 +348,9 @@ INPUTS: tuple[str, ...] = (
     "ledger_audit",
     "social_graph",
     "dataset_card",
+    "sensitivity",
+    "free_riding",
+    "flower_parity",
 )
 
 
@@ -357,6 +358,7 @@ INPUTS: tuple[str, ...] = (
 class Inputs:
     data: dict[str, dict[str, Any]]
     unreadable: list[str]
+    results_dir: Path | None = None
 
     def get(self, name: str) -> dict[str, Any] | None:
         return self.data.get(name)
@@ -378,7 +380,7 @@ def _load(results: Path) -> Inputs:
             data[name] = payload
         else:
             unreadable.append(name)
-    return Inputs(data, unreadable)
+    return Inputs(data, unreadable, results)
 
 
 def _not_run(inputs: Inputs, key: str, title: str, files: Sequence[str]) -> Section:
@@ -399,15 +401,19 @@ def _status(payload: dict[str, Any]) -> tuple[str, list[str]]:
     return INVALID, [*reasons, "the result file has no valid status field, so it is not trusted"]
 
 
+def _control_name(item: dict[str, Any], index: int) -> str:
+    if "name" in item:
+        return str(item["name"])
+    parts = [str(item[k]) for k in ("variant", "regime") if k in item]
+    return " ".join(parts) if parts else f"control {index + 1}"
+
+
 def _controls_table(controls: Any) -> Table | None:
     entries: list[tuple[str, dict[str, Any]]] = []
     if isinstance(controls, dict):
         entries = [(str(name), _d(value)) for name, value in controls.items()]
     elif isinstance(controls, list):
-        entries = [
-            (str(_d(item).get("name", f"control {i + 1}")), _d(item))
-            for i, item in enumerate(controls)
-        ]
+        entries = [(_control_name(_d(item), i), _d(item)) for i, item in enumerate(controls)]
     if not entries:
         return None
     skip = {"passed", "what", "name", "threshold", "measured", "values"}
@@ -788,6 +794,11 @@ def _eps_label(key: str) -> str:
     return "non-private" if key in {"nonprivate", "nondp", "None"} else f"epsilon {key}"
 
 
+def _seed_count(seeds: Any) -> str:
+    count = len(_l(seeds))
+    return f"{count} seeds" if count else "seeds n/a"
+
+
 def build_rq2(inputs: Inputs) -> Section:
     title = dict(SECTION_ORDER)["rq2"]
     payload = inputs.get("gossip")
@@ -798,7 +809,8 @@ def build_rq2(inputs: Inputs) -> Section:
     section.summary = (
         "Training by gossip between friends with local noise on each device, compared with "
         "server-based federated training with central noise, on the same users and at the "
-        f"same epsilon. {_int(results.get('nodes'))} nodes; share of gossip peers who are real "
+        f"same epsilon. {_int(results.get('nodes'))} nodes, "
+        f"{_seed_count(_get(payload, 'settings', 'seeds'))}; share of gossip peers who are real "
         f"friends: {_fmt(results.get('friend_peer_share'), 3)}."
     )
     by_eps = _d(results.get("by_epsilon"))
@@ -1094,7 +1106,127 @@ def build_rq3(inputs: Inputs) -> Section:
     return section
 
 
+def _committee_table(payload: dict[str, Any]) -> Table | None:
+    trade = _d(payload.get("committee_tradeoff"))
+    rows = []
+    for mode in sorted(trade, key=lambda m: _num(_get(trade, m, "committee_size")) or 0.0):
+        entry = _d(trade[mode])
+        for item in _l(entry.get("per_fraction")):
+            share = _num(_d(item).get("fraction"))
+            rows.append(
+                [
+                    _int(entry.get("committee_size")),
+                    "n/a" if share is None else f"{100 * share:.0f}%",
+                    _fmt(_d(item).get("clean_committee_share"), 3),
+                    _fmt(_d(item).get("target_exposure")),
+                    _fmt(entry.get("clean_ndcg_at_fraction_0")),
+                ]
+            )
+    if not rows:
+        return None
+    return Table(
+        "rq4_committee",
+        "Committee trade-off",
+        [
+            "Committee size",
+            "Attacker share",
+            "Share of attacker-free committees",
+            "Target exposure",
+            "Clean NDCG@10 (no attackers)",
+        ],
+        rows,
+    )
+
+
+def _range_text(per_seed: Any) -> str:
+    lows = [_num(_d(x).get("ci95_low")) for x in _l(per_seed)]
+    highs = [_num(_d(x).get("ci95_high")) for x in _l(per_seed)]
+    low = [v for v in lows if v is not None]
+    high = [v for v in highs if v is not None]
+    if not low or not high:
+        return "n/a"
+    return f"[{min(low):.4f}, {max(high):.4f}]"
+
+
+def _auc_cell(stats: Any) -> str:
+    return _fmt(_d(stats).get("mean"), 3) if isinstance(stats, dict) else "n/a"
+
+
+def _add_free_riding(section: Section, free: dict[str, Any], alone: bool) -> None:
+    status, reasons = _status(free)
+    if alone or status == INVALID:
+        section.status = status if alone else INVALID
+    section.reasons += [f"free_riding: {r}" for r in reasons] if status == INVALID else []
+    controls = _controls_table(free.get("controls"))
+    results = _d(free.get("results"))
+    clean = _num(_get(results, "clean", "ndcg", "mean"))
+    rows = []
+    for behaviour in sorted(k for k in results if k != "clean"):
+        cells = _d(results[behaviour])
+        for fraction in sorted(cells, key=lambda f: _key_num(f) or 0.0):
+            c = _d(cells[fraction])
+            share = _key_num(fraction)
+            det = _d(c.get("detection"))
+            secure = det.get("secure_aggregation")
+            rows.append(
+                [
+                    behaviour,
+                    "n/a" if share is None else f"{100 * share:.0f}%",
+                    _fmt(_get(c, "ndcg", "mean")),
+                    _fmt(_get(c, "cost_to_everyone", "relative_ndcg_drop"), 3),
+                    _fmt(_get(c, "free_rider_gain", "difference_mean")),
+                    _range_text(_get(c, "free_rider_gain", "per_seed")),
+                    _auc_cell(det.get("norm_auc")),
+                    _auc_cell(det.get("cosine_auc")),
+                    "not applicable under secure aggregation"
+                    if secure == "not_applicable"
+                    else _text(secure),
+                ]
+            )
+    section.tables.append(
+        Table(
+            "rq4_free_riding",
+            "Free-riding clients",
+            [
+                "Behaviour",
+                "Free-rider share",
+                "Overall NDCG@10",
+                "Drop vs 0% free-riders",
+                "Free-riders minus contributors NDCG@10",
+                "Range over seeds of the 95% interval",
+                "Detection AUC by update norm (server sees updates)",
+                "Detection AUC by cosine (server sees updates)",
+                "Detection under secure aggregation",
+            ],
+            rows,
+        )
+    )
+    if controls is not None:
+        controls.title = "Free-riding controls"
+        section.tables.append(controls)
+    section.notes.append(
+        "Free-riding clients send an update that costs nothing (zeros, or noise with the honest "
+        f"norm). NDCG@10 with no free-riders: {_fmt(clean)}."
+    )
+    section.limitations += _strings(free.get("limitations"))
+
+
 def build_rq4(inputs: Inputs) -> Section:
+    title = dict(SECTION_ORDER)["rq4"]
+    poison, free = inputs.get("poisoning"), inputs.get("free_riding")
+    if poison is None and free is None:
+        return _not_run(inputs, "rq4", title, ["poisoning", "free_riding"])
+    section = _rq4_poisoning(inputs) if poison is not None else Section("rq4", title)
+    if free is not None:
+        _add_free_riding(section, free, poison is None)
+    else:
+        section.notes.append("Free-riding clients: not run (results/free_riding.json not found).")
+    if poison is None:
+        section.notes.append("Poisoning modes: not run (results/poisoning.json not found).")
+    return section
+
+
+def _rq4_poisoning(inputs: Inputs) -> Section:
     title = dict(SECTION_ORDER)["rq4"]
     payload = inputs.get("poisoning")
     if payload is None:
@@ -1141,6 +1273,9 @@ def build_rq4(inputs: Inputs) -> Section:
             rows,
         )
     )
+    committee = _committee_table(payload)
+    if committee is not None:
+        section.tables.append(committee)
     h4 = _d(payload.get("h4"))
     if h4:
         section.notes.append(f"H4 readout: {_h4_numbers(h4)}.")
@@ -1198,6 +1333,100 @@ def build_rq4(inputs: Inputs) -> Section:
 GROUP_LABELS = ("least active third", "middle third", "most active third")
 
 
+SCENARIO_ORDER = (
+    "always",
+    "independent",
+    "activity",
+    "social",
+    "trace",
+    "trace_activity",
+    "trace_replay",
+)
+
+
+def _scenario_order(name: str) -> tuple[int, str]:
+    return (SCENARIO_ORDER.index(name) if name in SCENARIO_ORDER else len(SCENARIO_ORDER), name)
+
+
+def _add_trace_tables(section: Section, payload: dict[str, Any], results: dict[str, Any]) -> None:
+    availability = _d(results.get("availability"))
+    if availability:
+        rows = []
+        for scenario in sorted(availability, key=_scenario_order):
+            a = _d(availability[scenario])
+            rows.append(
+                [
+                    scenario,
+                    _fmt(a.get("mean"), 3),
+                    " / ".join(_fmt(v, 3) for v in _l(a.get("activity_groups"))) or "n/a",
+                    " / ".join(_fmt(v, 3) for v in _l(a.get("degree_groups"))) or "n/a",
+                ]
+            )
+        section.tables.append(
+            Table(
+                "rq5_availability",
+                "Mean availability by scenario",
+                [
+                    "Scenario",
+                    "Mean availability",
+                    "By activity group (least / middle / most active)",
+                    "By friend-count group (0 / 1 to 5 / more than 5)",
+                ],
+                rows,
+            )
+        )
+    readout = _d(results.get("trace_readout"))
+    overall = _d(readout.get("overall_ndcg10"))
+    widen = _d(readout.get("rank_matching_widens_activity_gap"))
+    if overall:
+        rows = []
+        for key in sorted(overall, key=lambda k: (k != "nondp", _key_num(k) or 0.0, k)):
+            o, w = _d(overall[key]), _d(widen.get(key))
+            seeds = _int(w.get("seeds")) if w else "n/a"
+            rows.append(
+                [
+                    _eps_label(key),
+                    _fmt(o.get("trace")),
+                    _fmt(o.get("trace_replay")),
+                    _fmt(o.get("independent")),
+                    _fmt(o.get("always")),
+                    _fmt(o.get("trace_minus_independent")),
+                    _fmt(o.get("trace_replay_minus_independent")),
+                    f"{_int(w.get('seeds_improved'))} of {seeds}" if w else "n/a",
+                    _fmt(w.get("mean_difference")) if w else "n/a",
+                ]
+            )
+        section.tables.append(
+            Table(
+                "rq5_trace_readout",
+                "Trace readout",
+                [
+                    "Privacy level",
+                    "trace NDCG@10",
+                    "trace_replay NDCG@10",
+                    "independent NDCG@10",
+                    "always NDCG@10",
+                    "trace minus independent",
+                    "trace_replay minus independent",
+                    "Seeds where rank-matching widens the activity gap (trace_activity vs trace)",
+                    "Mean change of the activity gap",
+                ],
+                rows,
+            )
+        )
+    info = _d(_get(payload, "settings", "trace"))
+    if info:
+        summary = _d(info.get("summary"))
+        section.notes.append(
+            f"Device trace: {_int(summary.get('devices'))} devices, mean active share "
+            f"{_fmt(summary.get('mean_active_share'), 3)}; one training round is "
+            f"{_int(info.get('seconds_per_round'))} seconds of trace time (an assumption). "
+            "Epsilon is exact for trace and trace_replay and nominal for trace_activity."
+        )
+    elif not any(str(k).startswith("trace") for k in _d(results.get("cells"))):
+        section.notes.append("Trace scenarios: not run (no device trace results).")
+
+
 def build_rq5(inputs: Inputs) -> Section:
     title = dict(SECTION_ORDER)["rq5"]
     payload = inputs.get("participation")
@@ -1217,7 +1446,7 @@ def build_rq5(inputs: Inputs) -> Section:
         return " / ".join(_fmt(v) for v in items) if items else "n/a"
 
     rows = []
-    for scenario in sorted(cells):
+    for scenario in sorted(cells, key=_scenario_order):
         by_eps = _d(cells[scenario])
         for key in sorted(by_eps, key=lambda k: (k != "nondp", _key_num(k) or 0.0, k)):
             c = _d(by_eps[key])
@@ -1256,6 +1485,7 @@ def build_rq5(inputs: Inputs) -> Section:
             rows,
         )
     )
+    _add_trace_tables(section, payload, results)
     h5 = _d(results.get("h5"))
     if h5.get("rule"):
         section.notes.append(f"H5 rule: {_text(h5.get('rule'))}")
@@ -1369,6 +1599,241 @@ def build_rq6(inputs: Inputs) -> Section:
 
     section.figures = _figure(figure)
     return section
+
+
+VARIANT_LABELS = {
+    "k10": "k-core 10",
+    "k15": "k-core 15 (main dataset, reference)",
+    "k20": "k-core 20",
+    "stars4": "4 stars or more",
+}
+VARIANT_ORDER = ("k10", "k15", "k20", "stars4")
+H1_TARGET = 0.9
+
+
+def _variant_order(name: str) -> tuple[int, str]:
+    return (VARIANT_ORDER.index(name) if name in VARIANT_ORDER else len(VARIANT_ORDER), name)
+
+
+def build_sensitivity(inputs: Inputs) -> Section:
+    title = dict(SECTION_ORDER)["sensitivity"]
+    payload = inputs.get("sensitivity")
+    if payload is None:
+        return _not_run(inputs, "sensitivity", title, ["sensitivity"])
+    section = _finish(Section("sensitivity", title), payload)
+    results = _d(payload.get("results"))
+    section.summary = (
+        "The privacy-utility result is repeated on variants of the dataset: the k-core filter "
+        "at k = 10 and k = 20 (the main dataset uses k = 15) and a variant keeping only "
+        "reviews of 4 stars or more. Hyperparameters stay frozen at the values tuned on the "
+        "main dataset. The question is whether the epsilon 8 conclusion changes."
+    )
+    rows: list[list[str]] = []
+    for name in sorted(results, key=_variant_order):
+        for regime in sorted(_d(results[name])):
+            r = _d(results[name][regime])
+            e = _d(_get(r, "epsilons", "8"))
+            same = _get(r, "conclusion_stable", "h1_verdict_same")
+            rows.append(
+                [
+                    VARIANT_LABELS.get(name, name),
+                    regime,
+                    _int(r.get("users")),
+                    _int(r.get("items")),
+                    _int(r.get("interactions")),
+                    _fmt(r.get("most_popular_ndcg@10")),
+                    _fmt(r.get("item_ridge_ndcg@10")),
+                    _fmt(r.get("nondp_ndcg@10")),
+                    _fmt(e.get("ndcg@10")),
+                    _fmt(e.get("retention"), 3),
+                    _fmt(e.get("retention_ndcg@20"), 3),
+                    _fmt(e.get("personalisation_retained"), 3),
+                    "n/a" if not isinstance(same, bool) else ("yes" if same else "no"),
+                ]
+            )
+    section.tables.append(
+        Table(
+            "sensitivity",
+            "Dataset variants at epsilon 8",
+            [
+                "Variant",
+                "Regime",
+                "Users",
+                "Items",
+                "Interactions",
+                "MostPopular NDCG@10",
+                "Item-item ridge NDCG@10",
+                "Non-private NDCG@10",
+                "NDCG@10 at epsilon 8",
+                "Retention at list length 10",
+                "Retention at list length 20",
+                "Personalisation retained",
+                "H1 verdict same as main dataset",
+            ],
+            rows,
+        )
+    )
+
+    def figure() -> Figure | None:
+        names = sorted(results, key=_variant_order)
+        regimes = sorted({r for n in names for r in _d(results[n])})
+        series = [
+            (
+                f"{regime} regime",
+                [_num(_get(results[n], regime, "epsilons", "8", "retention")) for n in names],
+            )
+            for regime in regimes
+        ]
+        png = _grouped_bars(
+            [VARIANT_LABELS.get(n, n).replace(" (", "\n(") for n in names],
+            series,
+            "Retention at epsilon 8 (private NDCG@10 over non-private)",
+            "Dataset variant",
+            reference=(H1_TARGET, "H1 target (0.90)"),
+        )
+        if png is None:
+            return None
+        return Figure(
+            "Retention at epsilon 8 by dataset variant",
+            "Private NDCG@10 divided by non-private NDCG@10 at epsilon 8 for each dataset "
+            "variant and regime. The dashed line is the 0.90 target of H1. The value axis "
+            "starts at zero.",
+            png,
+        )
+
+    section.figures = _figure(figure)
+    return section
+
+
+def build_parity(inputs: Inputs) -> Section:
+    title = dict(SECTION_ORDER)["parity"]
+    payload = inputs.get("flower_parity")
+    if payload is None or payload.get("status") == "NOT_RUN":
+        section = _not_run(inputs, "parity", title, ["flower_parity"])
+        if payload is not None:
+            section.summary = "not run: results/flower_parity.json reports status NOT_RUN."
+        return section
+    section = _finish(Section("parity", title), payload)
+    st = _d(payload.get("settings"))
+    tolerance = _d(st.get("tolerance"))
+    section.summary = (
+        f"The same federated rounds were run through the Flower framework (version "
+        f"{_text(st.get('flower_version'))}, {_text(st.get('flower_execution_mode'))}) and "
+        "through the in-process reference, on a small synthetic problem "
+        f"({_int(st.get('clients'))} clients, {_int(st.get('rounds'))} rounds). The check asks "
+        "whether the final model parameters agree within a tolerance of "
+        f"atol {_text(tolerance.get('atol'))} and rtol {_text(tolerance.get('rtol'))}. "
+        "The main experiments still use the in-process engine."
+    )
+    results = _d(payload.get("results"))
+    rows = []
+    for name in sorted(results):
+        entry = _d(results[name])
+        if name == "engine_step_check":
+            for sub in sorted(entry):
+                step = _d(entry[sub])
+                rows.append(
+                    [
+                        f"engine step, {sub.replace('_', ' ')}",
+                        _text(_fmt(step.get("max_abs_diff"), 9)),
+                        "n/a",
+                        _text(step.get("identical")),
+                    ]
+                )
+            continue
+        final = _d(entry.get("final"))
+        rows.append(
+            [
+                _text(entry.get("variant", name)).replace("_", " "),
+                _text(_fmt(final.get("max_abs_diff"), 9)),
+                _text(_fmt(final.get("relative_l2_diff"), 9)),
+                _text(final.get("allclose")),
+            ]
+        )
+    section.tables.append(
+        Table(
+            "parity",
+            "Flower against the in-process reference",
+            [
+                "Variant",
+                "Max absolute difference",
+                "Relative L2 difference",
+                "Within tolerance",
+            ],
+            rows,
+        )
+    )
+    return section
+
+
+def build_provenance(inputs: Inputs) -> Section:
+    title = dict(SECTION_ORDER)["provenance"]
+    rows = []
+    for name in INPUTS:
+        prov = _get(inputs.get(name), "provenance")
+        if isinstance(prov, dict):
+            dirty = prov.get("git_dirty")
+            rows.append(
+                [
+                    name,
+                    str(prov.get("engine_sha256") or "n/a")[:12],
+                    str(prov.get("module_sha256") or "n/a")[:12],
+                    str(prov.get("git_commit") or "n/a")[:8],
+                    "n/a" if not isinstance(dirty, bool) else ("yes" if dirty else "no"),
+                ]
+            )
+    carrying, matching, total = _run_record_hashes(inputs.results_dir)
+    if not rows and total == 0:
+        return Section(
+            "provenance", title, NOT_RUN, summary="not run: no provenance blocks or run records."
+        )
+    section = Section("provenance", title, VALID)
+    section.summary = (
+        "Which code produced each result file, and whether the training runs match the "
+        "current engine."
+    )
+    section.tables.append(
+        Table(
+            "provenance",
+            "Provenance of experiment results",
+            ["Experiment", "Engine hash", "Module hash", "Commit", "Working tree dirty"],
+            rows,
+        )
+    )
+    try:
+        current = code_sha256()
+    except Exception:
+        current = "n/a"
+    section.notes.append(
+        f"{carrying} of {total} run records carry a code hash; {matching} of those {carrying} "
+        f"equal the current engine hash ({current[:12]}). A record's code hash is computed from "
+        "the contents of the engine source files, so it can be recomputed at any commit."
+    )
+    return section
+
+
+def _run_record_hashes(results: Path | None) -> tuple[int, int, int]:
+    """Run records with a code hash, how many equal the current one, and how many records."""
+    if results is None:
+        return 0, 0, 0
+    try:
+        current = code_sha256()
+    except Exception:
+        current = None
+    total = carrying = matching = 0
+    for path in sorted((results / "runs").rglob("*.json")):
+        try:
+            record = read_json(path)
+        except (OSError, ValueError):
+            continue
+        if not isinstance(record, dict):
+            continue
+        total += 1
+        code = _get(record, "provenance", "code_sha256")
+        if isinstance(code, str):
+            carrying += 1
+            matching += int(code == current)
+    return carrying, matching, total
 
 
 # ----------------------------------------------------------------------------------------------
@@ -1606,6 +2071,9 @@ BUILDERS: tuple[Callable[[Inputs], Section], ...] = (
     build_rq4,
     build_rq5,
     build_rq6,
+    build_sensitivity,
+    build_parity,
+    build_provenance,
 )
 
 
@@ -1836,6 +2304,26 @@ def _render_markdown(
     return "\n".join(out)
 
 
+def _not_done_items(inputs: Inputs) -> list[str]:
+    """What is still not done, judged from which result files and fields exist."""
+    items: list[str] = []
+    if inputs.get("sensitivity") is None:
+        items.append("k-core (k = 10, 20) and 4-star sensitivity analyses")
+    if inputs.get("free_riding") is None:
+        items.append("Free-riding clients")
+    flower = inputs.get("flower_parity")
+    if flower is None or flower.get("status") == "NOT_RUN":
+        items.append("Flower parity check")
+    modes = _d(_get(inputs.get("poisoning"), "results"))
+    if not any(str(m).startswith("committee_median") for m in modes):
+        items.append("Committee-median robustness mode")
+    cells = _d(_get(inputs.get("participation"), "results", "cells"))
+    if not any(str(m).startswith("trace") for m in cells):
+        items.append("Trace-based client availability")
+    items.append(PUBLICATION_REVIEW)
+    return items
+
+
 def build_report(
     paths: Paths,
     not_done: Sequence[str] | None = None,
@@ -1852,7 +2340,7 @@ def build_report(
     verdicts = hypothesis_verdicts(inputs)
     facts = _facts(inputs)
     commit, lock = _provenance(inputs)
-    items = list(DEFAULT_NOT_DONE if not_done is None else not_done)
+    items = _not_done_items(inputs) if not_done is None else list(not_done)
     out_dir = paths.results / "report"
     html_path, md_path = out_dir / "report.html", out_dir / "report.md"
     atomic_write_text(
@@ -1887,7 +2375,7 @@ def cli(argv: list[str] | None = None) -> int:
     for path in result["tables"]:
         print(f"table:    {path}")
     for key, status in result["sections"].items():
-        print(f"{key:<10}{status}")
+        print(f"{key:<13}{status}")
     return 0
 
 

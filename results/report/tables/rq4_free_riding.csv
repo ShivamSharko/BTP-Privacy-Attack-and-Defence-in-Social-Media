@@ -1,0 +1,5 @@
+Behaviour,Free-rider share,Overall NDCG@10,Drop vs 0% free-riders,Free-riders minus contributors NDCG@10,Range over seeds of the 95% interval,Detection AUC by update norm (server sees updates),Detection AUC by cosine (server sees updates),Detection under secure aggregation
+noise,10%,0.0294,0.021,-0.0016,"[-0.0088, 0.0075]",0.988,0.508,not applicable under secure aggregation
+noise,30%,0.0290,0.037,-0.0016,"[-0.0059, 0.0029]",0.991,0.507,not applicable under secure aggregation
+zero,10%,0.0294,0.022,-0.0017,"[-0.0090, 0.0076]",1.000,0.507,not applicable under secure aggregation
+zero,30%,0.0291,0.033,-0.0016,"[-0.0061, 0.0031]",1.000,0.503,not applicable under secure aggregation

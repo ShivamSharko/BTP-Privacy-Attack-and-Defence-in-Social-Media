@@ -76,6 +76,54 @@
           "passed": true,
           "ratio": 0.9994653485322303,
           "scenario": "social"
+        },
+        {
+          "epsilon": null,
+          "expected": 103.79295097501523,
+          "mean_cohort": 103.495,
+          "passed": true,
+          "ratio": 0.9971293717712396,
+          "scenario": "trace"
+        },
+        {
+          "epsilon": 8.0,
+          "expected": 103.79295097501523,
+          "mean_cohort": 103.495,
+          "passed": true,
+          "ratio": 0.9971293717712396,
+          "scenario": "trace"
+        },
+        {
+          "epsilon": null,
+          "expected": 103.79295097501523,
+          "mean_cohort": 103.255,
+          "passed": true,
+          "ratio": 0.9948170760156465,
+          "scenario": "trace_activity"
+        },
+        {
+          "epsilon": 8.0,
+          "expected": 103.79295097501523,
+          "mean_cohort": 103.255,
+          "passed": true,
+          "ratio": 0.9948170760156465,
+          "scenario": "trace_activity"
+        },
+        {
+          "epsilon": null,
+          "expected": 495.65000000000003,
+          "mean_cohort": 496.0225,
+          "passed": true,
+          "ratio": 1.0007515383839403,
+          "scenario": "trace_replay"
+        },
+        {
+          "epsilon": 8.0,
+          "expected": 495.65000000000003,
+          "mean_cohort": 496.0225,
+          "passed": true,
+          "ratio": 1.0007515383839403,
+          "scenario": "trace_replay"
         }
       ],
       "passed": true,
@@ -88,11 +136,23 @@
   "limitations": [
     "The epsilon shown for the 'activity' and 'social' scenarios is NOMINAL and the add-or-remove analysis does not hold for anyone in them. Availability there is a RANK over all users, so adding or removing one user shifts the ranks, and therefore the inclusion probabilities, of other users too; the noise was calibrated as if every inclusion probability were fixed.",
     "The per-run records and the signed ledger releases of these runs carry the epsilon without a 'nominal' marker; only this file marks it (records written after this change also carry privacy_note and availability_scenario).",
-    "Availability is synthetic (rank-based, deterministic), not measured from device traces.",
+    "Availability in the 'always', 'independent', 'activity' and 'social' scenarios is synthetic (rank-based, deterministic), not measured from device traces.",
+    "The 'trace_activity' epsilon is NOMINAL for the same reason as 'activity': devices are matched to users by a rank over all users' history lengths. The 'trace' and 'trace_replay' epsilons are exact: the assignment, the offsets and the schedule do not depend on user data, selection is still Poisson at the nominal rate, and a zero update is within the clipping norm.",
+    "The device trace comes from a different population of devices: devices are assigned to Yelp users at random (or by rank), and there is no real link between a user and a device.",
+    "One training round = 30 minutes (1800 s) in the 'trace_replay' scenario, so 400 rounds span about 8.3 days; this mapping is a modelling choice, not measured, and traces are read cyclically (time modulo the trace length).",
+    "Devices are sampled from the 107,749 devices of the trace without regard to device model, region or trace length.",
+    "In 'trace_replay' the server still divides by the full expected cohort. For runs whose server optimiser is SGD the rate is multiplied by 1 / (mean availability over the schedule), which exactly restores the step size; for Adam runs the rate is left alone because Adam rescales the average itself (its epsilon constant is then relatively larger). The factor used is stored in each run record as server_lr_factor.",
+    "The trace is for research use only (the FedScale repository dataset notes; the repository licence is Apache-2.0); the file is under data/, is git-ignored and is never redistributed.",
     "Groups are terciles of history length or fixed friend-count bands (0, 1 to 5, more than 5).",
     "Five seeds: a two-sided Wilcoxon test over five seeds cannot go below p = 0.0625, so the decision rests on the sign pattern.",
     "Run records are reused when the configuration matches; records produced on 17 November 2026 predate the commit of the code that produced them."
   ],
+  "provenance": {
+    "engine_sha256": "bd8c92813d7bb0b1c966138e0ac2e3e2383f8437290ee30b87f4045f117ccc89",
+    "git_commit": "be247fd303f116f1d464fd5bac397e5d7f28d11d",
+    "git_dirty": true,
+    "module_sha256": "3bae8efe0d82702889e1919932f3e2ad088591973a1654c9f34ee5cdfd492842"
+  },
   "results": {
     "availability": {
       "activity": {
@@ -146,6 +206,45 @@
           0.7724878934624697
         ],
         "mean": 0.5
+      },
+      "trace": {
+        "activity_groups": [
+          0.2080614350776999,
+          0.2103821799415151,
+          0.20978004056953392
+        ],
+        "degree_groups": [
+          0.20930850190644484,
+          0.20770716706827513,
+          0.21108892235836046
+        ],
+        "mean": 0.20940774936954548
+      },
+      "trace_activity": {
+        "activity_groups": [
+          0.08307385537944953,
+          0.18310080883984753,
+          0.36208682054006275
+        ],
+        "degree_groups": [
+          0.13733303435081343,
+          0.16967742374814493,
+          0.2891363327325713
+        ],
+        "mean": 0.20940774936954548
+      },
+      "trace_replay": {
+        "activity_groups": [
+          0.20620801815431164,
+          0.2085033292978208,
+          0.20795929176755448
+        ],
+        "degree_groups": [
+          0.20712411816578485,
+          0.2060504820567756,
+          0.2092457172078752
+        ],
+        "mean": 0.2075567436699284
       }
     },
     "cells": {
@@ -218,6 +317,7 @@
               "wilcoxon_two_sided_p": 0.0625
             }
           },
+          "gap_change_vs_trace": null,
           "overall_ndcg10": {
             "max": 0.022782733506344095,
             "mean": 0.022193206870096526,
@@ -299,6 +399,7 @@
               "wilcoxon_two_sided_p": 1.0
             }
           },
+          "gap_change_vs_trace": null,
           "overall_ndcg10": {
             "max": 0.03980051355955412,
             "mean": 0.0384705763906432,
@@ -382,6 +483,7 @@
               "wilcoxon_two_sided_p": 0.0625
             }
           },
+          "gap_change_vs_trace": null,
           "overall_ndcg10": {
             "max": 0.026480594610648726,
             "mean": 0.024974766247588303,
@@ -463,6 +565,7 @@
               "wilcoxon_two_sided_p": 0.4375
             }
           },
+          "gap_change_vs_trace": null,
           "overall_ndcg10": {
             "max": 0.040304212818961044,
             "mean": 0.03941850362855451,
@@ -523,6 +626,7 @@
           "epsilon_of_record": 7.98280552565623,
           "epsilon_target": 8.0,
           "gap_change_vs_independent": null,
+          "gap_change_vs_trace": null,
           "overall_ndcg10": {
             "max": 0.02411264394008872,
             "mean": 0.02228819830744604,
@@ -581,6 +685,7 @@
           "epsilon_of_record": null,
           "epsilon_target": null,
           "gap_change_vs_independent": null,
+          "gap_change_vs_trace": null,
           "overall_ndcg10": {
             "max": 0.038423693076430586,
             "mean": 0.03722987040414286,
@@ -664,6 +769,7 @@
               "wilcoxon_two_sided_p": 0.0625
             }
           },
+          "gap_change_vs_trace": null,
           "overall_ndcg10": {
             "max": 0.02395119615383082,
             "mean": 0.022330870005389407,
@@ -745,10 +851,555 @@
               "wilcoxon_two_sided_p": 0.4375
             }
           },
+          "gap_change_vs_trace": null,
           "overall_ndcg10": {
             "max": 0.03750865493189639,
             "mean": 0.03669908646629564,
             "min": 0.0354679990853798
+          },
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      },
+      "trace": {
+        "8": {
+          "activity_gap": {
+            "mean": 0.012931121201359438,
+            "per_seed": {
+              "0": 0.01285132966879557,
+              "1": 0.016765709821034362,
+              "2": 0.01319379836473142,
+              "3": 0.011382013647042454,
+              "4": 0.01046275450519339
+            },
+            "seed0": {
+              "gap": 0.01285132966879557,
+              "high": 0.015548140099732934,
+              "low": 0.010249294988689232
+            }
+          },
+          "activity_groups_ndcg10": [
+            0.011443979897672516,
+            0.014477191825309094,
+            0.024375101099031956
+          ],
+          "degree_gap": {
+            "mean": 0.01020314785593586,
+            "per_seed": {
+              "0": 0.009622108842371774,
+              "1": 0.01308109326031767,
+              "2": 0.010156668181902294,
+              "3": 0.010083045721910898,
+              "4": 0.008072823273176663
+            },
+            "seed0": {
+              "gap": 0.009622108842371774,
+              "high": 0.012513006189091222,
+              "low": 0.006687776272572563
+            }
+          },
+          "degree_groups_ndcg10": [
+            0.011511738925955025,
+            0.014776717004715573,
+            0.02171488678189088
+          ],
+          "epsilon_note": "epsilon 8 is EXACT: devices are assigned to users at random, independently of their data",
+          "epsilon_of_record": 7.98280552565623,
+          "epsilon_target": 8.0,
+          "gap_change_vs_independent": {
+            "activity": {
+              "mean_difference": -0.0018591434095231532,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 3,
+              "seeds_improved": 2,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 0.3125
+            },
+            "degree": {
+              "mean_difference": -0.0022408794714331636,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 5,
+              "seeds_improved": 0,
+              "sign_test_one_sided_p": 0.03125,
+              "sign_test_p_all_degraded": 0.03125,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 0.0625
+            }
+          },
+          "gap_change_vs_trace": null,
+          "overall_ndcg10": {
+            "max": 0.02007259764282806,
+            "mean": 0.016772338175541534,
+            "min": 0.01427852777836124
+          },
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "nondp": {
+          "activity_gap": {
+            "mean": 0.01349861844995739,
+            "per_seed": {
+              "0": 0.01443304447923353,
+              "1": 0.014871123686261707,
+              "2": 0.013707553475111153,
+              "3": 0.011937995887473324,
+              "4": 0.012543374721707232
+            },
+            "seed0": {
+              "gap": 0.01443304447923353,
+              "high": 0.018887539928686692,
+              "low": 0.010079398967006969
+            }
+          },
+          "activity_groups_ndcg10": [
+            0.02734974264406494,
+            0.029370624265909397,
+            0.040848361094022324
+          ],
+          "degree_gap": {
+            "mean": 0.013348142546842023,
+            "per_seed": {
+              "0": 0.013073438018226382,
+              "1": 0.017341540586986774,
+              "2": 0.01477295803917095,
+              "3": 0.011014309906567387,
+              "4": 0.010538466183258623
+            },
+            "seed0": {
+              "gap": 0.013073438018226382,
+              "high": 0.01745969980723497,
+              "low": 0.00853793920723779
+            }
+          },
+          "degree_groups_ndcg10": [
+            0.02590867954946851,
+            0.02948733109845021,
+            0.03925682209631053
+          ],
+          "epsilon_note": "non-private run",
+          "epsilon_of_record": null,
+          "epsilon_target": null,
+          "gap_change_vs_independent": {
+            "activity": {
+              "mean_difference": -0.0002424155210552663,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 3,
+              "seeds_improved": 2,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 1.0
+            },
+            "degree": {
+              "mean_difference": -0.0007719389902815142,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 3,
+              "seeds_improved": 2,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 0.4375
+            }
+          },
+          "gap_change_vs_trace": null,
+          "overall_ndcg10": {
+            "max": 0.03458115543032536,
+            "mean": 0.03252981806071372,
+            "min": 0.03075912494998058
+          },
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      },
+      "trace_activity": {
+        "8": {
+          "activity_gap": {
+            "mean": 0.013046155731506448,
+            "per_seed": {
+              "0": 0.013732222002698163,
+              "1": 0.017638138385663492,
+              "2": 0.013776427417021921,
+              "3": 0.010496638505212793,
+              "4": 0.009587352346935883
+            },
+            "seed0": {
+              "gap": 0.013732222002698163,
+              "high": 0.0163895093485777,
+              "low": 0.01114266625988807
+            }
+          },
+          "activity_groups_ndcg10": [
+            0.01069181888766908,
+            0.013644296990407595,
+            0.02373797461917553
+          ],
+          "degree_gap": {
+            "mean": 0.010882028092022848,
+            "per_seed": {
+              "0": 0.010689029831112586,
+              "1": 0.014361385803739624,
+              "2": 0.010615034072876336,
+              "3": 0.00948098829242376,
+              "4": 0.009263702459961934
+            },
+            "seed0": {
+              "gap": 0.010689029831112586,
+              "high": 0.0133779981350495,
+              "low": 0.008014456994759538
+            }
+          },
+          "degree_groups_ndcg10": [
+            0.010385856190953039,
+            0.013961418047865331,
+            0.021267884282975887
+          ],
+          "epsilon_note": "epsilon 8 is NOMINAL: availability here is a rank over all users, so adding or removing one user shifts other users' inclusion probabilities and the add-or-remove analysis does not hold for anyone",
+          "epsilon_of_record": 7.98280552565623,
+          "epsilon_target": 8.0,
+          "gap_change_vs_independent": {
+            "activity": {
+              "mean_difference": -0.0017441088793761419,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 3,
+              "seeds_improved": 2,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 0.4375
+            },
+            "degree": {
+              "mean_difference": -0.0015619992353461758,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 4,
+              "seeds_improved": 1,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 0.125
+            }
+          },
+          "gap_change_vs_trace": {
+            "activity": {
+              "mean_difference": 0.00011503453014701133,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 2,
+              "seeds_improved": 3,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 1.0
+            },
+            "degree": {
+              "mean_difference": 0.0006788802360869879,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 1,
+              "seeds_improved": 4,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 0.1875
+            }
+          },
+          "overall_ndcg10": {
+            "max": 0.018070489724216217,
+            "mean": 0.01603164321906329,
+            "min": 0.014249182600825715
+          },
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "nondp": {
+          "activity_gap": {
+            "mean": 0.014517934169222974,
+            "per_seed": {
+              "0": 0.013667218188062769,
+              "1": 0.01726044422786566,
+              "2": 0.014640722585311315,
+              "3": 0.01595359741190988,
+              "4": 0.011067688432965232
+            },
+            "seed0": {
+              "gap": 0.013667218188062769,
+              "high": 0.01748151780569662,
+              "low": 0.009508869291414953
+            }
+          },
+          "activity_groups_ndcg10": [
+            0.029760994501792863,
+            0.03169992355719712,
+            0.044278928671015835
+          ],
+          "degree_gap": {
+            "mean": 0.01442637022063642,
+            "per_seed": {
+              "0": 0.013790490205968585,
+              "1": 0.014999256391372888,
+              "2": 0.016403471505671546,
+              "3": 0.01442213159196553,
+              "4": 0.01251650140820354
+            },
+            "seed0": {
+              "gap": 0.013790490205968585,
+              "high": 0.01827596297356564,
+              "low": 0.008920109713171415
+            }
+          },
+          "degree_groups_ndcg10": [
+            0.028062156360940234,
+            0.03202503932997443,
+            0.042488526581576654
+          ],
+          "epsilon_note": "non-private run",
+          "epsilon_of_record": null,
+          "epsilon_target": null,
+          "gap_change_vs_independent": {
+            "activity": {
+              "mean_difference": 0.0007769001982103161,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 1,
+              "seeds_improved": 4,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 0.4375
+            },
+            "degree": {
+              "mean_difference": 0.00030628868351288,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 3,
+              "seeds_improved": 2,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 0.8125
+            }
+          },
+          "gap_change_vs_trace": {
+            "activity": {
+              "mean_difference": 0.0010193157192655822,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 2,
+              "seeds_improved": 3,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 0.4375
+            },
+            "degree": {
+              "mean_difference": 0.0010782276737943942,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 1,
+              "seeds_improved": 4,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 0.4375
+            }
+          },
+          "overall_ndcg10": {
+            "max": 0.03595669925956063,
+            "mean": 0.03525398280610258,
+            "min": 0.03456667978067809
+          },
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      },
+      "trace_replay": {
+        "8": {
+          "activity_gap": {
+            "mean": 0.013080310941693448,
+            "per_seed": {
+              "0": 0.012801476844265788,
+              "1": 0.017708478139442863,
+              "2": 0.012668756625594229,
+              "3": 0.011350899734339665,
+              "4": 0.010871943364824697
+            },
+            "seed0": {
+              "gap": 0.012801476844265788,
+              "high": 0.015556795776194893,
+              "low": 0.010347047661742345
+            }
+          },
+          "activity_groups_ndcg10": [
+            0.010471188739972926,
+            0.014057232129814348,
+            0.023551499681666373
+          ],
+          "degree_gap": {
+            "mean": 0.010567241821855849,
+            "per_seed": {
+              "0": 0.009600975421603337,
+              "1": 0.014190691114510162,
+              "2": 0.009959430751309456,
+              "3": 0.009936068156459305,
+              "4": 0.00914904366539699
+            },
+            "seed0": {
+              "gap": 0.009600975421603337,
+              "high": 0.012522852128930943,
+              "low": 0.006564290207133752
+            }
+          },
+          "degree_groups_ndcg10": [
+            0.010702079528827567,
+            0.013773999634237038,
+            0.021269321350683417
+          ],
+          "epsilon_note": "epsilon 8 is EXACT: devices, offsets and schedule do not depend on user data, selection is Poisson at the nominal rate and a zero update is within the clipping norm",
+          "epsilon_of_record": 7.98280552565623,
+          "epsilon_target": 8.0,
+          "gap_change_vs_independent": {
+            "activity": {
+              "mean_difference": -0.001709953669189144,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 4,
+              "seeds_improved": 1,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 0.3125
+            },
+            "degree": {
+              "mean_difference": -0.001876785505513174,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 4,
+              "seeds_improved": 1,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 0.125
+            }
+          },
+          "gap_change_vs_trace": null,
+          "overall_ndcg10": {
+            "max": 0.019342101854337677,
+            "mean": 0.016033773365615633,
+            "min": 0.014177965528482944
+          },
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "nondp": {
+          "activity_gap": {
+            "mean": 0.011743982457424985,
+            "per_seed": {
+              "0": 0.012389929975282776,
+              "1": 0.011339570224763687,
+              "2": 0.012231252433667145,
+              "3": 0.009799233115722492,
+              "4": 0.012959926537688828
+            },
+            "seed0": {
+              "gap": 0.012389929975282776,
+              "high": 0.015972193921978503,
+              "low": 0.008438458024938112
+            }
+          },
+          "activity_groups_ndcg10": [
+            0.02567717886370239,
+            0.02758888132925642,
+            0.03742116132112737
+          ],
+          "degree_gap": {
+            "mean": 0.013187248851474967,
+            "per_seed": {
+              "0": 0.013206660277631763,
+              "1": 0.010570168665101326,
+              "2": 0.014007474922363983,
+              "3": 0.014298204301986538,
+              "4": 0.01385373609029122
+            },
+            "seed0": {
+              "gap": 0.013206660277631763,
+              "high": 0.017305539072077634,
+              "low": 0.008717563711749815
+            }
+          },
+          "degree_groups_ndcg10": [
+            0.0232357973052122,
+            0.027986993668113868,
+            0.036423046156687164
+          ],
+          "epsilon_note": "non-private run",
+          "epsilon_of_record": null,
+          "epsilon_target": null,
+          "gap_change_vs_independent": {
+            "activity": {
+              "mean_difference": -0.00199705151358767,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 4,
+              "seeds_improved": 1,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 0.125
+            },
+            "degree": {
+              "mean_difference": -0.0009328326856485713,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 3,
+              "seeds_improved": 2,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 0.625
+            }
+          },
+          "gap_change_vs_trace": null,
+          "overall_ndcg10": {
+            "max": 0.031324780086932257,
+            "mean": 0.030235125881341463,
+            "min": 0.02931820590351919
           },
           "seeds": [
             0,
@@ -835,7 +1486,48 @@
         }
       }
     },
-    "notes": []
+    "notes": [],
+    "trace_readout": {
+      "overall_ndcg10": {
+        "8": {
+          "always": 0.024974766247588303,
+          "independent": 0.02228819830744604,
+          "trace": 0.016772338175541534,
+          "trace_minus_always": -0.008202428072046769,
+          "trace_minus_independent": -0.005515860131904506,
+          "trace_replay": 0.016033773365615633,
+          "trace_replay_minus_always": -0.00894099288197267,
+          "trace_replay_minus_independent": -0.006254424941830407
+        },
+        "nondp": {
+          "always": 0.03941850362855451,
+          "independent": 0.03722987040414286,
+          "trace": 0.03252981806071372,
+          "trace_minus_always": -0.006888685567840787,
+          "trace_minus_independent": -0.0047000523434291425,
+          "trace_replay": 0.030235125881341463,
+          "trace_replay_minus_always": -0.009183377747213044,
+          "trace_replay_minus_independent": -0.0069947445228014
+        }
+      },
+      "rank_matching_widens_activity_gap": {
+        "8": {
+          "all_seeds_widened": false,
+          "mean_difference": 0.00011503453014701133,
+          "seeds": 5,
+          "seeds_improved": 3,
+          "sign_test_p_all_improved": 1.0
+        },
+        "nondp": {
+          "all_seeds_widened": false,
+          "mean_difference": 0.0010193157192655822,
+          "seeds": 5,
+          "seeds_improved": 3,
+          "sign_test_p_all_improved": 1.0
+        }
+      },
+      "rule": "trace_activity activity gap larger than the trace activity gap in every seed (paired across seeds); not part of the H5 verdict"
+    }
   },
   "settings": {
     "availability_floor": 0.05,
@@ -851,7 +1543,10 @@
       "always",
       "independent",
       "activity",
-      "social"
+      "social",
+      "trace",
+      "trace_activity",
+      "trace_replay"
     ],
     "seeds": [
       0,
@@ -860,8 +1555,21 @@
       3,
       4
     ],
+    "trace": {
+      "file": "client_behave_trace",
+      "round_mapping": "one round = 30 minutes (an assumption); times wrap modulo each device trace length",
+      "seconds_per_round": 1800,
+      "sha256": "d0b6f81a01f0ea5f7ec432583f5afe93b1e72424db4c1affa88c484f15901662",
+      "source": "https://raw.githubusercontent.com/SymbioticLab/FedScale/master/benchmark/dataset/data/device_info/client_behave_trace",
+      "summary": {
+        "devices": 107749.0,
+        "mean_active_share": 0.20593336345069696,
+        "median_active_share": 0.1800366512345679,
+        "median_finish_time": 432000.0
+      }
+    },
     "users": 9913
   },
   "status": "VALID",
-  "wall_seconds": 1027.4
+  "wall_seconds": 6812.7
 }

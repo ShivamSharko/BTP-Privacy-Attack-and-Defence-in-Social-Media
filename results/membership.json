@@ -35,6 +35,12 @@
     "The empirical epsilon lower bound joins two one-sided 95% Clopper-Pearson bounds, so its joint confidence is about 90%, not 95%. It is checked on several seeds and levels without correction for multiple looks, and members are an exact half of the users rather than independent draws. It is a sanity check that can detect only large violations of the claimed guarantee, not a 95% statement.",
     "Reference models are non-private and trained on the same architecture and data distribution, which is generous to the attacker."
   ],
+  "provenance": {
+    "engine_sha256": "bd8c92813d7bb0b1c966138e0ac2e3e2383f8437290ee30b87f4045f117ccc89",
+    "git_commit": "be247fd303f116f1d464fd5bac397e5d7f28d11d",
+    "git_dirty": true,
+    "module_sha256": "53712760a764332a3aa58dbcd55ab4468cb7f6def0841dfd1744dcd9c5aca167"
+  },
   "results": {
     "controls_detail": {
       "independent": {
@@ -325,7 +331,7 @@
     },
     "training": {
       "models": 15,
-      "trained_now": 0
+      "trained_now": 15
     }
   },
   "settings": {
@@ -351,5 +357,5 @@
     ]
   },
   "status": "VALID",
-  "wall_seconds": 5.04
+  "wall_seconds": 1432.13
 }

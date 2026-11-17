@@ -4,7 +4,7 @@
 **Owners:** Shivam Agarwal (23UEC621), Mokshit Jain (23UEC574)
 **Guide:** Dr. Malika Acharya
 **Date of Pre-registration:** 16 Nov 2026
-**Status:** LOCKED, with Amendment 1 of 17 November 2026 (see the end of this document). The text above the amendment is kept as first written.
+**Status:** LOCKED, with Amendments 1 and 2 of 17 November 2026 (see the end of this document). The text above the amendment is kept as first written.
 
 This document locks in our hypotheses, data splitting strategy, and evaluation metrics *before* any filtering or model training occurs, preventing hindsight bias (PROJECT_ROADMAP.md §11).
 
@@ -116,3 +116,48 @@ See `experiments/frozen.json` (version 1). Clipping norm 5.0 in both regimes. Pr
 Adam with rate 0.02 (`large`) and momentum SGD with rate 0.05 (`small`); non-private runs use Adam
 with rates 0.05 and 0.02. The clipping norm and these settings were chosen on the validation data
 of the same users; that choice is not covered by epsilon and is disclosed with every result.
+
+---
+
+## Amendment 2 (17 November 2026, about 21:45 IST)
+
+Written **after** the main results were known. It records what was added the same evening. It
+changes no hypothesis and no decision rule of Amendment 1.
+
+### A2.1 Sensitivity sweeps (open in A1.2 item 6, now run)
+
+The k-core sweep (k = 10 and k = 20 against the k = 15 used) and the analysis restricted to
+reviews of 4 stars or more were run with 3 seeds, the non-private reference and epsilon = 8, in
+both regimes. Hyperparameters were **not** re-tuned: they are the frozen values chosen on the main
+dataset. Outcome: H1 fails on every variant, as on the main dataset. Retention is also reported
+from NDCG@20; it is one to three points lower than from NDCG@10.
+
+### A2.2 Exploratory additions
+
+These were not pre-registered. They carry no hypothesis and are reported as measurements:
+
+- free-riding clients (cost to others, gain to the free-rider, detectability);
+- committee-median aggregation as a third robustness mode in the poisoning experiment;
+- availability taken from a real device trace (random assignment, rank-matched to activity, and
+  round-by-round replay) in the participation experiment;
+- a parity check of the training loop against the Flower framework on a small synthetic problem.
+
+### A2.3 Changes to experiments that test a hypothesis
+
+- **H2 (gossip).** Rerun with 2,500 users and 3 seeds (was 2,000 and 2). The verdict is unchanged.
+- **H5 (participation).** An independent review found that the code decided H5 with a two-sided
+  test that cannot reach 0.05 with five seeds, instead of the sign pattern that A1.3 names as the
+  evidence. The code now follows A1.3. The verdict changed from "not supported" to "supported",
+  on one cell only: availability tied to friend count, at epsilon = 8, widens the gap in 5 of 5
+  seeds, by 0.0009. Three other cells show no consistent change. This is weak evidence and is
+  reported as such.
+- **H4 (poisoning).** The code rule was stricter than A1.3 and now matches it. The verdict is
+  unchanged.
+
+### A2.4 Clean rerun and one corrected budget
+
+Every experiment was rerun with the training code frozen; the numbers reproduce exactly, and each
+run record now carries a hash of the engine source files. The free-riding experiment first ran
+with a short training budget (rate 0.02, 200 rounds) and failed its own sanity control: the clean
+model reached 1.07 times MostPopular against a required 1.10. It was rerun with the frozen
+budget of the `small` regime (rate 0.05, 400 rounds). The control's threshold was not changed.

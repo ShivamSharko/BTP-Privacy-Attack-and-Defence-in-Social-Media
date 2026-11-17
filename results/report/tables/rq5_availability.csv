@@ -1,0 +1,8 @@
+Scenario,Mean availability,By activity group (least / middle / most active),By friend-count group (0 / 1 to 5 / more than 5)
+always,1.000,1.000 / 1.000 / 1.000,1.000 / 1.000 / 1.000
+independent,0.500,0.500 / 0.500 / 0.500,0.500 / 0.500 / 0.500
+activity,0.500,0.201 / 0.499 / 0.800,0.352 / 0.434 / 0.649
+social,0.500,0.372 / 0.453 / 0.675,0.153 / 0.425 / 0.772
+trace,0.209,0.208 / 0.210 / 0.210,0.209 / 0.208 / 0.211
+trace_activity,0.209,0.083 / 0.183 / 0.362,0.137 / 0.170 / 0.289
+trace_replay,0.208,0.206 / 0.209 / 0.208,0.207 / 0.206 / 0.209

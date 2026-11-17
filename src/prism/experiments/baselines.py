@@ -24,7 +24,7 @@ from prism.eval.baselines import ease_score_fn, friend_score_fn, knn_score_fn, p
 from prism.eval.metrics import ranking_metrics_per_user
 from prism.eval.stats import user_bootstrap_ci
 from prism.experiments.regimes import default_paths
-from prism.experiments.runner import Paths
+from prism.experiments.runner import Paths, payload_provenance
 from prism.io import atomic_write_json
 
 ScoreFn = Callable[[npt.NDArray[np.int64]], npt.NDArray[np.float32]]
@@ -74,6 +74,7 @@ def run(paths: Paths, phases: tuple[Phase, ...] = ("tune", "final")) -> dict[str
             )
             for phase in phases
         },
+        "provenance": payload_provenance(__file__, extra=("eval/baselines.py",)),
         "wall_seconds": 0.0,
     }
     payload["wall_seconds"] = round(time.time() - started, 2)

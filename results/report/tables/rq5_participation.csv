@@ -1,9 +1,15 @@
 Scenario,Privacy level,Epsilon of record,Overall NDCG@10,Activity groups NDCG@10 (least / middle / most active),Activity gap (most minus least),Friend-count groups NDCG@10 (0 / 1 to 5 / more than 5),Friend-count gap,"Paired Wilcoxon p, activity gap vs independent (underpowered: min 0.0625 with 5 seeds)",Epsilon note
-activity,non-private,n/a,0.0385,0.0335 / 0.0349 / 0.0470,0.0135,0.0310 / 0.0353 / 0.0458,0.0149,1.0000,non-private run
-activity,epsilon 8,7.98,0.0222,0.0158 / 0.0195 / 0.0312,0.0154,0.0154 / 0.0199 / 0.0284,0.0130,0.1250,"epsilon 8 is NOMINAL: availability here is a rank over all users, so adding or removing one user shifts other users' inclusion probabilities and the add-or-remove analysis does not hold for anyone"
 always,non-private,n/a,0.0394,0.0333 / 0.0367 / 0.0483,0.0150,0.0319 / 0.0361 / 0.0469,0.0150,0.0625,non-private run
 always,epsilon 8,7.98,0.0250,0.0185 / 0.0226 / 0.0338,0.0153,0.0169 / 0.0224 / 0.0321,0.0152,0.3125,epsilon 8 holds: availability is independent of user data
 independent,non-private,n/a,0.0372,0.0317 / 0.0345 / 0.0454,0.0137,0.0301 / 0.0342 / 0.0443,0.0141,n/a,non-private run
 independent,epsilon 8,7.98,0.0223,0.0161 / 0.0199 / 0.0309,0.0148,0.0159 / 0.0199 / 0.0283,0.0124,n/a,epsilon 8 holds: availability is independent of user data
+activity,non-private,n/a,0.0385,0.0335 / 0.0349 / 0.0470,0.0135,0.0310 / 0.0353 / 0.0458,0.0149,1.0000,non-private run
+activity,epsilon 8,7.98,0.0222,0.0158 / 0.0195 / 0.0312,0.0154,0.0154 / 0.0199 / 0.0284,0.0130,0.1250,"epsilon 8 is NOMINAL: availability here is a rank over all users, so adding or removing one user shifts other users' inclusion probabilities and the add-or-remove analysis does not hold for anyone"
 social,non-private,n/a,0.0367,0.0313 / 0.0338 / 0.0450,0.0137,0.0295 / 0.0323 / 0.0450,0.0154,1.0000,non-private run
 social,epsilon 8,7.98,0.0223,0.0165 / 0.0201 / 0.0304,0.0139,0.0154 / 0.0198 / 0.0287,0.0133,0.1875,"epsilon 8 is NOMINAL: availability here is a rank over all users, so adding or removing one user shifts other users' inclusion probabilities and the add-or-remove analysis does not hold for anyone"
+trace,non-private,n/a,0.0325,0.0273 / 0.0294 / 0.0408,0.0135,0.0259 / 0.0295 / 0.0393,0.0133,1.0000,non-private run
+trace,epsilon 8,7.98,0.0168,0.0114 / 0.0145 / 0.0244,0.0129,0.0115 / 0.0148 / 0.0217,0.0102,0.3125,"epsilon 8 is EXACT: devices are assigned to users at random, independently of their data"
+trace_activity,non-private,n/a,0.0353,0.0298 / 0.0317 / 0.0443,0.0145,0.0281 / 0.0320 / 0.0425,0.0144,0.4375,non-private run
+trace_activity,epsilon 8,7.98,0.0160,0.0107 / 0.0136 / 0.0237,0.0130,0.0104 / 0.0140 / 0.0213,0.0109,0.4375,"epsilon 8 is NOMINAL: availability here is a rank over all users, so adding or removing one user shifts other users' inclusion probabilities and the add-or-remove analysis does not hold for anyone"
+trace_replay,non-private,n/a,0.0302,0.0257 / 0.0276 / 0.0374,0.0117,0.0232 / 0.0280 / 0.0364,0.0132,0.1250,non-private run
+trace_replay,epsilon 8,7.98,0.0160,0.0105 / 0.0141 / 0.0236,0.0131,0.0107 / 0.0138 / 0.0213,0.0106,0.3125,"epsilon 8 is EXACT: devices, offsets and schedule do not depend on user data, selection is Poisson at the nominal rate and a zero update is within the clipping norm"

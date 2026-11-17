@@ -22,6 +22,14 @@ COMMANDS: Final[dict[str, tuple[str, str]]] = {
         "RQ4: fake-account promotion against robust aggregation",
     ),
     "gossip": ("prism.experiments.gossip", "RQ2: gossip between friends with local DP"),
+    "free-riding": (
+        "prism.experiments.free_riding",
+        "RQ4: clients that take the model without contributing",
+    ),
+    "sensitivity": (
+        "prism.experiments.sensitivity",
+        "k-core and 4-star sensitivity of the privacy-utility result",
+    ),
     "participation": (
         "prism.experiments.participation",
         "RQ5: availability and social participation bias",

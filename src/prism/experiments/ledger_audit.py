@@ -31,7 +31,7 @@ import numpy as np
 from prism.config import ModelConfig, RunConfig, TrainConfig
 from prism.data.synthetic import write_synthetic_dataset
 from prism.experiments.regimes import default_paths
-from prism.experiments.runner import KEY_FILE, Paths, run_one
+from prism.experiments.runner import KEY_FILE, Paths, payload_provenance, run_one
 from prism.io import atomic_write_json, read_json
 from prism.ledger.log import Ledger, prove_inclusion, verify_ledger
 from prism.ledger.receipts import generate_key, load_or_create_key, public_key_hex
@@ -292,6 +292,7 @@ def run(paths: Paths, *, flips: int = 300, demo: bool = True) -> dict[str, Any]:
             "Tamper detection is tested with single-byte flips of one ledger file.",
             "The blocked-release demonstration runs on the synthetic dataset.",
         ],
+        "provenance": payload_provenance(__file__, extra=()),
         "wall_seconds": round(time.time() - started, 2),
     }
     atomic_write_json(paths.results / f"{NAME}.json", payload)

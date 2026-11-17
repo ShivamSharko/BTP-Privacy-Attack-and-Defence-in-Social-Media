@@ -148,3 +148,22 @@ The `review_count_sum` (4,65,05,676) does not equal the review count in review.j
 2. **City-label fragmentation:** "Saint Louis"/"St. Louis" and "Saint Petersburg"/"St. Petersburg" are the same places; 1,416 city labels span the 11 documented metros. Metro selection must not match raw city strings (proposed ADR-031: geographic filter on business lat/lon).
 3. **Sparse density:** mean 3.52 reviews per user. The k-core threshold must be chosen from a measured histogram, not fixed in advance.
 4. **Noise state labels:** CO=3, HI=2, MA=2, MI=1, MT=1, NC=1 businesses.
+
+## Device availability trace
+
+Used only by the trace-based scenarios of the participation experiment (RQ5).
+
+| Item | Value |
+|---|---|
+| Source | https://raw.githubusercontent.com/SymbioticLab/FedScale/master/benchmark/dataset/data/device_info/client_behave_trace |
+| Downloaded | 17 Nov 2026 |
+| Size | 25,640,150 bytes |
+| sha256 | `d0b6f81a01f0ea5f7ec432583f5afe93b1e72424db4c1affa88c484f15901662` |
+| Licence | FedScale repository: Apache-2.0; the repository dataset notes say its datasets are for research use only |
+| Place it at | `data/external/fedscale/client_behave_trace` (relative to the repository root) |
+
+- The file is a Python pickle from the internet. It is read only with the restricted unpickler in
+  `src/prism/data/traces.py` (one allowed global, `collections.OrderedDict`), never with `pickle.load`.
+- It is optional: without the file the participation experiment skips the three trace scenarios
+  (`trace`, `trace_activity`, `trace_replay`) and says so in its notes.
+- It lives under `data/`, which is git-ignored. Do not commit it or copy it elsewhere.

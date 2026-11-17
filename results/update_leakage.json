@@ -2,7 +2,7 @@
   "controls": {
     "masked_is_chance": {
       "measured": {
-        "auc": 0.4995838182293074
+        "auc": 0.4991387991982492
       },
       "passed": true,
       "threshold": {
@@ -41,12 +41,18 @@
     "file": "privacy_utility_large_nondp_main_final_seed0.npz",
     "source": "checkpoint"
   },
+  "provenance": {
+    "engine_sha256": "bd8c92813d7bb0b1c966138e0ac2e3e2383f8437290ee30b87f4045f117ccc89",
+    "git_commit": "be247fd303f116f1d464fd5bac397e5d7f28d11d",
+    "git_dirty": true,
+    "module_sha256": "95bd6ca0bd85d2f2ca9f4cd433504d92203330e9cdace23bff56082ebc02b2e2"
+  },
   "results": {
     "local_noise_z0.5": {
       "link": {
         "auc": 0.48004877022912995,
-        "mean_cosine_friends": -4.893590636188132e-05,
-        "mean_cosine_non_friends": 0.00013906651470502144,
+        "mean_cosine_friends": -4.89359062293498e-05,
+        "mean_cosine_non_friends": 0.0001390665147321729,
         "pairs": 632.0,
         "tpr_at_1pct_fpr": 0.014240506329113924
       },
@@ -86,8 +92,8 @@
     "local_noise_z1": {
       "link": {
         "auc": 0.4869436989264541,
-        "mean_cosine_friends": -0.00024090335905438312,
-        "mean_cosine_non_friends": -8.711031446948684e-05,
+        "mean_cosine_friends": -0.00024090335898065742,
+        "mean_cosine_non_friends": -8.711031447702836e-05,
         "pairs": 632.0,
         "tpr_at_1pct_fpr": 0.004746835443037975
       },
@@ -95,9 +101,9 @@
         "auc": {
           "ci95": [
             0.49907729070363277,
-            0.50696597973498
+            0.50696598003994
           ],
-          "mean": 0.502904919943079
+          "mean": 0.5029049321414736
         },
         "precision_at_10": {
           "ci95": [
@@ -127,18 +133,18 @@
     "local_noise_z2": {
       "link": {
         "auc": 0.49547598541900334,
-        "mean_cosine_friends": -9.114646003781462e-05,
-        "mean_cosine_non_friends": -3.101206858301612e-05,
+        "mean_cosine_friends": -9.114645991345191e-05,
+        "mean_cosine_non_friends": -3.1012068737572675e-05,
         "pairs": 632.0,
         "tpr_at_1pct_fpr": 0.014240506329113924
       },
       "recovery": {
         "auc": {
           "ci95": [
-            0.496979354464454,
-            0.5052971691102098
+            0.49697935427542955,
+            0.5052971615492307
           ],
-          "mean": 0.5013126865755678
+          "mean": 0.5013126790145885
         },
         "precision_at_10": {
           "ci95": [
@@ -168,8 +174,8 @@
     "local_noise_z5": {
       "link": {
         "auc": 0.5179858996955616,
-        "mean_cosine_friends": 9.683285809416953e-05,
-        "mean_cosine_non_friends": -9.642971748111836e-05,
+        "mean_cosine_friends": 9.683285814462982e-05,
+        "mean_cosine_non_friends": -9.642971751608505e-05,
         "pairs": 632.0,
         "tpr_at_1pct_fpr": 0.014240506329113924
       },
@@ -208,26 +214,26 @@
     },
     "masked": {
       "link": {
-        "auc": 0.503920645729851,
-        "mean_cosine_friends": 0.00018714982801492473,
-        "mean_cosine_non_friends": 0.00015221818907551544,
+        "auc": 0.5134894247716713,
+        "mean_cosine_friends": 0.00015539548085573428,
+        "mean_cosine_non_friends": -8.6466394407687e-06,
         "pairs": 632.0,
-        "tpr_at_1pct_fpr": 0.012658227848101266
+        "tpr_at_1pct_fpr": 0.014240506329113924
       },
       "recovery": {
         "auc": {
           "ci95": [
-            0.49550154718999395,
-            0.5038319555176539
+            0.4951130568948186,
+            0.502823216161919
           ],
-          "mean": 0.4995838182293074
+          "mean": 0.4991387991982492
         },
         "precision_at_10": {
           "ci95": [
-            0.0044,
-            0.007300000000000001
+            0.0033000000000000004,
+            0.006
           ],
-          "mean": 0.0058
+          "mean": 0.004600000000000001
         },
         "prior_auc": {
           "ci95": [
@@ -248,8 +254,8 @@
     "raw": {
       "link": {
         "auc": 0.5798124298990547,
-        "mean_cosine_friends": 0.014086005688587132,
-        "mean_cosine_non_friends": 0.002016159216893231,
+        "mean_cosine_friends": 0.014086006422700147,
+        "mean_cosine_non_friends": 0.0020161593057216195,
         "pairs": 632.0,
         "tpr_at_1pct_fpr": 0.055379746835443035
       },
@@ -298,10 +304,10 @@
       "recovery": {
         "auc": {
           "ci95": [
-            0.9653110169979194,
-            0.9705305291156154
+            0.9653110158090177,
+            0.9705305280116351
           ],
-          "mean": 0.9678600341648566
+          "mean": 0.9678600330325692
         },
         "precision_at_10": {
           "ci95": [
@@ -331,10 +337,10 @@
       "recovery": {
         "auc": {
           "ci95": [
-            0.844134195445098,
-            0.8531195243821419
+            0.8441341955317357,
+            0.853119527761012
           ],
-          "mean": 0.8484916268846298
+          "mean": 0.8484916303501376
         },
         "precision_at_10": {
           "ci95": [
@@ -432,5 +438,5 @@
     "seed": 0
   },
   "status": "VALID",
-  "wall_seconds": 59.00836470001377
+  "wall_seconds": 164.233970900008
 }

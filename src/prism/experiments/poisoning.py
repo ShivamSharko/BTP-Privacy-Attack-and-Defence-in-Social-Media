@@ -10,6 +10,10 @@ Modes
   plaintext_trimmed_mean  the server sees every update and takes a coordinate-wise
                           trimmed mean (needs plaintext updates, so no secure aggregation).
   plaintext_median        the same with the coordinate-wise median.
+  committee_median_size4  secure-aggregation committees of 4 clients; the server sees only the
+  committee_median_size20 committee sums and takes their coordinate-wise median (committees of 20).
+                          A compromise: robust if most committees are attacker-free, but a small
+                          committee hides each update among fewer others.
 
 Hypothesis H4 is reported, not gated: the trimmed mean limits promotion better than
 the secure-sum mode at every attacker fraction, and the gap is largest at the largest
@@ -31,11 +35,13 @@ import torch
 from prism.attacks.poisoning import (
     choose_malicious,
     choose_target_item,
+    clean_committee_share,
+    make_committee_median,
     make_promotion_hook,
     target_exposure,
 )
 from prism.experiments.regimes import Frozen, default_paths, load_frozen, make_run
-from prism.experiments.runner import Paths, _bundle, _finished, run_one
+from prism.experiments.runner import Paths, _bundle, _finished, payload_provenance, run_one
 from prism.fl.aggregate import AggregatorName
 from prism.io import atomic_write_json
 from prism.models.hybrid import content_base, make_layout
@@ -49,6 +55,9 @@ AGGREGATORS: dict[str, AggregatorName] = {
     TRIMMED_MODE: "trimmed_mean",
     "plaintext_median": "median",
 }
+COMMITTEE_SIZES: dict[str, int] = {"committee_median_size4": 4, "committee_median_size20": 20}
+COMMITTEE_LABEL: str = "committee_median"
+DEFAULT_MODES: tuple[str, ...] = (SUM_MODE, TRIMMED_MODE, "plaintext_median", *COMMITTEE_SIZES)
 PROMOTION_FACTOR: float = 10.0
 CLEAN_EXPOSURE_LIMIT: float = 0.05
 LIMITATIONS: tuple[str, ...] = (
@@ -58,6 +67,11 @@ LIMITATIONS: tuple[str, ...] = (
     "The robust modes run without DP noise, so no privacy guarantee applies to them.",
     "Coordinate-wise robust aggregators need the server to see each individual update, which "
     "secure aggregation prevents; the robust modes are therefore not compatible with it.",
+    "A committee of 4 hides an individual update among only 3 others, so the committee modes "
+    "give much weaker secure-aggregation protection than the secure-sum mode.",
+    "Committees are simulated: the committee sums are computed in the clear in this simulation, "
+    "no secure-aggregation protocol runs.",
+    "The committee modes add no DP noise, so no privacy guarantee applies to them.",
     "Three seeds by default; min and max over seeds are reported, not confidence intervals.",
     "Run records are reused when the configuration matches; records produced on 17 November "
     "2026 predate the commit of the code that produced them.",
@@ -110,10 +124,54 @@ def h4_readout(
     }
 
 
+def committee_tradeoff(
+    results: dict[str, dict[str, Any]], modes: Sequence[str], fractions: Sequence[float]
+) -> dict[str, Any]:
+    """Per committee size: clean NDCG@10, and per attacker fraction exposure and clean share."""
+    out: dict[str, Any] = {}
+    for mode in modes:
+        if mode not in COMMITTEE_SIZES or mode not in results:
+            continue
+        cells = results[mode]
+        clean = cells.get("0.0", {}).get("ndcg", {}).get("mean")
+        out[mode] = {
+            "committee_size": COMMITTEE_SIZES[mode],
+            "clean_ndcg_at_fraction_0": clean,
+            "per_fraction": [
+                {
+                    "fraction": fraction,
+                    "target_exposure": cells[str(fraction)]["exposure"]["mean"],
+                    "clean_committee_share": cells[str(fraction)]["clean_committee_share"],
+                }
+                for fraction in fractions
+                if str(fraction) in cells
+            ],
+        }
+    return out
+
+
 def _stale_trim(record: dict[str, Any], mode: str, trim_fraction: float) -> bool:
     """A stored trim fraction that differs from the requested one (legacy records: accepted)."""
     stored = record.get("trim_fraction")
-    return AGGREGATORS[mode] != "sum" and stored is not None and float(stored) != trim_fraction
+    trimmed = mode in AGGREGATORS and AGGREGATORS[mode] != "sum"
+    return trimmed and stored is not None and float(stored) != trim_fraction
+
+
+def _stale_aggregator(record: dict[str, Any], mode: str) -> bool:
+    """A stored aggregator or committee size that differs from the requested one."""
+    label = AGGREGATORS.get(mode, COMMITTEE_LABEL)
+    if record.get("aggregator") is not None and record["aggregator"] != label:
+        return True
+    size = COMMITTEE_SIZES.get(mode)
+    stored = record.get("committee_size")
+    return size is not None and stored is not None and int(stored) != size
+
+
+def _aggregator_for(mode: str) -> Any:
+    """The ``aggregator`` argument of ``train`` for a mode (built inside the worker)."""
+    if mode in COMMITTEE_SIZES:
+        return make_committee_median(committee_size=COMMITTEE_SIZES[mode])
+    return AGGREGATORS[mode]
 
 
 def _worker(job: dict[str, Any]) -> dict[str, Any]:
@@ -146,6 +204,7 @@ def _worker(job: dict[str, Any]) -> dict[str, Any]:
         if (
             record is None
             or _stale_trim(record, mode, job["trim_fraction"])
+            or _stale_aggregator(record, mode)
             or ("target_exposure" not in record and not paths.checkpoint(config).exists())
         ):
             skipped = False
@@ -163,12 +222,13 @@ def _worker(job: dict[str, Any]) -> dict[str, Any]:
                 config,
                 paths,
                 threads=job["threads"],
-                aggregator=AGGREGATORS[mode],
+                aggregator=_aggregator_for(mode),
                 trim_fraction=job["trim_fraction"],
                 client_hook=hook,
                 extra={
-                    "aggregator": AGGREGATORS[mode],
+                    "aggregator": AGGREGATORS.get(mode, COMMITTEE_LABEL),
                     "trim_fraction": job["trim_fraction"],
+                    "committee_size": COMMITTEE_SIZES.get(mode),
                 },
             )
         if record.get("status") == "ok" and "target_exposure" not in record:
@@ -217,7 +277,7 @@ def run(
     frozen: Frozen,
     *,
     fractions: Sequence[float] = (0.0, 0.1, 0.2, 0.3),
-    modes: Sequence[str] = (SUM_MODE, TRIMMED_MODE, "plaintext_median"),
+    modes: Sequence[str] = DEFAULT_MODES,
     seeds: Sequence[int] = (0, 1, 2),
     regime: str = "small",
     sample_rate: float = 0.02,
@@ -233,6 +293,9 @@ def run(
         raise ValueError("fractions must include 0.0 and at least one positive value")
     if SUM_MODE not in modes:
         raise ValueError(f"modes must include {SUM_MODE}")
+    unknown = [m for m in modes if m not in AGGREGATORS and m not in COMMITTEE_SIZES]
+    if unknown:
+        raise ValueError(f"unknown modes {unknown}")
     jobs = [
         {
             "mode": mode,
@@ -297,12 +360,18 @@ def run(
                 continue
             exposure_stats, ndcg_stats = _stats(exposures), _stats(ndcgs)
             means[mode][fraction] = exposure_stats["mean"]
-            results[mode][str(fraction)] = {
+            cell: dict[str, Any] = {
                 "exposure": exposure_stats,
                 "ndcg": ndcg_stats,
                 "utility_drop": utility_drop(ndcg_stats["mean"], base_ndcg),
                 "exposure_ratio": exposure_ratio(exposure_stats["mean"], base_exposure, n_users),
             }
+            if mode in COMMITTEE_SIZES:
+                cell["committee_size"] = COMMITTEE_SIZES[mode]
+                cell["clean_committee_share"] = clean_committee_share(
+                    fraction, COMMITTEE_SIZES[mode]
+                )
+            results[mode][str(fraction)] = cell
 
     controls: list[dict[str, Any]] = []
     largest = max(fractions)
@@ -359,6 +428,8 @@ def run(
         },
         "results": results,
         "h4": h4_readout(means, fractions),
+        "committee_tradeoff": committee_tradeoff(results, modes, fractions),
+        "provenance": payload_provenance(__file__, extra=("attacks/poisoning.py",)),
         "limitations": list(LIMITATIONS),
         "wall_seconds": round(time.time() - started, 1),
     }
@@ -378,7 +449,7 @@ def cli(argv: list[str] | None = None) -> int:
     parser.add_argument("--trim-fraction", type=float, default=0.35)
     parser.add_argument("--fractions", type=float, nargs="+", default=[0.0, 0.1, 0.2, 0.3])
     parser.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2])
-    parser.add_argument("--modes", nargs="+", default=list(AGGREGATORS))
+    parser.add_argument("--modes", nargs="+", default=list(DEFAULT_MODES))
     args = parser.parse_args(argv)
     root = Path(args.root)
     frozen = load_frozen(root / "experiments" / "frozen.json")

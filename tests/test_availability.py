@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import itertools
+
 import numpy as np
 import pytest
 
@@ -118,3 +120,42 @@ def test_group_gap_sign_and_interval() -> None:
 def test_group_gap_with_empty_group_is_nan() -> None:
     gap = group_gap(np.array([1.0, 2.0]), np.array([0, 0], dtype=np.int64))
     assert all(np.isnan(v) for v in gap.values())
+
+
+def test_trace_static_uses_device_share_with_floor() -> None:
+    from prism.fl.availability import trace_static
+
+    shares = np.array([0.0, 0.02, 0.4, 1.0])
+    devices = np.array([3, 0, 2, 1, 2], dtype=np.int64)
+    out = trace_static(shares, devices)
+    assert out.dtype == np.float64
+    assert out.tolist() == [1.0, 0.05, 0.4, 0.05, 0.4]
+
+
+def test_match_devices_by_rank_is_monotone_and_a_permutation() -> None:
+    from prism.fl.availability import match_devices_by_rank
+
+    rng = np.random.default_rng(5)
+    shares = rng.random(200)
+    key = rng.integers(0, 30, size=200)
+    perm = match_devices_by_rank(shares, key, np.random.default_rng(6))
+    assert perm.dtype == np.int64
+    assert sorted(perm.tolist()) == list(range(200))  # each device exactly once
+    assigned = shares[perm]
+    values = np.unique(key)
+    for low, high in itertools.pairwise(values):
+        # a larger key never gets a smaller share than a smaller key
+        assert assigned[key == high].min() >= assigned[key == low].max() - 1e-12
+
+
+def test_match_devices_by_rank_breaks_ties_at_random() -> None:
+    from prism.fl.availability import match_devices_by_rank
+
+    shares = np.linspace(0.1, 0.9, 40)
+    key = np.zeros(40, dtype=np.int64)
+    a = match_devices_by_rank(shares, key, np.random.default_rng(1))
+    b = match_devices_by_rank(shares, key, np.random.default_rng(2))
+    assert not np.array_equal(a, b)
+    assert np.array_equal(a, match_devices_by_rank(shares, key, np.random.default_rng(1)))
+    with pytest.raises(ValueError):
+        match_devices_by_rank(shares, key[:10], np.random.default_rng(1))

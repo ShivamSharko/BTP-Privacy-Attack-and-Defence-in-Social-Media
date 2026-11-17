@@ -588,3 +588,25 @@ It found three major and nine minor issues. What was done about each:
 
 Not reviewed: most of the report generator, the data-preparation pipeline, the baselines module,
 the demonstration and the tests themselves.
+
+### 9.6 Additions of the same evening (CHANGE-024)
+
+The owner asked for every item on the "not done" list except the dataset provider's review. All
+were built test-first and run on the real data. Details and limits are in the report and in
+`PREREGISTRATION.md`, Amendment 2.
+
+| Item | What was done |
+|---|---|
+| k-core sensitivity | Datasets rebuilt at k = 10 and k = 20; reduced grid with frozen hyperparameters. The earlier report had mislabelled this as a sweep over list length |
+| 4-star analysis | Dataset rebuilt from reviews of 4 stars or more, same reduced grid |
+| List length | NDCG@20 and HR@20 added to every run record; retention reported at both lengths |
+| Trace-based availability | FedScale device trace (approved by the owner before download, read with a restricted loader); three scenarios in the participation experiment |
+| Free-riding clients | New experiment: cost, gain and detectability of clients that send nothing or noise |
+| Committee-median mode | Third robustness mode, implemented as a pluggable aggregator outside the engine |
+| Flower parity | The training round run through Flower 1.43 in a separate environment and compared with the in-process engine |
+| More users and seeds for gossip | 2,500 users and 3 seeds. 3,000 users needed 5.3 GB and did not fit beside the other experiments on this PC |
+| Clean rerun | Engine frozen, every experiment rerun; numbers identical; records carry a hash of the engine files. Experiment modules are hashed separately so that adding an experiment does not make existing runs stale |
+
+One engine change was needed before the freeze: the round loop accepts a custom aggregator. One
+correction was made after an agent delivered the trace replay: the server learning rate is
+rescaled only for SGD, because Adam rescales the averaged update itself.
