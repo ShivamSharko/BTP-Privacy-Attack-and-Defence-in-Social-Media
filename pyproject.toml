@@ -18,6 +18,11 @@ dependencies = [
   "sentence-transformers>=6.3.0",
   "scikit-learn>=1.9.1",
   "opacus>=1.6.0",
+  "dp-accounting>=0.7.0",
+  "cryptography>=50",
+  "rfc8785>=0.1.4",
+  "matplotlib>=3.9",
+  "scipy>=1.13",
 ]
 
 [dependency-groups]
@@ -31,6 +36,12 @@ dev = [
   "pip-audit>=2.7",
   "pip-licenses>=5.0",
 ]
+
+[tool.uv]
+# dp-accounting 0.7.0 pins typing-extensions<4.10, which conflicts with
+# sentence-transformers. The pin is stricter than the code needs; the
+# accounting cross-check tests exercise dp-accounting under the newer version.
+override-dependencies = ["typing-extensions>=4.10", "attrs>=23.2"]
 
 [build-system]
 requires = ["hatchling>=1.25"]
