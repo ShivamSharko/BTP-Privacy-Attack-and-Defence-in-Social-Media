@@ -43,3 +43,6 @@ mlruns/
 Thumbs.db
 .idea/
 .vscode/
+
+# Non-project workspace: scratch files, research notes, vendored tools (never committed)
+/_workspace/
