@@ -1,0 +1,105 @@
+{
+  "config": {
+    "model": {
+      "content_scale": 0.4,
+      "dim": 16,
+      "temperature": 20.0,
+      "use_content": true,
+      "use_ids": true
+    },
+    "name": "tune-s3",
+    "phase": "tune",
+    "regime": "small",
+    "seed": 0,
+    "target_epsilon": 8.0,
+    "train": {
+      "clip_norm": 5.0,
+      "hide_fraction": 0.5,
+      "local_lr": 1.0,
+      "local_steps": 1,
+      "momentum": 0.9,
+      "noise_multiplier": 0.91708,
+      "rounds": 400,
+      "sample_rate": 0.05,
+      "server_lr": 0.5,
+      "server_opt": "sgd"
+    },
+    "variant": "sgd-lr.5"
+  },
+  "config_hash": "14a71e5c06dd5d2f882b5abe55aee97b2171ada76db8e4ab9db381651e1bd2fa",
+  "diagnostics": {
+    "max_cohort": 555,
+    "mean_clipped_fraction": 0.23453717240625543,
+    "mean_cohort": 496.0225,
+    "mean_update_norm_first": 27.187282017299108,
+    "mean_update_norm_last": 3.08895046321008,
+    "min_cohort": 433,
+    "nonfinite_updates": 0
+  },
+  "evaluated_on": "validation",
+  "halted_by_gate": false,
+  "id": "tune-s3_small_eps8_sgd-lr.5_tune_seed0",
+  "items": 6319,
+  "ledger": {
+    "path": "ledger/tune-s3/tune-s3_small_eps8_sgd-lr.5_tune_seed0.jsonl",
+    "public_key_hex": "9301c820a5d066f18a60cc3ad8836d83c8de83f6e6f3d9c547f7bbf56d5d7f3c",
+    "refused_rounds": [],
+    "root_hex": "2b7028dedae663b4805683d8b793dd7abdb64ba659469e9ac32f08cfe72b522d",
+    "size": 401,
+    "verified": true
+  },
+  "limitations": [
+    "Privacy unit is one user (add or remove one user's whole history); delta = 1/(10 n).",
+    "Epsilon assumes ideal Poisson sampling of clients, which real devices cannot guarantee.",
+    "Gaussian noise is floating point from a seeded generator, not a hardened sampler.",
+    "The clipping norm and hyperparameters were chosen on the same users' data; that selection is not covered by epsilon.",
+    "Single-process simulation: no real network, devices or trust boundary.",
+    "The 'diagnostics' block depends on who took part and would not be released in deployment."
+  ],
+  "metrics": {
+    "coverage@10": 0.08545655958221238,
+    "distinct@10": 540.0,
+    "exposure_gini": 0.9971191488455353,
+    "hr@10": 0.06930285243538256,
+    "mrr": 0.031116779898644566,
+    "ndcg@10": 0.016040812952927676,
+    "recall@20": 0.041000473874123235,
+    "users_evaluated": 9711.0
+  },
+  "model_sha256": "4d50cc122e49384127e3a711cf7d8f486fa880fb914d7fb36f146286dd4e7db5",
+  "ndcg_ci95": [
+    0.014510649856007899,
+    0.017517832928174906
+  ],
+  "parameters": 107679,
+  "privacy": {
+    "adjacency": "add-or-remove one user",
+    "at_delta_n2": 10.9945345760926,
+    "budget_epsilon": 8.0,
+    "delta": 1.0087763542822556e-05,
+    "delta_n2": 1.017629732958999e-08,
+    "excludes": "hyperparameter and clipping-norm selection",
+    "gate_ok": true,
+    "gate_reason": "ok",
+    "n_users": 9913,
+    "noise_multiplier": 0.91708,
+    "of_record": 7.982805525656229,
+    "pld": 7.972328674052427,
+    "prv": 7.982805525656229,
+    "rdp": 8.850436080117976,
+    "rounds": 400,
+    "sample_rate": 0.05,
+    "unamplified": 329.8567431806764,
+    "unit": "user"
+  },
+  "provenance": {
+    "git_commit": "1718f84647e8c80d050a0950edea3c12ab982fcb",
+    "uv_lock_sha256": "b44bad23ad394602b37f146e788bbb1f7ab4fafe68cab49731f8c9816e131d79"
+  },
+  "rounds_completed": 400,
+  "status": "ok",
+  "threads": 3,
+  "torch_version": "2.15.0+cpu",
+  "users": 9913,
+  "wall_seconds": 211.13
+}

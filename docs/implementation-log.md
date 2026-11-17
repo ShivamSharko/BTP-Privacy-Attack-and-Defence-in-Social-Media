@@ -9,43 +9,81 @@ The single progress tracker. PROJECT_ROADMAP.md remains the SSOT for decisions.
 | 1.1 | 15 Nov 2026 | Review fixes: gitignore anchoring, Yelp ignore, licence gate rewrite, run provenance, CI/make parity | commit `0334953`; GitHub Actions CI green in 2m 19s | Done |
 | 2 | 15 Nov 2026 | Yelp acquisition, integrity record, aggregate-only dataset inventory | tar SHA-256 7196433B8A43...; docs/data-access.md; results/dataset_profile.json; 150346 businesses / 6990280 reviews / 1987897 users; 51 tests passing | Done - inventory verified |
 | 3 | 16 Nov 2026 | Metro geographic analysis (Philadelphia selected), pandera data contracts, PREREGISTRATION.md draft | scripts/metro_analysis.py, src/prism/data/contracts.py, PREREGISTRATION.md | Done |
-| 4 | 16 Nov 2026 | Philadelphia streaming subset, referential integrity, k-core measurement | scripts/build_philly_subset.py, src/prism/data/filtering.py, results/philly_filter_report.json | In progress |
-| 5 | 16 Nov 2026 | k=15 applied, contracts fixed, chronological splits, dataset card | src/prism/data/splits.py, scripts/build_dataset.py, results/dataset_card.json | In progress |
-| 6 | 16 Nov 2026 | Data-layer test hardening; metro CLI made testable; hardware and split shares recorded | tests/test_build_philly_subset_stages.py, tests/test_metro_analysis_stages.py, tests/test_splits_errors.py, tests/test_environment_paths.py | In progress |
-| 7A | 17 Nov 2026 | Frozen content features, ranking metrics, MostPopular and ItemKNN baselines | src/prism/data/features.py, src/prism/eval/, results/features_card.json, results/baselines.json | In progress |
-| 7B | 17 Nov 2026 | Two-tower trainer, user-level DP, PRV/RDP accounting, resumable central/federated grid | src/prism/privacy/dp.py, src/prism/models/two_tower.py, scripts/run_grid.py | Done |
-| 8 | 17 Nov 2026 | Grid complete (60/60 runs); reproducible summary with bootstrap CIs, paired tests, Holm correction | results/summary.json, results/summary_table.csv | Done |
-| 9 | 17 Nov 2026 | Grid extended: 10 seeds plus round-matched central control | scripts/run_grid.py, results/summary.json | Done |
-| 10 | 17 Nov 2026 | Interaction-level MI over 180 checkpoints; analytic first-layer inversion | results/attacks_membership.json, results/attacks_inversion.json | In progress |
+| 4 | 16 Nov 2026 | Philadelphia streaming subset, referential integrity, k-core measurement | scripts/build_philly_subset.py, src/prism/data/filtering.py, results/philly_filter_report.json | Done |
+| 5 | 16 Nov 2026 | k=15 applied, contracts fixed, chronological splits, dataset card | src/prism/data/splits.py, scripts/build_dataset.py, results/dataset_card.json | Done |
+| 6 | 16 Nov 2026 | Data-layer test hardening; metro CLI made testable; hardware and split shares recorded | tests/test_build_philly_subset_stages.py, tests/test_metro_analysis_stages.py, tests/test_splits_errors.py, tests/test_environment_paths.py | Done |
+| 7A | 17 Nov 2026 | Frozen content features, ranking metrics, MostPopular and ItemKNN baselines | src/prism/data/features.py, src/prism/eval/, results/features_card.json, results/baselines.json | Done |
+| 7B | 17 Nov 2026 | Two-tower trainer, user-level DP, PRV/RDP accounting, resumable central/federated grid | src/prism/privacy/dp.py, src/prism/models/two_tower.py, scripts/run_grid.py | Done (content-only model; superseded by step 11, results archived) |
+| 8 | 17 Nov 2026 | Grid complete (60/60 runs); reproducible summary with bootstrap CIs, paired tests, Holm correction | results/summary.json, results/summary_table.csv | Done (archived under results/archive/v1-content-only/) |
+| 9 | 17 Nov 2026 | Grid extended: 10 seeds plus round-matched central control | scripts/run_grid.py, results/summary.json | Done (archived under results/archive/v1-content-only/) |
+| 10 | 17 Nov 2026 | Interaction-level MI over 180 checkpoints; analytic first-layer inversion | results/attacks_membership.json, results/attacks_inversion.json | Done. The inversion result was later found invalid (the attack read the wrong block of the parameter vector) and is archived with a warning; the membership result is uninformative. Both are replaced by step 11 |
+| 11 | 17 Nov 2026 | Rebuild under the approved design (CHANGE-023, ADR-043 to ADR-055): see "Step 11: what was built" below | `docs/superpowers/specs/2026-11-17-prism-rebuild-design.md`, `docs/superpowers/plans/2026-11-17-prism-rebuild.md`, `PREREGISTRATION.md` Amendment 1, `experiments/frozen.json` | Done in code and documents; results: see results/report/report.html |
+
+Evidence paths of steps 7B to 10 point to files that no longer exist under those names: the scripts were rewritten into the `prism` package and the results moved to `results/archive/v1-content-only/` (see its README).
+
+## Step 11: what was built
+
+Results: see results/report/report.html.
+
+- **Package `src/prism/`** (design section 3.3):
+  - `config.py`, `seeding.py`, `io.py`, `environment.py`, `cli.py`: frozen configuration with a canonical hash, independent named random streams, atomic writes, run provenance, one entry point.
+  - `data/`: kept loaders, contracts, filtering, splits and features; added `bundle.py` (train, validation and test per user plus item content), `social.py` (friend graph, peer and pair sampling) and `synthetic.py` (shareable demo dataset).
+  - `models/hybrid.py`: item ID embeddings on a fixed content projection, 107,679 parameters (ADR-043).
+  - `fl/`: `sampling.py`, `availability.py`, `client.py`, `fast.py` (closed-form clipped sum with autograd self-check), `aggregate.py` (sum, trimmed mean, median), `secagg.py` (pairwise-mask secure-sum simulation), `server.py` (the round loop), `gossip.py`.
+  - `privacy/`: `dp.py` (kept and extended) and `accounting.py` (Opacus PRV, Opacus RDP, dp-accounting PLD, consistency gate, value of record).
+  - `attacks/`: `inversion.py`, `links.py`, `membership.py`, `poisoning.py`, each with controls.
+  - `ledger/`: `merkle.py`, `receipts.py`, `log.py`, `gate.py` (Merkle log, Ed25519-signed receipts and checkpoints, release gate).
+  - `eval/`: `metrics.py`, `baselines.py` (MostPopular, ItemKNN, item-item ridge, friends-based), `stats.py`.
+  - `experiments/`: `runner.py`, `regimes.py`, `calibration.py`, and one module per question: `baselines.py`, `privacy_utility.py`, `update_leakage.py`, `membership.py`, `poisoning.py`, `gossip.py`, `participation.py`, `ledger_audit.py`, `social_build.py`, `demo.py`.
+  - `report/build.py`: static HTML, Markdown and CSV report.
+- **Tests** in `tests/`, written first: unit, property (hypothesis), known-answer, statistical, control, determinism and end-to-end tests as listed in design section 5.4.
+- **CLI commands** (`prism <command>`): `baselines`, `grid`, `update-leakage`, `membership`, `poisoning`, `gossip`, `participation`, `ledger`, `social`, `demo-small`, `report`. Makefile targets: `demo`, `social`, `baselines`, `grid`, `attacks`, `social-experiments`, `ledger`, `report`, `all-experiments`.
+- **Archived results:** the 180 content-only runs and the step-10 attack files moved to `results/archive/v1-content-only/`, with a README that marks the inversion result INVALID.
+- **Frozen hyperparameters:** `experiments/frozen.json` version 1, tuned on the validation split only (29 runs, 17 Nov 2026, 12:37 to 12:57 IST) before any test evaluation of the new model. Two regimes: `large` (rate 0.5, 40 rounds) and `small` (rate 0.05, 400 rounds); clip norm 5.0; epsilons 1, 2, 4, 8, 16; seeds 0 to 9.
+- **Amended pre-registration:** `PREREGISTRATION.md` Amendment 1, with the H1 to H5 wording as tested and the expectations stated before the runs.
+- **Literature review:** `docs/literature-review.md`, written under the new source rule (ADR-053).
+- **Plain-language viva notes:** `docs/viva-notes.md`.
+- **Decisions:** `PROJECT_ROADMAP.md` v2.0.0 with CHANGE-023, ADR-043 to ADR-055 with a file each in `docs/adr/`, and a new compliance note in `docs/yelp-compliance.md`.
+- **Dependencies:** `dp-accounting`, `cryptography`, `rfc8785` and `matplotlib` added; `scipy` declared.
 
 ## Open items
-- Holm rejects all five federated and all five central_matched comparisons; central_matched epsilon=16 is marginal at p=0.0488.
-- Topology confound resolved with non-overlapping non-private intervals; per-epsilon cross-topology intervals overlap so no per-epsilon winner is claimed.
-- User-level membership inference with a held-out user population and reference models is still outstanding (~10 training runs).
-- DP mechanism verified active: C=4.9214; federated z 1.0961/0.8306/0.6745/0.5340/0.4247 for eps 1/2/4/8/16; central z 5.0149/2.8135/1.6893/1.0804/0.7370; clipped deltas 3.49-4.01 all below C; non-private runs have C=None and z=0.
-- Clipping barely binds at convergence because deltas fall below C, so the DP effect comes mainly from the added noise, not the clipping.
-- Federated retention 76.8/85.1/87.3/89.7/93.8 percent at eps 1/2/4/8/16; four configurations sit at p=0.0625, the arithmetic floor for 5 seeds.
-- Central shows no detectable effect; eps=2 exceeds non-private, so the claim must be "not detectable at n=5", never "no cost".
-- Federated DP shows a monotonic privacy-utility curve: retention 76.6% (eps 1), 84.9% (2), 87.3% (4), 89.5% (8), 93.7% (16) versus federated non-private 0.02384.
-- Central DP shows no detectable degradation at any epsilon; all differences are inside seed noise and eps=2 exceeds non-private, so the correct claim is "no detectable effect", not "no cost".
-- CONFOUND: federated used 400 server rounds versus central 40 at matched data budget. H1 as literally pre-registered gives 120.4% retention (satisfied) but is confounded by round count. A round-matched central control (q=0.02, E=1, T=400) is required.
-- Neither topology beat MostPopular 0.0250; ItemKNN 0.0347 remains ahead. R-23 materialised.
-- Five seeds cannot yield two-sided significance at alpha=0.05 (minimum p = 0.0625). Extend to 10 seeds for headline comparisons.
-- Probe with item bias: best NDCG@10 0.0101 at lr=2.0 round 40 (6.7x random chance), still below MostPopular 0.0250 and ItemKNN 0.0347. Cause identified as bias learning rate; ADR-040 applied. Grid launched at lr=2.0 with RQ1 framed as relative retention.
-- ADR-038 cosine fix raised deltas ~50x and NDCG@10 to 0.0071 (4.7x random) but still below MostPopular 0.0250; ADR-039 item bias added to restore popularity representation. Learning rate to be confirmed by the 40-round probe before launch.
-- Step 7B smoke test verified DP accounting, clipping and resumability, but revealed the model at random chance; scoring fixed via ADR-038 and learning rate to be selected by probe before the overnight launch.
-- Roadmap governance Commit B: section 19 signatures, ADRs to Approved, header v1.1.0, CHANGE-009/010.
-- Mokshit's acknowledgement of the roadmap (blocks P1).
-- Repo licence for our own code (MIT proposed) - owner decision pending.
-- Yelp licence clauses and exact source URL to be pasted into docs/data-access.md.
-- Verification queue items 1-15 (roadmap section 18); item 11 partially closed.
-- k=15 and CHANGE-012 approved by both owners on 16 Nov 2026; Step 5 will apply the filter and build splits.
-- Guide email (verification items 1 and 2) awaiting owner action - G0 cannot close without it.
-- Yelp Section 3 pre-publication review is a new G7 exit condition (ADR-033, R-16).
-- Repository stays private by default; public release needs Yelp + owners + guide approval.
-- P-series peer-reviewed literature review is now permitted and required (CHANGE-013); dedicated step pending.
-- Step 5 contract fixes identified: UserSchema declares a `name` column that the filtered users CSV does not contain; pandera will fail unless required=False or a subset schema is used.
-- Documentation-versus-data discrepancies to encode in Step 5 contracts: user.friends is documented as an array but is a comma-separated string in the actual data; review.date is documented as YYYY-MM-DD but is YYYY-MM-DD HH:MM:SS in the actual data; business.categories documented as an array, actual format to be verified.
-- Yelp pre-publication review deferred (CHANGE-015) but still blocks any public release; trigger is 3 weeks before the submission date, which is still unknown.
-- Submission and mid-term dates still required from the guide.
-- Single-PC execution (ADR-034); Section 9 compute budget to be re-measured on this machine at G1.
+
+- Guide email and dates: the guide email (verification item 2) is awaiting owner action. The submission date and mid-term review dates are still unknown, and G0 cannot close without them.
+- Pre-publication review by the dataset provider: findings must be submitted at least three weeks before the submission date and the outcome recorded. This blocks any public presentation or publication (ADR-033, CHANGE-015, R-16). The trigger date cannot be set until the submission date is known.
+- k sensitivity sweep at k in {10, 20} (pre-registered, not run in step 11).
+- Stars >= 4 sensitivity analysis (pre-registered, not run in step 11).
+- Owners to read `docs/viva-notes.md` and be able to explain each component (roadmap rule 0.1.7, R-24).
+- Commits: the three earlier local commits on branch `rebuild/v2` (`db7633f`, `dbeb9cf`, `1718f84`) and all later uncommitted work await the owner's commits. Nothing has been pushed.
+- Second owner's acknowledgement of roadmap v2.0.0 (rule 0.1.3).
+- Cut in step 11 and still open: free-riding measurement, trace-based availability, committee-median robustness mode, Flower parity check (roadmap 4.5.1).
+- Verification queue (roadmap section 18): items 2 to 6, 8, 11, 12, 14, 15 and 16 are still open (see `docs/verification-log.md`). Items 1, 7, 9, 10 and 13 are closed or no longer needed.
+- `docs/data-access.md` still has a TODO for the exact Yelp source URL, and the Yelp licence clauses are to be checked there (verification item 11 partly closed).
+- MIT is declared in `pyproject.toml` (CHANGE-011), but there is no `LICENSE` file in the repository root.
+- Owner-written deliverables not yet started: threat model, compliance mapping, model card, datasheet, report prose, demo video and the clean-environment rerun (roadmap section 17). Any public use of results needs the pre-publication review first.
+- Repository stays private by default; public release needs Yelp, both owners and the guide (ADR-033).
+
+### Closed on 17 Nov 2026
+
+- Holm rejections and the marginal central_matched epsilon=16 result (p=0.0488): they describe the old content-only model, now archived and replaced by the new grid.
+- Topology confound resolved with non-overlapping intervals; no per-epsilon winner: central versus federated is no longer compared (ADR-044).
+- User-level membership inference with reference models was outstanding: implemented with control gates (ADR-048); results in the report.
+- DP mechanism verified active with C=4.9214 and the old noise multipliers: values of the old model; calibration is redone for the new model and the accountant gate (ADR-046) replaces the manual check.
+- Clipping barely binds at convergence: old-model observation; each regime now also runs a clip-only diagnostic.
+- Federated retention 76.8/85.1/87.3/89.7/93.8 percent and four configurations at p=0.0625: old results; retention is redefined (ADR-044) and RQ1 uses 10 seeds.
+- Central shows no detectable effect and eps=2 exceeds non-private: old-model result, archived.
+- Federated DP monotonic privacy-utility curve (76.6 to 93.7 percent): old-model result, archived.
+- Central DP no detectable degradation (duplicate of the central item above): old-model result, archived.
+- CONFOUND of 400 versus 40 rounds: removed by replacing the topology comparison with sampling regimes (ADR-044).
+- Neither topology beat MostPopular and R-23 materialised: the cause was the content-only model, replaced by the hybrid model (ADR-043); R-23 stays in the register as history.
+- Five seeds cannot reach two-sided significance: RQ1 uses 10 seeds (CHANGE-021, Amendment 1); H5 with 5 seeds is reported as underpowered.
+- Probe with item bias (best NDCG@10 0.0101 at lr=2.0) and ADR-040: superseded by ADR-043 and the frozen settings.
+- ADR-038 cosine fix and ADR-039 item bias: both carried into the hybrid model (ADR-043); the learning rate was fixed by validation tuning.
+- Step 7B smoke test (model at random chance): fixed by ADR-038 in step 7B, and the old trainer is replaced by the new round loop.
+- Roadmap governance Commit B (section 19 signatures, ADRs to Approved, v1.1.0, CHANGE-009/010): done in CHANGE-009.
+- Mokshit's acknowledgement of the roadmap (blocks P1): recorded in CHANGE-011 on 16 Nov 2026. The acknowledgement of v2.0.0 is a new open item above.
+- Repo licence for our own code (MIT proposed): adopted in CHANGE-011. The missing `LICENSE` file is a new open item above.
+- k=15 and CHANGE-012 approved on 16 Nov 2026; Step 5 will apply the filter: step 5 is done.
+- P-series peer-reviewed literature review permitted and required (CHANGE-013): the rule is superseded by ADR-053; the review is written as `docs/literature-review.md`.
+- Step 5 contract fixes (UserSchema `name` column): done in step 5 (the contracts keep only the needed columns and never store user names).
+- Documentation-versus-data discrepancies to encode in contracts (friends as a string, review.date with a time): encoded in `src/prism/data/contracts.py`.
+- Single-PC execution; Section 9 budget to be re-measured at G1: Section 9 was restated in CHANGE-023 and measured values are in the report.

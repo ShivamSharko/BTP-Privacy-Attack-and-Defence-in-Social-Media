@@ -1,0 +1,111 @@
+{
+  "availability_scenario": "independent",
+  "config": {
+    "model": {
+      "content_scale": 0.4,
+      "dim": 16,
+      "temperature": 20.0,
+      "use_content": true,
+      "use_ids": true
+    },
+    "name": "participation",
+    "phase": "final",
+    "privacy_claim": true,
+    "regime": "small",
+    "seed": 0,
+    "target_epsilon": 8.0,
+    "train": {
+      "clip_norm": 5.0,
+      "hide_fraction": 0.5,
+      "local_lr": 1.0,
+      "local_steps": 1,
+      "momentum": 0.9,
+      "noise_multiplier": 0.91708,
+      "rounds": 400,
+      "sample_rate": 0.05,
+      "server_lr": 0.05,
+      "server_opt": "sgd"
+    },
+    "variant": "independent"
+  },
+  "config_hash": "b3dfd35dca9d83cace519b6e1f078de6100e9a28c1d2ff55f1a0a7852e96cd71",
+  "diagnostics": {
+    "max_cohort": 285,
+    "mean_clipped_fraction": 0.9432193982144532,
+    "mean_cohort": 247.9375,
+    "mean_update_norm_first": 25.665284199617346,
+    "mean_update_norm_last": 9.786709917270072,
+    "min_cohort": 194,
+    "nonfinite_updates": 0
+  },
+  "evaluated_on": "test",
+  "halted_by_gate": false,
+  "id": "participation_small_eps8_independent_final_seed0",
+  "items": 6319,
+  "ledger": {
+    "path": "ledger/participation/participation_small_eps8_independent_final_seed0.jsonl",
+    "public_key_hex": "9301c820a5d066f18a60cc3ad8836d83c8de83f6e6f3d9c547f7bbf56d5d7f3c",
+    "refused_rounds": [],
+    "root_hex": "5a0379c6f21e7f4506cf6440df7d4a263d3ac849f9e6678f802cc5feed233fa4",
+    "size": 401,
+    "verified": true
+  },
+  "limitations": [
+    "Privacy unit is one user (add or remove one user's whole history); delta = 1/(10 n).",
+    "Epsilon assumes ideal Poisson sampling of clients, which real devices cannot guarantee.",
+    "Gaussian noise is floating point from a seeded generator, not a hardened sampler.",
+    "The clipping norm and hyperparameters were chosen on the same users' data; that selection is not covered by epsilon.",
+    "Single-process simulation: no real network, devices or trust boundary.",
+    "The 'diagnostics' block depends on who took part and would not be released in deployment."
+  ],
+  "metrics": {
+    "coverage@10": 0.12818483937331857,
+    "distinct@10": 810.0,
+    "exposure_gini": 0.9958170618357571,
+    "hr@10": 0.12376237623762376,
+    "mrr": 0.055475582517253,
+    "ndcg@10": 0.02039097889577941,
+    "recall@20": 0.03712640431192433,
+    "users_evaluated": 9898.0
+  },
+  "model_sha256": "3597d5f21905cfde7c8a64ee67ae7c97cdc9c2f5a71ecbd6841ec997f16368b6",
+  "ndcg_ci95": [
+    0.019183427479207742,
+    0.02167779635326404
+  ],
+  "parameters": 107679,
+  "privacy": {
+    "adjacency": "add-or-remove one user",
+    "at_delta_n2": 10.9945345760926,
+    "budget_epsilon": 8.0,
+    "delta": 1.0087763542822556e-05,
+    "delta_n2": 1.017629732958999e-08,
+    "excludes": "hyperparameter and clipping-norm selection",
+    "gate_ok": true,
+    "gate_reason": "ok",
+    "n_users": 9913,
+    "noise_multiplier": 0.91708,
+    "of_record": 7.982805525656229,
+    "pld": 7.972328674052427,
+    "prv": 7.982805525656229,
+    "rdp": 8.850436080117976,
+    "rounds": 400,
+    "sample_rate": 0.05,
+    "unamplified": 329.8567431806764,
+    "unit": "user"
+  },
+  "privacy_note": "exact",
+  "provenance": {
+    "code_sha256": "41ffd012c1e8db001bb920c3fc7bcea388b09da709bc49ce827abb76648e55c8",
+    "git_commit": "1718f84647e8c80d050a0950edea3c12ab982fcb",
+    "git_dirty": true,
+    "uv_lock_sha256": "4a11483b5839e22468be078a16640ae2ab9947e89047bf09060accf22a77c466"
+  },
+  "rounds_completed": 400,
+  "simulated_noise_multiplier": null,
+  "status": "ok",
+  "threads": 2,
+  "torch_version": "2.15.0+cpu",
+  "users": 9913,
+  "wall_seconds": 118.12
+}

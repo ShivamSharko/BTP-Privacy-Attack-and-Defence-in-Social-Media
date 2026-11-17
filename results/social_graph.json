@@ -1,0 +1,11 @@
+{
+  "edges": 70691.0,
+  "experiment": "social_graph",
+  "isolated_share": 0.2287904771512156,
+  "max_degree": 2979.0,
+  "mean_degree": 14.262281852113386,
+  "median_degree": 3.0,
+  "source": "friends field of the users file; an edge is kept when both users are in the dataset",
+  "users": 9913.0,
+  "users_with_friends": 7645.0
+}

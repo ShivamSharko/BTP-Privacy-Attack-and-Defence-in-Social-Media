@@ -1,0 +1,105 @@
+{
+  "config": {
+    "model": {
+      "content_scale": 0.4,
+      "dim": 16,
+      "temperature": 20.0,
+      "use_content": true,
+      "use_ids": true
+    },
+    "name": "tune-s2",
+    "phase": "tune",
+    "regime": "small",
+    "seed": 0,
+    "target_epsilon": 8.0,
+    "train": {
+      "clip_norm": 5.0,
+      "hide_fraction": 0.5,
+      "local_lr": 1.0,
+      "local_steps": 1,
+      "momentum": 0.9,
+      "noise_multiplier": 0.91708,
+      "rounds": 400,
+      "sample_rate": 0.05,
+      "server_lr": 0.02,
+      "server_opt": "adam"
+    },
+    "variant": "adam-c5"
+  },
+  "config_hash": "616a88df2386008c16a15eafac94caa3ab3a8fcd249ce7d18d690d2fcd8f49ed",
+  "diagnostics": {
+    "max_cohort": 555,
+    "mean_clipped_fraction": 0.7543073318523784,
+    "mean_cohort": 496.0225,
+    "mean_update_norm_first": 27.187282017299108,
+    "mean_update_norm_last": 6.414758022774327,
+    "min_cohort": 433,
+    "nonfinite_updates": 0
+  },
+  "evaluated_on": "validation",
+  "halted_by_gate": false,
+  "id": "tune-s2_small_eps8_adam-c5_tune_seed0",
+  "items": 6319,
+  "ledger": {
+    "path": "ledger/tune-s2/tune-s2_small_eps8_adam-c5_tune_seed0.jsonl",
+    "public_key_hex": "9301c820a5d066f18a60cc3ad8836d83c8de83f6e6f3d9c547f7bbf56d5d7f3c",
+    "refused_rounds": [],
+    "root_hex": "f82f593aa4dbf21a3242180c5e98e14ccce820ad17366f0646bf8cc16d205cce",
+    "size": 401,
+    "verified": true
+  },
+  "limitations": [
+    "Privacy unit is one user (add or remove one user's whole history); delta = 1/(10 n).",
+    "Epsilon assumes ideal Poisson sampling of clients, which real devices cannot guarantee.",
+    "Gaussian noise is floating point from a seeded generator, not a hardened sampler.",
+    "The clipping norm and hyperparameters were chosen on the same users' data; that selection is not covered by epsilon.",
+    "Single-process simulation: no real network, devices or trust boundary.",
+    "The 'diagnostics' block depends on who took part and would not be released in deployment."
+  ],
+  "metrics": {
+    "coverage@10": 0.039721474916917236,
+    "distinct@10": 251.0,
+    "exposure_gini": 0.9978801870007776,
+    "hr@10": 0.07218618061991557,
+    "mrr": 0.031642122334114356,
+    "ndcg@10": 0.016779885715462947,
+    "recall@20": 0.04134828049206744,
+    "users_evaluated": 9711.0
+  },
+  "model_sha256": "08e7c0de3568bd474b9aad572265ec70cd6a30ffaad5a09f8ce7699ae6e67dbb",
+  "ndcg_ci95": [
+    0.015230668032637385,
+    0.018323183234190986
+  ],
+  "parameters": 107679,
+  "privacy": {
+    "adjacency": "add-or-remove one user",
+    "at_delta_n2": 10.9945345760926,
+    "budget_epsilon": 8.0,
+    "delta": 1.0087763542822556e-05,
+    "delta_n2": 1.017629732958999e-08,
+    "excludes": "hyperparameter and clipping-norm selection",
+    "gate_ok": true,
+    "gate_reason": "ok",
+    "n_users": 9913,
+    "noise_multiplier": 0.91708,
+    "of_record": 7.982805525656229,
+    "pld": 7.972328674052427,
+    "prv": 7.982805525656229,
+    "rdp": 8.850436080117976,
+    "rounds": 400,
+    "sample_rate": 0.05,
+    "unamplified": 329.8567431806764,
+    "unit": "user"
+  },
+  "provenance": {
+    "git_commit": "1718f84647e8c80d050a0950edea3c12ab982fcb",
+    "uv_lock_sha256": "b44bad23ad394602b37f146e788bbb1f7ab4fafe68cab49731f8c9816e131d79"
+  },
+  "rounds_completed": 400,
+  "status": "ok",
+  "threads": 3,
+  "torch_version": "2.15.0+cpu",
+  "users": 9913,
+  "wall_seconds": 113.69
+}

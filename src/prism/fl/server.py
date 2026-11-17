@@ -22,16 +22,19 @@ import torch
 
 from prism.config import ModelConfig, Phase, TrainConfig
 from prism.data.bundle import DataBundle
-from prism.eval.metrics import ranking_metrics
+from prism.eval.metrics import ranking_metrics, ranking_metrics_per_user
 from prism.fl.aggregate import AggregatorName, clip_rows, noisy_mean, robust_total
-from prism.fl.client import make_delta_fn, split_history
+from prism.fl.client import DeltaFn, make_delta_fn, split_history
+from prism.fl.fast import clipped_sum_fast
 from prism.fl.sampling import expected_cohort, poisson_cohort
-from prism.models.hybrid import content_base, init_flat, make_layout, score_matrix
+from prism.models.hybrid import Layout, content_base, init_flat, make_layout, score_matrix
 from prism.seeding import streams, torch_generator
 
 ADAM_BETA1: float = 0.9
 ADAM_BETA2: float = 0.99
 ADAM_EPS: float = 1.0e-3
+SELF_CHECK_USERS: int = 8
+SELF_CHECK_TOLERANCE: float = 1.0e-2
 
 ClientHook = Callable[[npt.NDArray[np.int64], torch.Tensor, torch.Tensor, int], torch.Tensor]
 
@@ -96,6 +99,7 @@ def train(
     authorise: Callable[[int], bool] | None = None,
     on_round: Callable[[RoundStats, torch.Tensor], None] | None = None,
     chunk: int = 128,
+    force_materialised: bool = False,
 ) -> TrainResult:
     """Train one model. ``phase`` selects the history: train only, or train plus validation."""
     if aggregator != "sum" and config.noise_multiplier > 0.0:
@@ -113,6 +117,14 @@ def train(
     optimiser = _ServerOptimiser(config, layout.total)
     stats: list[RoundStats] = []
     halted = False
+    # One local step, honest clients and a plain sum: use the closed-form fast path.
+    fast = (
+        config.local_steps == 1
+        and client_hook is None
+        and aggregator == "sum"
+        and not force_materialised
+    )
+    checked = not fast
 
     for round_index in range(1, config.rounds + 1):
         if authorise is not None and not authorise(round_index):
@@ -130,18 +142,35 @@ def train(
             visible, target = split_history(
                 rows, config.local_steps, config.hide_fraction, mask_generator
             )
-            deltas = delta_fn(flat, visible, target)
-            if client_hook is not None:
-                deltas = client_hook(users, deltas, flat, round_index)
-            result = clip_rows(deltas, config.clip_norm)
-            norm_sum += float(result.norms.sum())
-            nonfinite += result.nonfinite
-            if config.clip_norm is not None:
-                clipped_count += int((result.norms > config.clip_norm).sum())
-            if aggregator == "sum":
-                total += result.clipped.sum(dim=0).to(torch.float64)
+            if fast:
+                if not checked:
+                    _self_check(flat, layout, base, model, config, delta_fn, visible, target)
+                    checked = True
+                part, norms, bad = clipped_sum_fast(
+                    flat,
+                    layout,
+                    base,
+                    model,
+                    visible[:, 0],
+                    target[:, 0],
+                    config.clip_norm,
+                    config.local_lr,
+                )
+                total += part
             else:
-                collected.append(result.clipped)
+                deltas = delta_fn(flat, visible, target)
+                if client_hook is not None:
+                    deltas = client_hook(users, deltas, flat, round_index)
+                result = clip_rows(deltas, config.clip_norm)
+                norms, bad = result.norms, result.nonfinite
+                if aggregator == "sum":
+                    total += result.clipped.sum(dim=0).to(torch.float64)
+                else:
+                    collected.append(result.clipped)
+            norm_sum += float(norms.sum())
+            nonfinite += bad
+            if config.clip_norm is not None:
+                clipped_count += int((norms > config.clip_norm).sum())
         if aggregator != "sum" and collected:
             total = robust_total(torch.cat(collected), aggregator, trim_fraction)
         mean_delta = noisy_mean(
@@ -168,6 +197,29 @@ def train(
     )
 
 
+def _self_check(
+    flat: torch.Tensor,
+    layout: Layout,
+    base: torch.Tensor,
+    model: ModelConfig,
+    config: TrainConfig,
+    delta_fn: DeltaFn,
+    visible: torch.Tensor,
+    target: torch.Tensor,
+) -> None:
+    """Compare closed-form norms with autograd norms on a few users; refuse to train if they differ."""
+    count = min(SELF_CHECK_USERS, visible.shape[0])
+    reference = delta_fn(flat, visible[:count], target[:count]).norm(dim=1)
+    _, fast_norms, _ = clipped_sum_fast(
+        flat, layout, base, model, visible[:count, 0], target[:count, 0], None, config.local_lr
+    )
+    gap = (fast_norms - reference).abs() / reference.clamp(min=1e-9)
+    if bool((gap > SELF_CHECK_TOLERANCE).any()):
+        raise RuntimeError(
+            "closed-form update norms disagree with autograd; refusing to train with a wrong clip"
+        )
+
+
 def evaluate(
     flat: npt.NDArray[np.float32] | torch.Tensor,
     bundle: DataBundle,
@@ -183,3 +235,22 @@ def evaluate(
         return score_matrix(tensor, layout, base, bundle.history_matrix(phase, users), model)
 
     return ranking_metrics(score_fn, bundle.history(phase), bundle.targets(phase), bundle.n_items)
+
+
+def evaluate_per_user(
+    flat: npt.NDArray[np.float32] | torch.Tensor,
+    bundle: DataBundle,
+    phase: Phase,
+    model: ModelConfig,
+) -> tuple[dict[str, float], npt.NDArray[np.float64]]:
+    """As ``evaluate``, plus NDCG@10 per user (NaN for users with no unseen target)."""
+    layout = make_layout(bundle.n_items, model.dim)
+    base = content_base(bundle.item_content, model)
+    tensor = flat if isinstance(flat, torch.Tensor) else torch.from_numpy(np.asarray(flat))
+
+    def score_fn(users: npt.NDArray[np.int64]) -> npt.NDArray[np.float32]:
+        return score_matrix(tensor, layout, base, bundle.history_matrix(phase, users), model)
+
+    return ranking_metrics_per_user(
+        score_fn, bundle.history(phase), bundle.targets(phase), bundle.n_items
+    )

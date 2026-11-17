@@ -4,7 +4,7 @@
 **Owners:** Shivam Agarwal (23UEC621), Mokshit Jain (23UEC574)
 **Guide:** Dr. Malika Acharya
 **Date of Pre-registration:** 16 Nov 2026
-**Status:** DRAFT (Pending Metro Selection)
+**Status:** LOCKED, with Amendment 1 of 17 November 2026 (see the end of this document). The text above the amendment is kept as first written.
 
 This document locks in our hypotheses, data splitting strategy, and evaluation metrics *before* any filtering or model training occurs, preventing hindsight bias (PROJECT_ROADMAP.md §11).
 
@@ -54,3 +54,65 @@ To prevent temporal leakage, for each user:
 
 ---
 *Any deviation from this pre-registration during execution must be documented with a CHANGE-ID in PROJECT_ROADMAP.md.*
+
+---
+
+## Amendment 1 (17 November 2026, about 13:00 IST)
+
+Written after tuning on the validation split and **before any test-split evaluation of the new
+model**. Recorded in `PROJECT_ROADMAP.md` as CHANGE-023. Design record:
+`docs/superpowers/specs/2026-11-17-prism-rebuild-design.md`.
+
+### A1.1 What was already seen
+
+Test-split results of the previous, content-only model were seen on 16 and 17 November (180 runs,
+archived under `results/archive/v1-content-only/`). They showed that model ranks like MostPopular.
+That is the reason for the changes below. No test-split result of the new model existed when this
+amendment was written.
+
+### A1.2 Deviations from the original text
+
+1. **Model.** Item-ID embeddings on a fixed public projection of the text embeddings replace the
+   content-only two-tower (the new model has 107,679 parameters; the old one had 121,391). Reason: content alone carries almost no signal on
+   this dataset (validation NDCG@10 0.0031 untrained, 0.0205 trained, against MostPopular 0.0174).
+2. **Seeds.** 10 seeds for RQ1 (was 5; already changed by CHANGE-021 without amending this file).
+   3 to 5 seeds elsewhere, stated per experiment.
+3. **Tuning and evaluation.** Hyperparameters are tuned on validation only and are frozen in
+   `experiments/frozen.json`. Final models train on train plus validation and are evaluated once,
+   on test, at the final round, with train and validation items masked.
+4. **RQ1 comparison.** "Central" and "federated" are the same mechanism under user-level DP. RQ1
+   reports two sampling regimes: `large` (rate 0.5, 40 rounds) and `small` (rate 0.05, 400 rounds).
+5. **Accounting.** Epsilon of record is the larger of Opacus PRV and dp-accounting PLD, which must
+   agree within max(5%, 0.05); RDP is a sanity bound. delta = 1/(10 n). Epsilon at delta = 1/n^2
+   and without sampling amplification are reported next to it.
+6. **Sensitivity sweeps.** The k in {10, 20} sweep and the stars >= 4 analysis are not run in this
+   build. They remain open.
+7. **Social scope.** Friendship-link inference, a friends-based baseline, gossip between friends
+   and fairness across friend-count groups are added.
+
+### A1.3 Hypotheses as tested
+
+| ID | Statement | Decision rule |
+|---|---|---|
+| H1 | In each regime, the model at epsilon = 8 retains at least 90% of the NDCG@10 of the non-private model trained with the same sampling rate and rounds | Retention = mean over seeds of private NDCG@10 divided by mean non-private NDCG@10, at least 0.90. Also reported: personalisation retained, (private - MostPopular) / (non-private - MostPopular) |
+| H2 | Gossip between friends with local DP at epsilon = 8 has a lower NDCG@10 than server-based training with central DP at epsilon = 8 on the same users | 95% bootstrap interval of the per-user difference excludes 0 |
+| H3 | At epsilon = 8, user-level membership inference has TPR at 1% FPR of at most 2%, and a server that sees only cohort sums of 100 users recovers a member's history no better than the popularity prior plus 0.05 AUC | Both parts reported separately; controls must pass or the result is invalid |
+| H4 | With attacker accounts at 10%, 20% and 30%, plaintext trimmed-mean aggregation gives lower target-item exposure than the secure-sum mode, and the gap grows with the attacker share | Lower at every share and the gap largest at 30% |
+| H5 | Availability correlated with activity (or with friend count) produces a larger NDCG@10 gap between the top and bottom groups than independent availability | Paired across seeds. With 5 seeds the two-sided Wilcoxon p cannot go below 0.0625, so the sign pattern (5 of 5) is reported as the evidence and the test is reported as underpowered |
+
+### A1.4 Expectations stated in advance
+
+- H1 is expected to **fail**. On validation the retention at epsilon = 8 was 0.70 (`large`) and
+  0.61 (`small`); personalisation retained was 0.27 and 0.07 (MostPopular scores 0.0181 on
+  validation with the final metric code, which breaks ties by item index; 0.0174 quoted above was
+  measured with the earlier metric code).
+- H2 is expected to hold.
+- The friendship-link attack is expected to work on raw updates and to be impossible under secure
+  aggregation, where the server holds no per-user vector.
+
+### A1.5 Frozen settings
+
+See `experiments/frozen.json` (version 1). Clipping norm 5.0 in both regimes. Private runs use
+Adam with rate 0.02 (`large`) and momentum SGD with rate 0.05 (`small`); non-private runs use Adam
+with rates 0.05 and 0.02. The clipping norm and these settings were chosen on the validation data
+of the same users; that choice is not covered by epsilon and is disclosed with every result.

@@ -67,6 +67,8 @@ class RunConfig(_Frozen):
     model: ModelConfig
     train: TrainConfig
     variant: str = "main"
+    privacy_claim: bool = True
+    """False for a noise-level simulation: noise is added but no epsilon is claimed or logged."""
 
     @property
     def identifier(self) -> str:

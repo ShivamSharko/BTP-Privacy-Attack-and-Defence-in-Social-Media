@@ -46,6 +46,16 @@ weeks before the deadline to allow for questions and revisions.
 - Note: Sections 4 through 13 survive termination (Section 12), so the
   no-sharing and no-commercial-use restrictions continue after deletion.
 
+## Note of 17 Nov 2026: what the rebuild changed for compliance
+
+Roadmap CHANGE-023. This note ticks no box on this checklist; every box above stays for the owners to tick.
+
+- **New derived files under `data/processed/`.** The friend graph (`friends.npz`, an adjacency matrix built from the users' friends field) and model checkpoints (`data/processed/models/`). Both are derivatives of the Data. They are git-ignored (the `/data/` rule in `.gitignore` covers them) and must be deleted together with `data/raw/` and `data/processed/` at the end of the term or on termination, including any backup copy (see "Term expiry / termination" above).
+- **Results files hold aggregates only.** By design (design document section 4) no user ID, business ID, user name or review text is written to any result, receipt or log. This includes the friend-graph summary `results/social_graph.json`, which holds counts and degree statistics only. Run records may carry aggregate diagnostics such as cohort sizes and update norms. The owners still run the artefact scrub above before any public release.
+- **The repository remains private.** The rebuild work is on the local branch `rebuild/v2` and nothing has been pushed.
+- **Pre-publication review.** The results report (`results/report/report.html`, with its Markdown and CSV tables) must go through the Section 3 pre-publication review before any public use. It contains dataset counts and metrics, which fall under the Section 4.E restriction (ADR-033).
+- **Data copy.** The standing line above that says each owner downloaded their own copy is superseded by ADR-034: there is one data copy, on one PC. The line is left unchanged and unticked for the owners to review.
+
 ## Sign-off
 | Role | Name | Date |
 |---|---|---|

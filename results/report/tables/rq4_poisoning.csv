@@ -1,0 +1,13 @@
+Aggregation mode,Attacker share,Target exposure (mean),Exposure min over seeds,Exposure max over seeds,NDCG@10,Utility drop vs clean,Exposure over clean
+plaintext median,0%,0.0000,0.0000,0.0001,0.0049,0.000,0.334
+plaintext median,10%,0.0043,0.0000,0.0128,0.0046,0.067,42.663
+plaintext median,20%,0.0486,0.0000,0.1454,0.0039,0.200,481.290
+plaintext median,30%,0.1620,0.0029,0.4740,0.0030,0.384,1605.866
+plaintext trimmed mean,0%,0.0000,0.0000,0.0000,0.0047,0.000,0.000
+plaintext trimmed mean,10%,0.0011,0.0000,0.0033,0.0043,0.083,11.129
+plaintext trimmed mean,20%,0.0027,0.0000,0.0081,0.0037,0.209,27.132
+plaintext trimmed mean,30%,0.0597,0.0033,0.1720,0.0029,0.386,592.056
+secure sum norm bound,0%,0.0000,0.0000,0.0001,0.0279,0.000,0.334
+secure sum norm bound,10%,0.9459,0.9442,0.9490,0.0217,0.222,9377.030
+secure sum norm bound,20%,0.9537,0.9525,0.9548,0.0212,0.238,9454.385
+secure sum norm bound,30%,0.8819,0.8166,0.9512,0.0168,0.397,8742.661

@@ -1,7 +1,7 @@
 [project]
 name = "prism-rec"
-version = "0.1.0"
-description = "PRISM-Rec: a verifiable privacy-preserving social recommendation research harness"
+version = "2.0.0"
+description = "PRISM-Rec: privacy attack and defence measurements for a social-media recommender"
 license = { text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
@@ -24,6 +24,9 @@ dependencies = [
   "matplotlib>=3.9",
   "scipy>=1.13",
 ]
+
+[project.scripts]
+prism = "prism.cli:main"
 
 [dependency-groups]
 dev = [
@@ -80,7 +83,8 @@ branch = true
 
 [tool.coverage.report]
 show_missing = true
+fail_under = 85
 
 [[tool.mypy.overrides]]
-module = ["sentence_transformers.*", "sklearn.*", "scipy.*", "opacus.*"]
+module = ["sentence_transformers.*", "sklearn.*", "scipy.*", "opacus.*", "dp_accounting.*", "rfc8785.*"]
 ignore_missing_imports = true

@@ -1,0 +1,72 @@
+{
+  "controls": {
+    "all_ledgers_verify": {
+      "passed": true
+    },
+    "every_tamper_detected": {
+      "passed": true,
+      "rate": 1.0
+    },
+    "over_budget_run_is_blocked": {
+      "passed": true
+    },
+    "receipt_coverage_is_100_percent": {
+      "coverage": 1.0,
+      "passed": true
+    }
+  },
+  "experiment": "ledger_audit",
+  "invalid_reasons": [],
+  "limitations": [
+    "The log shows what was recorded and that it was not altered; it does not prove the training ran as recorded, and it provides no confidentiality.",
+    "One signing key on one machine: an operator who holds the key can write a different log from scratch. Publishing checkpoints to an outside witness would close this.",
+    "Tamper detection is tested with single-byte flips of one ledger file.",
+    "The blocked-release demonstration runs on the synthetic dataset."
+  ],
+  "public_key_hex": "9301c820a5d066f18a60cc3ad8836d83c8de83f6e6f3d9c547f7bbf56d5d7f3c",
+  "results": {
+    "blocked_release_demo": {
+      "blocked": true,
+      "budget_epsilon": 2.0,
+      "epsilon_released": 1.970089480417853,
+      "halted_by_gate": true,
+      "refusal_receipts": 1,
+      "rounds_allowed": 27,
+      "rounds_asked": 33,
+      "rounds_completed": 27
+    },
+    "costs": {
+      "append_ms_per_receipt": 1.5264335001120344,
+      "inclusion_proof_bytes": 320,
+      "inclusion_proof_hashes": 10,
+      "verified_size": 801,
+      "verify_seconds": 0.01829059998271987
+    },
+    "coverage": {
+      "coverage": 1.0,
+      "private_runs": 146,
+      "problems": [],
+      "without_valid_release_receipt": 0
+    },
+    "receipt_overhead": {
+      "max": 0.013342950175804497,
+      "mean_share_of_run_time": 0.003375938654128679
+    },
+    "tamper_detection": {
+      "detected": 300,
+      "flips": 300,
+      "rate": 1.0
+    },
+    "verification": {
+      "bytes_per_round": 303.30706462212487,
+      "failures": [],
+      "ledgers": 146,
+      "refusal_receipts": 0,
+      "release_receipts": 146,
+      "round_receipts": 36520,
+      "verified": 146
+    }
+  },
+  "status": "VALID",
+  "wall_seconds": 25.09
+}

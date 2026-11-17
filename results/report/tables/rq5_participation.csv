@@ -1,0 +1,9 @@
+Scenario,Privacy level,Epsilon of record,Overall NDCG@10,Activity groups NDCG@10 (least / middle / most active),Activity gap (most minus least),Friend-count groups NDCG@10 (0 / 1 to 5 / more than 5),Friend-count gap,"Paired Wilcoxon p, activity gap vs independent (underpowered: min 0.0625 with 5 seeds)",Epsilon note
+activity,non-private,n/a,0.0385,0.0335 / 0.0349 / 0.0470,0.0135,0.0310 / 0.0353 / 0.0458,0.0149,1.0000,non-private run
+activity,epsilon 8,7.98,0.0222,0.0158 / 0.0195 / 0.0312,0.0154,0.0154 / 0.0199 / 0.0284,0.0130,0.1250,"epsilon 8 is NOMINAL: availability here is a rank over all users, so adding or removing one user shifts other users' inclusion probabilities and the add-or-remove analysis does not hold for anyone"
+always,non-private,n/a,0.0394,0.0333 / 0.0367 / 0.0483,0.0150,0.0319 / 0.0361 / 0.0469,0.0150,0.0625,non-private run
+always,epsilon 8,7.98,0.0250,0.0185 / 0.0226 / 0.0338,0.0153,0.0169 / 0.0224 / 0.0321,0.0152,0.3125,epsilon 8 holds: availability is independent of user data
+independent,non-private,n/a,0.0372,0.0317 / 0.0345 / 0.0454,0.0137,0.0301 / 0.0342 / 0.0443,0.0141,n/a,non-private run
+independent,epsilon 8,7.98,0.0223,0.0161 / 0.0199 / 0.0309,0.0148,0.0159 / 0.0199 / 0.0283,0.0124,n/a,epsilon 8 holds: availability is independent of user data
+social,non-private,n/a,0.0367,0.0313 / 0.0338 / 0.0450,0.0137,0.0295 / 0.0323 / 0.0450,0.0154,1.0000,non-private run
+social,epsilon 8,7.98,0.0223,0.0165 / 0.0201 / 0.0304,0.0139,0.0154 / 0.0198 / 0.0287,0.0133,0.1875,"epsilon 8 is NOMINAL: availability here is a rank over all users, so adding or removing one user shifts other users' inclusion probabilities and the add-or-remove analysis does not hold for anyone"

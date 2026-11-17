@@ -1,0 +1,30 @@
+{
+  "baselines": {
+    "item_knn": {
+      "coverage@10": 0.5182782085773066,
+      "exposure_gini": 0.922317965955658,
+      "hr@10": 0.19227277312619792,
+      "mrr": 0.08823044392920294,
+      "ndcg@10": 0.03470621323860403,
+      "recall@20": 0.06250760889220694,
+      "users_evaluated": 9913.0
+    },
+    "most_popular": {
+      "coverage@10": 0.00506409241968666,
+      "exposure_gini": 0.9982551282085461,
+      "hr@10": 0.14687783718349642,
+      "mrr": 0.06461453456439178,
+      "ndcg@10": 0.025017852508038292,
+      "recall@20": 0.03965787693725262,
+      "users_evaluated": 9913.0
+    }
+  },
+  "items": 6319,
+  "protocol": "full-catalogue ranking, training items masked, test split",
+  "provenance": {
+    "git_commit": "371afb3f3ed72ec91f96d88fc1486f90e913f897",
+    "uv_lock_sha256": "cedd822f3112664b11787e414899374667312957a6637dead03490130b7dc328"
+  },
+  "schema_version": 1,
+  "users": 9913
+}

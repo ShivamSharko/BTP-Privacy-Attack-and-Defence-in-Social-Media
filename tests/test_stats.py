@@ -80,3 +80,19 @@ def test_epsilon_lower_bound_uses_upper_fpr_and_alpha() -> None:
     assert epsilon_lower_bound(900, 1000, 10, 1000, 0.0, alpha=0.2) > epsilon_lower_bound(
         900, 1000, 10, 1000, 0.0, alpha=0.01
     )
+
+
+def test_sign_test_keys_in_both_directions() -> None:
+    control = np.array([0.02, 0.03, 0.04, 0.05, 0.06])
+    worse = paired_tests(control - 0.01, control)
+    assert worse["sign_test_p_all_degraded"] == pytest.approx(0.5**5)
+    assert worse["sign_test_one_sided_p"] == worse["sign_test_p_all_degraded"]
+    assert worse["sign_test_p_all_improved"] == 1.0
+    better = paired_tests(control + 0.01, control)
+    assert better["sign_test_p_all_improved"] == pytest.approx(0.03125)
+    assert better["sign_test_p_all_degraded"] == 1.0
+    assert better["sign_test_one_sided_p"] == 1.0
+    mixed = control + np.array([0.01, 0.01, 0.01, 0.01, -0.01])
+    result = paired_tests(mixed, control)
+    assert result["sign_test_p_all_improved"] == 1.0
+    assert result["sign_test_p_all_degraded"] == 1.0

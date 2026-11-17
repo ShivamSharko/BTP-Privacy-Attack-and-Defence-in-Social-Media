@@ -5,7 +5,9 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from prism.data.social import graph_from_edges
 from prism.eval.baselines import (
+    friend_score_fn,
     item_knn_similarity,
     item_popularity,
     knn_score_fn,
@@ -69,3 +71,31 @@ def test_ease_prefers_co_occurring_items_and_never_self_scores() -> None:
     scores = ease_score_fn(_train(), 4, l2=1.0)(np.array([0, 2], dtype=np.int64))
     assert scores[0, 1] > scores[0, 2]  # user 0 has item 0; item 1 co-occurs with it
     assert scores[0, 3] == pytest.approx(0.0, abs=1e-7)
+
+
+def test_friend_score_counts_friends_items() -> None:
+    graph = graph_from_edges(np.array([[0, 1], [0, 2]], dtype=np.int64), 4)
+    train = [
+        np.array([3], dtype=np.int64),
+        np.array([0, 1], dtype=np.int64),
+        np.array([1, 2], dtype=np.int64),
+        np.array([0, 1], dtype=np.int64),
+    ]
+    scores = friend_score_fn(graph, train, 4)(np.array([0], dtype=np.int64))
+    assert scores.shape == (1, 4)
+    # friends 1 and 2 hold item 0 once, item 1 twice, item 2 once, item 3 never
+    assert int(np.argmax(scores[0])) == 1
+    assert 2.0 <= scores[0, 1] < 2.1
+    assert 1.0 <= scores[0, 0] < 1.1 and 1.0 <= scores[0, 2] < 1.1
+    assert scores[0, 3] < 0.1
+
+
+def test_friend_score_isolated_user_is_popularity() -> None:
+    graph = graph_from_edges(np.array([[0, 1]], dtype=np.int64), 4)
+    train = [*_train(), np.array([0], dtype=np.int64)]
+    users = np.array([3], dtype=np.int64)
+    scores = friend_score_fn(graph, train, 4)(users)
+    popular = popularity_score_fn(train, 4)(users)
+    assert np.array_equal(
+        np.argsort(-scores[0], kind="stable"), np.argsort(-popular[0], kind="stable")
+    )

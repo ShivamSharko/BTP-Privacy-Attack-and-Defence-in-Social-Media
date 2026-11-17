@@ -1,0 +1,79 @@
+{
+  "config": {
+    "model": {
+      "content_scale": 0.4,
+      "dim": 16,
+      "temperature": 20.0,
+      "use_content": true,
+      "use_ids": true
+    },
+    "name": "tune-s1",
+    "phase": "tune",
+    "regime": "small",
+    "seed": 0,
+    "target_epsilon": null,
+    "train": {
+      "clip_norm": null,
+      "hide_fraction": 0.5,
+      "local_lr": 1.0,
+      "local_steps": 1,
+      "momentum": 0.9,
+      "noise_multiplier": 0.0,
+      "rounds": 800,
+      "sample_rate": 0.02,
+      "server_lr": 0.01,
+      "server_opt": "adam"
+    },
+    "variant": "b3"
+  },
+  "config_hash": "c82517586c9e7e6537c013326df1d84cf4cdb35482bf138cc856992f7329ab38",
+  "diagnostics": {
+    "max_cohort": 236,
+    "mean_clipped_fraction": 0.0,
+    "mean_cohort": 198.11125,
+    "mean_update_norm_first": 28.49530029296875,
+    "mean_update_norm_last": 8.026519934336344,
+    "min_cohort": 157,
+    "nonfinite_updates": 0
+  },
+  "evaluated_on": "validation",
+  "halted_by_gate": false,
+  "id": "tune-s1_small_nondp_b3_tune_seed0",
+  "items": 6319,
+  "ledger": null,
+  "limitations": [
+    "Privacy unit is one user (add or remove one user's whole history); delta = 1/(10 n).",
+    "Epsilon assumes ideal Poisson sampling of clients, which real devices cannot guarantee.",
+    "Gaussian noise is floating point from a seeded generator, not a hardened sampler.",
+    "The clipping norm and hyperparameters were chosen on the same users' data; that selection is not covered by epsilon.",
+    "Single-process simulation: no real network, devices or trust boundary.",
+    "The 'diagnostics' block depends on who took part and would not be released in deployment."
+  ],
+  "metrics": {
+    "coverage@10": 0.4457983858205412,
+    "distinct@10": 2817.0,
+    "exposure_gini": 0.921064574071665,
+    "hr@10": 0.12027597569766245,
+    "mrr": 0.05489216003040057,
+    "ndcg@10": 0.030693445517704157,
+    "recall@20": 0.07795316310243025,
+    "users_evaluated": 9711.0
+  },
+  "model_sha256": "173feff1c38fff00251efe99a2ae4a352c6e29331e870617900ecf8d0d234090",
+  "ndcg_ci95": [
+    0.028445336091912743,
+    0.032795906767673244
+  ],
+  "parameters": 107679,
+  "privacy": null,
+  "provenance": {
+    "git_commit": "1718f84647e8c80d050a0950edea3c12ab982fcb",
+    "uv_lock_sha256": "b44bad23ad394602b37f146e788bbb1f7ab4fafe68cab49731f8c9816e131d79"
+  },
+  "rounds_completed": 800,
+  "status": "ok",
+  "threads": 3,
+  "torch_version": "2.15.0+cpu",
+  "users": 9913,
+  "wall_seconds": 47.86
+}

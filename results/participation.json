@@ -1,0 +1,867 @@
+{
+  "controls": {
+    "baseline": {
+      "measured": {
+        "model": 0.03941850362855451,
+        "most_popular": 0.026064060555694032,
+        "ratio": 1.5123700140400043
+      },
+      "passed": true,
+      "skipped": false,
+      "threshold": "at least 1.2x",
+      "what": "non-private 'always' NDCG@10 over MostPopular NDCG@10, test split"
+    },
+    "sampling": {
+      "measured": [
+        {
+          "epsilon": null,
+          "expected": 495.65000000000003,
+          "mean_cohort": 496.0225,
+          "passed": true,
+          "ratio": 1.0007515383839403,
+          "scenario": "always"
+        },
+        {
+          "epsilon": 8.0,
+          "expected": 495.65000000000003,
+          "mean_cohort": 496.0225,
+          "passed": true,
+          "ratio": 1.0007515383839403,
+          "scenario": "always"
+        },
+        {
+          "epsilon": null,
+          "expected": 247.82500000000002,
+          "mean_cohort": 247.9375,
+          "passed": true,
+          "ratio": 1.0004539493594269,
+          "scenario": "independent"
+        },
+        {
+          "epsilon": 8.0,
+          "expected": 247.82500000000002,
+          "mean_cohort": 247.9375,
+          "passed": true,
+          "ratio": 1.0004539493594269,
+          "scenario": "independent"
+        },
+        {
+          "epsilon": null,
+          "expected": 247.82500000000002,
+          "mean_cohort": 247.3825,
+          "passed": true,
+          "ratio": 0.9982144658529203,
+          "scenario": "activity"
+        },
+        {
+          "epsilon": 8.0,
+          "expected": 247.82500000000002,
+          "mean_cohort": 247.3825,
+          "passed": true,
+          "ratio": 0.9982144658529203,
+          "scenario": "activity"
+        },
+        {
+          "epsilon": null,
+          "expected": 247.82500000000002,
+          "mean_cohort": 247.6925,
+          "passed": true,
+          "ratio": 0.9994653485322303,
+          "scenario": "social"
+        },
+        {
+          "epsilon": 8.0,
+          "expected": 247.82500000000002,
+          "mean_cohort": 247.6925,
+          "passed": true,
+          "ratio": 0.9994653485322303,
+          "scenario": "social"
+        }
+      ],
+      "passed": true,
+      "threshold": "within 15% of 1",
+      "what": "realised mean cohort / (sample_rate x sum of availability), seed 0"
+    }
+  },
+  "experiment": "participation",
+  "invalid_reasons": [],
+  "limitations": [
+    "The epsilon shown for the 'activity' and 'social' scenarios is NOMINAL and the add-or-remove analysis does not hold for anyone in them. Availability there is a RANK over all users, so adding or removing one user shifts the ranks, and therefore the inclusion probabilities, of other users too; the noise was calibrated as if every inclusion probability were fixed.",
+    "The per-run records and the signed ledger releases of these runs carry the epsilon without a 'nominal' marker; only this file marks it (records written after this change also carry privacy_note and availability_scenario).",
+    "Availability is synthetic (rank-based, deterministic), not measured from device traces.",
+    "Groups are terciles of history length or fixed friend-count bands (0, 1 to 5, more than 5).",
+    "Five seeds: a two-sided Wilcoxon test over five seeds cannot go below p = 0.0625, so the decision rests on the sign pattern.",
+    "Run records are reused when the configuration matches; records produced on 17 November 2026 predate the commit of the code that produced them."
+  ],
+  "results": {
+    "availability": {
+      "activity": {
+        "activity_groups": [
+          0.20144630082090015,
+          0.49869160354460657,
+          0.7999524569235912
+        ],
+        "degree_groups": [
+          0.35238247370511294,
+          0.43401520822985173,
+          0.6486023426506105
+        ],
+        "mean": 0.5
+      },
+      "always": {
+        "activity_groups": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "degree_groups": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mean": 1.0
+      },
+      "independent": {
+        "activity_groups": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "degree_groups": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "mean": 0.5
+      },
+      "social": {
+        "activity_groups": [
+          0.3721083965522925,
+          0.45272919701850867,
+          0.6752011145416225
+        ],
+        "degree_groups": [
+          0.15292070217917675,
+          0.4254085956416465,
+          0.7724878934624697
+        ],
+        "mean": 0.5
+      }
+    },
+    "cells": {
+      "activity": {
+        "8": {
+          "activity_gap": {
+            "mean": 0.015387150224123985,
+            "per_seed": {
+              "0": 0.01600464525840425,
+              "1": 0.014831752965306987,
+              "2": 0.013830079630690433,
+              "3": 0.015995194750580522,
+              "4": 0.016274078515637735
+            },
+            "seed0": {
+              "gap": 0.01600464525840425,
+              "high": 0.019130183142550612,
+              "low": 0.012740533021540396
+            }
+          },
+          "activity_groups_ndcg10": [
+            0.015840549477399928,
+            0.019486660480551133,
+            0.031227699701523913
+          ],
+          "degree_gap": {
+            "mean": 0.01302034160225159,
+            "per_seed": {
+              "0": 0.012484226058491529,
+              "1": 0.01465775029979731,
+              "2": 0.01201872955254128,
+              "3": 0.015615655477132628,
+              "4": 0.010325346623295213
+            },
+            "seed0": {
+              "gap": 0.012484226058491529,
+              "high": 0.01599716643027178,
+              "low": 0.00908589958206653
+            }
+          },
+          "degree_groups_ndcg10": [
+            0.015353807370772587,
+            0.01985550771389531,
+            0.028374148973024177
+          ],
+          "epsilon_note": "epsilon 8 is NOMINAL: availability here is a rank over all users, so adding or removing one user shifts other users' inclusion probabilities and the add-or-remove analysis does not hold for anyone",
+          "epsilon_of_record": 7.98280552565623,
+          "epsilon_target": 8.0,
+          "gap_change_vs_independent": {
+            "activity": {
+              "mean_difference": 0.0005968856132413932,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 1,
+              "seeds_improved": 4,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 0.125
+            },
+            "degree": {
+              "mean_difference": 0.0005763142748825681,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 0,
+              "seeds_improved": 5,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 0.03125,
+              "wilcoxon_two_sided_p": 0.0625
+            }
+          },
+          "overall_ndcg10": {
+            "max": 0.022782733506344095,
+            "mean": 0.022193206870096526,
+            "min": 0.02068703933835841
+          },
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "nondp": {
+          "activity_gap": {
+            "mean": 0.01347358989889717,
+            "per_seed": {
+              "0": 0.014961029936899399,
+              "1": 0.012571957525317264,
+              "2": 0.011710541073545126,
+              "3": 0.013649531949046598,
+              "4": 0.014474889009677458
+            },
+            "seed0": {
+              "gap": 0.014961029936899399,
+              "high": 0.019490122399018088,
+              "low": 0.010499243499427087
+            }
+          },
+          "activity_groups_ndcg10": [
+            0.03351594942065843,
+            0.03488607562385437,
+            0.046989539319555594
+          ],
+          "degree_gap": {
+            "mean": 0.014867490519591183,
+            "per_seed": {
+              "0": 0.01274744398606157,
+              "1": 0.015360227848609055,
+              "2": 0.014477091435071261,
+              "3": 0.015426669081511322,
+              "4": 0.01632602024670271
+            },
+            "seed0": {
+              "gap": 0.01274744398606157,
+              "high": 0.01739980376625898,
+              "low": 0.007681635425544406
+            }
+          },
+          "degree_groups_ndcg10": [
+            0.03096526106676074,
+            0.0352977156508817,
+            0.04583275158635193
+          ],
+          "epsilon_note": "non-private run",
+          "epsilon_of_record": null,
+          "epsilon_target": null,
+          "gap_change_vs_independent": {
+            "activity": {
+              "mean_difference": -0.0002674440721154865,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 3,
+              "seeds_improved": 2,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 1.0
+            },
+            "degree": {
+              "mean_difference": 0.0007474089824676463,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 3,
+              "seeds_improved": 2,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 1.0
+            }
+          },
+          "overall_ndcg10": {
+            "max": 0.03980051355955412,
+            "mean": 0.0384705763906432,
+            "min": 0.03749569551949295
+          },
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      },
+      "always": {
+        "8": {
+          "activity_gap": {
+            "mean": 0.015329632061493566,
+            "per_seed": {
+              "0": 0.015289828346519749,
+              "1": 0.015432300088317318,
+              "2": 0.014096832219049855,
+              "3": 0.015610603533017277,
+              "4": 0.016218596120563637
+            },
+            "seed0": {
+              "gap": 0.015289828346519749,
+              "high": 0.018604009205618825,
+              "low": 0.012028605816879843
+            }
+          },
+          "activity_groups_ndcg10": [
+            0.01850513985257385,
+            0.022559427474220833,
+            0.03383477191406741
+          ],
+          "degree_gap": {
+            "mean": 0.015216957721716948,
+            "per_seed": {
+              "0": 0.015245713944545377,
+              "1": 0.01548732561012886,
+              "2": 0.01524576158970652,
+              "3": 0.015474475030681955,
+              "4": 0.01463151243352202
+            },
+            "seed0": {
+              "gap": 0.015245713944545377,
+              "high": 0.019135345082750013,
+              "low": 0.011762038772451628
+            }
+          },
+          "degree_groups_ndcg10": [
+            0.016909240364448706,
+            0.022362249347930196,
+            0.03212619808616566
+          ],
+          "epsilon_note": "epsilon 8 holds: availability is independent of user data",
+          "epsilon_of_record": 7.98280552565623,
+          "epsilon_target": 8.0,
+          "gap_change_vs_independent": {
+            "activity": {
+              "mean_difference": 0.0005393674506109749,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 2,
+              "seeds_improved": 3,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 0.3125
+            },
+            "degree": {
+              "mean_difference": 0.0027729303943479226,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 0,
+              "seeds_improved": 5,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 0.03125,
+              "wilcoxon_two_sided_p": 0.0625
+            }
+          },
+          "overall_ndcg10": {
+            "max": 0.026480594610648726,
+            "mean": 0.024974766247588303,
+            "min": 0.023724604694194636
+          },
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "nondp": {
+          "activity_gap": {
+            "mean": 0.014997062998592641,
+            "per_seed": {
+              "0": 0.014646368054039731,
+              "1": 0.014748317776116994,
+              "2": 0.014628072312022906,
+              "3": 0.017158030207264974,
+              "4": 0.013804526643518597
+            },
+            "seed0": {
+              "gap": 0.014646368054039731,
+              "high": 0.01885886264950349,
+              "low": 0.0104719148277447
+            }
+          },
+          "activity_groups_ndcg10": [
+            0.03328722265062804,
+            0.03666006425334338,
+            0.04828428564922069
+          ],
+          "degree_gap": {
+            "mean": 0.014989507914839717,
+            "per_seed": {
+              "0": 0.015110058919292891,
+              "1": 0.014700702985886618,
+              "2": 0.01610203975323396,
+              "3": 0.016303842707890218,
+              "4": 0.012730895207894895
+            },
+            "seed0": {
+              "gap": 0.015110058919292891,
+              "high": 0.0198854643558268,
+              "low": 0.01055242984701897
+            }
+          },
+          "degree_groups_ndcg10": [
+            0.03194434299877865,
+            0.03606616278062315,
+            0.04693385091361837
+          ],
+          "epsilon_note": "non-private run",
+          "epsilon_of_record": null,
+          "epsilon_target": null,
+          "gap_change_vs_independent": {
+            "activity": {
+              "mean_difference": 0.001256029027579985,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 0,
+              "seeds_improved": 5,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 0.03125,
+              "wilcoxon_two_sided_p": 0.0625
+            },
+            "degree": {
+              "mean_difference": 0.0008694263777161787,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 2,
+              "seeds_improved": 3,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 0.4375
+            }
+          },
+          "overall_ndcg10": {
+            "max": 0.040304212818961044,
+            "mean": 0.03941850362855451,
+            "min": 0.03899996034242906
+          },
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      },
+      "independent": {
+        "8": {
+          "activity_gap": {
+            "mean": 0.014790264610882592,
+            "per_seed": {
+              "0": 0.016015059695657433,
+              "1": 0.014129454704913393,
+              "2": 0.01285691802960109,
+              "3": 0.015934131155466106,
+              "4": 0.015015759468774939
+            },
+            "seed0": {
+              "gap": 0.016015059695657433,
+              "high": 0.018999832537655283,
+              "low": 0.013027664667673801
+            }
+          },
+          "activity_groups_ndcg10": [
+            0.01609204057435583,
+            0.019866278904995083,
+            0.030882305185238424
+          ],
+          "degree_gap": {
+            "mean": 0.012444027327369024,
+            "per_seed": {
+              "0": 0.011751033129282438,
+              "1": 0.01401098602464031,
+              "2": 0.011946354176548806,
+              "3": 0.014510826332796975,
+              "4": 0.01000093697357659
+            },
+            "seed0": {
+              "gap": 0.011751033129282438,
+              "high": 0.015197094703866543,
+              "low": 0.008592360122358823
+            }
+          },
+          "degree_groups_ndcg10": [
+            0.01586616686417812,
+            0.01986432196620359,
+            0.028310194191547143
+          ],
+          "epsilon_note": "epsilon 8 holds: availability is independent of user data",
+          "epsilon_of_record": 7.98280552565623,
+          "epsilon_target": 8.0,
+          "gap_change_vs_independent": null,
+          "overall_ndcg10": {
+            "max": 0.02411264394008872,
+            "mean": 0.02228819830744604,
+            "min": 0.02039097889577941
+          },
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "nondp": {
+          "activity_gap": {
+            "mean": 0.013741033971012655,
+            "per_seed": {
+              "0": 0.012755319868983733,
+              "1": 0.013618623492951922,
+              "2": 0.014270421572095304,
+              "3": 0.01513029535939232,
+              "4": 0.012930509561639998
+            },
+            "seed0": {
+              "gap": 0.012755319868983733,
+              "high": 0.01741711053554874,
+              "low": 0.00851237692074073
+            }
+          },
+          "activity_groups_ndcg10": [
+            0.03169373650776321,
+            0.03453936856898067,
+            0.04543477047877585
+          ],
+          "degree_gap": {
+            "mean": 0.014120081537123536,
+            "per_seed": {
+              "0": 0.014322790709899547,
+              "1": 0.015392342890784547,
+              "2": 0.016906317294214327,
+              "3": 0.01384243712317609,
+              "4": 0.010136519667543177
+            },
+            "seed0": {
+              "gap": 0.014322790709899547,
+              "high": 0.018812884745375368,
+              "low": 0.009665246224476315
+            }
+          },
+          "degree_groups_ndcg10": [
+            0.03013580355170219,
+            0.03416035568238193,
+            0.04425588508882573
+          ],
+          "epsilon_note": "non-private run",
+          "epsilon_of_record": null,
+          "epsilon_target": null,
+          "gap_change_vs_independent": null,
+          "overall_ndcg10": {
+            "max": 0.038423693076430586,
+            "mean": 0.03722987040414286,
+            "min": 0.03598248481285709
+          },
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      },
+      "social": {
+        "8": {
+          "activity_gap": {
+            "mean": 0.013861478921736916,
+            "per_seed": {
+              "0": 0.01254749217425296,
+              "1": 0.014055990006952995,
+              "2": 0.012951701834920806,
+              "3": 0.015215776877328197,
+              "4": 0.014536433715229627
+            },
+            "seed0": {
+              "gap": 0.01254749217425296,
+              "high": 0.015415266196018114,
+              "low": 0.009622847704426252
+            }
+          },
+          "activity_groups_ndcg10": [
+            0.016496146031283524,
+            0.020116307005929583,
+            0.030357624953020433
+          ],
+          "degree_gap": {
+            "mean": 0.013345296091341297,
+            "per_seed": {
+              "0": 0.012178952198090238,
+              "1": 0.014578937029265028,
+              "2": 0.012417156479452855,
+              "3": 0.016192546707173603,
+              "4": 0.011358888042724773
+            },
+            "seed0": {
+              "gap": 0.012178952198090238,
+              "high": 0.015461879824964919,
+              "low": 0.00869975331391787
+            }
+          },
+          "degree_groups_ndcg10": [
+            0.015389041241901935,
+            0.019821895461224683,
+            0.028734337333243237
+          ],
+          "epsilon_note": "epsilon 8 is NOMINAL: availability here is a rank over all users, so adding or removing one user shifts other users' inclusion probabilities and the add-or-remove analysis does not hold for anyone",
+          "epsilon_of_record": 7.98280552565623,
+          "epsilon_target": 8.0,
+          "gap_change_vs_independent": {
+            "activity": {
+              "mean_difference": -0.0009287856891456756,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 4,
+              "seeds_improved": 1,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 0.1875
+            },
+            "degree": {
+              "mean_difference": 0.0009012687639722756,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 0,
+              "seeds_improved": 5,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 0.03125,
+              "wilcoxon_two_sided_p": 0.0625
+            }
+          },
+          "overall_ndcg10": {
+            "max": 0.02395119615383082,
+            "mean": 0.022330870005389407,
+            "min": 0.019858800670631418
+          },
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "nondp": {
+          "activity_gap": {
+            "mean": 0.013726703327059733,
+            "per_seed": {
+              "0": 0.012588206876693583,
+              "1": 0.014705348122183957,
+              "2": 0.012638342791879531,
+              "3": 0.015934620989977763,
+              "4": 0.012766997854563832
+            },
+            "seed0": {
+              "gap": 0.012588206876693583,
+              "high": 0.01654198297099807,
+              "low": 0.008599398248697671
+            }
+          },
+          "activity_groups_ndcg10": [
+            0.031257422743000605,
+            0.0338342124887816,
+            0.044984126070060346
+          ],
+          "degree_gap": {
+            "mean": 0.015448834971297901,
+            "per_seed": {
+              "0": 0.012508799000773091,
+              "1": 0.015861393437952225,
+              "2": 0.016500861524227403,
+              "3": 0.01756987855113883,
+              "4": 0.014803242342397948
+            },
+            "seed0": {
+              "gap": 0.012508799000773091,
+              "high": 0.01740319528468713,
+              "low": 0.007732609171272178
+            }
+          },
+          "degree_groups_ndcg10": [
+            0.02954441476097499,
+            0.03233658311750194,
+            0.04499324973227289
+          ],
+          "epsilon_note": "non-private run",
+          "epsilon_of_record": null,
+          "epsilon_target": null,
+          "gap_change_vs_independent": {
+            "activity": {
+              "mean_difference": -1.4330643952922134e-05,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 3,
+              "seeds_improved": 2,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 1.0
+            },
+            "degree": {
+              "mean_difference": 0.0013287534341743616,
+              "min_possible_two_sided_p": 0.0625,
+              "seeds": 5,
+              "seeds_degraded": 2,
+              "seeds_improved": 3,
+              "sign_test_one_sided_p": 1.0,
+              "sign_test_p_all_degraded": 1.0,
+              "sign_test_p_all_improved": 1.0,
+              "wilcoxon_two_sided_p": 0.4375
+            }
+          },
+          "overall_ndcg10": {
+            "max": 0.03750865493189639,
+            "mean": 0.03669908646629564,
+            "min": 0.0354679990853798
+          },
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      }
+    },
+    "group_sizes": {
+      "activity": [
+        3305,
+        3304,
+        3304
+      ],
+      "degree": [
+        2268,
+        3734,
+        3911
+      ]
+    },
+    "h5": {
+      "activity": {
+        "8": {
+          "all_seeds_improved": false,
+          "mean_difference": 0.0005968856132413932,
+          "min_possible_two_sided_p": 0.0625,
+          "seeds": 5,
+          "seeds_degraded": 1,
+          "seeds_improved": 4,
+          "sign_test_one_sided_p": 1.0,
+          "sign_test_p_all_degraded": 1.0,
+          "sign_test_p_all_improved": 1.0,
+          "wilcoxon_note": "underpowered: the minimum possible two-sided p is 0.0625 with 5 seeds",
+          "wilcoxon_two_sided_p": 0.125
+        },
+        "nondp": {
+          "all_seeds_improved": false,
+          "mean_difference": -0.0002674440721154865,
+          "min_possible_two_sided_p": 0.0625,
+          "seeds": 5,
+          "seeds_degraded": 3,
+          "seeds_improved": 2,
+          "sign_test_one_sided_p": 1.0,
+          "sign_test_p_all_degraded": 1.0,
+          "sign_test_p_all_improved": 1.0,
+          "wilcoxon_note": "underpowered: the minimum possible two-sided p is 0.0625 with 5 seeds",
+          "wilcoxon_two_sided_p": 1.0
+        }
+      },
+      "claim": "availability correlated with user activity (or friend count) produces a larger NDCG@10 gap between top and bottom groups than independent availability",
+      "holds": true,
+      "holds_activity": false,
+      "holds_social": true,
+      "rule": "Preregistration Amendment 1: 'Paired across seeds. With 5 seeds the two-sided Wilcoxon p cannot go below 0.0625, so the sign pattern (5 of 5) is reported as the evidence and the test is reported as underpowered.' Implemented as: H5 holds if, for at least one correlated scenario (activity with activity groups, social with friend-count groups) at either epsilon level, every seed's top-minus-bottom gap is larger than under independent availability.",
+      "social": {
+        "8": {
+          "all_seeds_improved": true,
+          "mean_difference": 0.0009012687639722756,
+          "min_possible_two_sided_p": 0.0625,
+          "seeds": 5,
+          "seeds_degraded": 0,
+          "seeds_improved": 5,
+          "sign_test_one_sided_p": 1.0,
+          "sign_test_p_all_degraded": 1.0,
+          "sign_test_p_all_improved": 0.03125,
+          "wilcoxon_note": "underpowered: the minimum possible two-sided p is 0.0625 with 5 seeds",
+          "wilcoxon_two_sided_p": 0.0625
+        },
+        "nondp": {
+          "all_seeds_improved": false,
+          "mean_difference": 0.0013287534341743616,
+          "min_possible_two_sided_p": 0.0625,
+          "seeds": 5,
+          "seeds_degraded": 2,
+          "seeds_improved": 3,
+          "sign_test_one_sided_p": 1.0,
+          "sign_test_p_all_degraded": 1.0,
+          "sign_test_p_all_improved": 1.0,
+          "wilcoxon_note": "underpowered: the minimum possible two-sided p is 0.0625 with 5 seeds",
+          "wilcoxon_two_sided_p": 0.4375
+        }
+      }
+    },
+    "notes": []
+  },
+  "settings": {
+    "availability_floor": 0.05,
+    "availability_mean": 0.5,
+    "epsilons": [
+      null,
+      8.0
+    ],
+    "regime": "small",
+    "rounds": 400,
+    "sample_rate": 0.05,
+    "scenarios": [
+      "always",
+      "independent",
+      "activity",
+      "social"
+    ],
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "users": 9913
+  },
+  "status": "VALID",
+  "wall_seconds": 1027.4
+}

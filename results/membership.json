@@ -1,0 +1,355 @@
+{
+  "controls": {
+    "negative_independent": {
+      "measured": "attack on a model trained on an independent random half",
+      "passed": true,
+      "threshold": {
+        "auc_target": 0.5,
+        "tolerance": 0.03
+      },
+      "values": {
+        "auc": 0.5015187920393023
+      },
+      "what": "attack on a model trained on an independent random half (not the labelled members)"
+    },
+    "positive_overfit": {
+      "measured": "attack on a non-private model trained for many more rounds on A_0",
+      "passed": true,
+      "threshold": {
+        "auc_min": 0.55,
+        "tpr_at_1pct_fpr_min": 0.02
+      },
+      "values": {
+        "auc": 0.8552927452117264,
+        "tpr_at_1pct_fpr": 0.33393866020984664
+      },
+      "what": "attack on a non-private model trained for many more rounds on A_0"
+    }
+  },
+  "experiment": "membership",
+  "invalid_reasons": [],
+  "limitations": [
+    "The attack is a loss-threshold test calibrated with reference models, not the strongest attack possible; a negative result bounds this attack only.",
+    "Training on half the users halves n, so the noise is calibrated for n/2 users; the epsilon tested is that of the half-population model, not of the full-population one.",
+    "Only a few target seeds are used, so per-level spreads are rough.",
+    "The empirical epsilon lower bound joins two one-sided 95% Clopper-Pearson bounds, so its joint confidence is about 90%, not 95%. It is checked on several seeds and levels without correction for multiple looks, and members are an exact half of the users rather than independent draws. It is a sanity check that can detect only large violations of the claimed guarantee, not a 95% statement.",
+    "Reference models are non-private and trained on the same architecture and data distribution, which is generous to the attacker."
+  ],
+  "results": {
+    "controls_detail": {
+      "independent": {
+        "auc": 0.5015187920393023,
+        "epsilon_lower_bound": 0.0,
+        "low_resolution": true,
+        "n_members": 4956,
+        "n_nonmembers": 4957,
+        "raw_auc": 0.4916872675631903,
+        "raw_tpr_at_1pct_fpr": 0.00867635189669088,
+        "tpr_at_0.1pct_fpr": 0.00020177562550443906,
+        "tpr_at_1pct_fpr": 0.00867635189669088
+      },
+      "overfit": {
+        "auc": 0.8552927452117264,
+        "epsilon_lower_bound": 3.2495007123047435,
+        "low_resolution": true,
+        "n_members": 4956,
+        "n_nonmembers": 4957,
+        "raw_auc": 0.7923728813559322,
+        "raw_tpr_at_1pct_fpr": 0.1357949959644875,
+        "tpr_at_0.1pct_fpr": 0.15577078288942695,
+        "tpr_at_1pct_fpr": 0.33393866020984664
+      }
+    },
+    "hypotheses": {
+      "H3": {
+        "decided_on": "mean over target seeds",
+        "holds": true,
+        "max_tpr_at_1pct_fpr": 0.01533494753833737,
+        "mean_tpr_at_1pct_fpr": 0.012980898574118912,
+        "statement": "at epsilon = 8, tpr_at_1pct_fpr <= 0.02"
+      }
+    },
+    "levels": {
+      "eps1": {
+        "aggregate": {
+          "auc": {
+            "max": 0.5282482822816985,
+            "mean": 0.5178914980372772,
+            "min": 0.5073157402246894
+          },
+          "epsilon_lower_bound": {
+            "max": 0.07298319990828854,
+            "mean": 0.024327733302762847,
+            "min": 0.0
+          },
+          "raw_auc": {
+            "max": 0.5233385444117229,
+            "mean": 0.5154591729932029,
+            "min": 0.505310765399221
+          },
+          "raw_tpr_at_1pct_fpr": {
+            "max": 0.011904761904761904,
+            "mean": 0.01116491794457896,
+            "min": 0.010492332526230832
+          },
+          "tpr_at_0.1pct_fpr": {
+            "max": 0.0036319612590799033,
+            "mean": 0.0022867904223836427,
+            "min": 0.0004035512510088781
+          },
+          "tpr_at_1pct_fpr": {
+            "max": 0.016343825665859565,
+            "mean": 0.012241054613935971,
+            "min": 0.009281678773204197
+          }
+        },
+        "bound_within_claim": true,
+        "claimed_epsilon": 0.9997346477340717,
+        "per_seed": [
+          {
+            "auc": 0.5282482822816985,
+            "claimed_epsilon": 0.9997346477340717,
+            "epsilon_lower_bound": 0.07298319990828854,
+            "low_resolution": true,
+            "n_members": 4956,
+            "n_nonmembers": 4957,
+            "ndcg@10": 0.007251530556470464,
+            "raw_auc": 0.5233385444117229,
+            "raw_tpr_at_1pct_fpr": 0.011097659402744148,
+            "rounds_completed": 400,
+            "seed": 0,
+            "tpr_at_0.1pct_fpr": 0.0036319612590799033,
+            "tpr_at_1pct_fpr": 0.016343825665859565
+          },
+          {
+            "auc": 0.5073157402246894,
+            "claimed_epsilon": 0.9997346477340717,
+            "epsilon_lower_bound": 0.0,
+            "low_resolution": true,
+            "n_members": 4956,
+            "n_nonmembers": 4957,
+            "ndcg@10": 0.009788806912434542,
+            "raw_auc": 0.505310765399221,
+            "raw_tpr_at_1pct_fpr": 0.011904761904761904,
+            "rounds_completed": 400,
+            "seed": 1,
+            "tpr_at_0.1pct_fpr": 0.002824858757062147,
+            "tpr_at_1pct_fpr": 0.009281678773204197
+          },
+          {
+            "auc": 0.5181104716054437,
+            "claimed_epsilon": 0.9997346477340717,
+            "epsilon_lower_bound": 0.0,
+            "low_resolution": true,
+            "n_members": 4956,
+            "n_nonmembers": 4957,
+            "ndcg@10": 0.01053909317821388,
+            "raw_auc": 0.5177282091686649,
+            "raw_tpr_at_1pct_fpr": 0.010492332526230832,
+            "rounds_completed": 400,
+            "seed": 2,
+            "tpr_at_0.1pct_fpr": 0.0004035512510088781,
+            "tpr_at_1pct_fpr": 0.011097659402744148
+          }
+        ],
+        "target_epsilon": 1.0
+      },
+      "eps8": {
+        "aggregate": {
+          "auc": {
+            "max": 0.5339835824572355,
+            "mean": 0.5305831930225443,
+            "min": 0.5267521223278875
+          },
+          "epsilon_lower_bound": {
+            "max": 0.0025056835358608295,
+            "mean": 0.0008352278452869432,
+            "min": 0.0
+          },
+          "raw_auc": {
+            "max": 0.5317366966891864,
+            "mean": 0.5274763897687994,
+            "min": 0.5252062206322232
+          },
+          "raw_tpr_at_1pct_fpr": {
+            "max": 0.016747376916868444,
+            "mean": 0.013249932741458165,
+            "min": 0.010694108151735271
+          },
+          "tpr_at_0.1pct_fpr": {
+            "max": 0.0020177562550443904,
+            "mean": 0.0010088781275221952,
+            "min": 0.0
+          },
+          "tpr_at_1pct_fpr": {
+            "max": 0.01533494753833737,
+            "mean": 0.012980898574118912,
+            "min": 0.009887005649717515
+          }
+        },
+        "bound_within_claim": true,
+        "claimed_epsilon": 7.965484626640804,
+        "per_seed": [
+          {
+            "auc": 0.5339835824572355,
+            "claimed_epsilon": 7.965484626640804,
+            "epsilon_lower_bound": 0.0025056835358608295,
+            "low_resolution": true,
+            "n_members": 4956,
+            "n_nonmembers": 4957,
+            "ndcg@10": 0.02098693755388503,
+            "raw_auc": 0.5254862519849886,
+            "raw_tpr_at_1pct_fpr": 0.010694108151735271,
+            "rounds_completed": 400,
+            "seed": 0,
+            "tpr_at_0.1pct_fpr": 0.0010088781275221952,
+            "tpr_at_1pct_fpr": 0.01533494753833737
+          },
+          {
+            "auc": 0.5267521223278875,
+            "claimed_epsilon": 7.965484626640804,
+            "epsilon_lower_bound": 0.0,
+            "low_resolution": true,
+            "n_members": 4956,
+            "n_nonmembers": 4957,
+            "ndcg@10": 0.021193713338799085,
+            "raw_auc": 0.5252062206322232,
+            "raw_tpr_at_1pct_fpr": 0.012308313155770783,
+            "rounds_completed": 400,
+            "seed": 1,
+            "tpr_at_0.1pct_fpr": 0.0020177562550443904,
+            "tpr_at_1pct_fpr": 0.013720742534301856
+          },
+          {
+            "auc": 0.53101387428251,
+            "claimed_epsilon": 7.965484626640804,
+            "epsilon_lower_bound": 0.0,
+            "low_resolution": true,
+            "n_members": 4956,
+            "n_nonmembers": 4957,
+            "ndcg@10": 0.022707256784647002,
+            "raw_auc": 0.5317366966891864,
+            "raw_tpr_at_1pct_fpr": 0.016747376916868444,
+            "rounds_completed": 400,
+            "seed": 2,
+            "tpr_at_0.1pct_fpr": 0.0,
+            "tpr_at_1pct_fpr": 0.009887005649717515
+          }
+        ],
+        "target_epsilon": 8.0
+      },
+      "nondp": {
+        "aggregate": {
+          "auc": {
+            "max": 0.8172011135962987,
+            "mean": 0.8139762517239326,
+            "min": 0.811677928164458
+          },
+          "epsilon_lower_bound": {
+            "max": 3.0181903378995156,
+            "mean": 2.950295677403808,
+            "min": 2.9004514887892703
+          },
+          "raw_auc": {
+            "max": 0.7537610577683168,
+            "mean": 0.7501459823787776,
+            "min": 0.7454764729702072
+          },
+          "raw_tpr_at_1pct_fpr": {
+            "max": 0.1228813559322034,
+            "mean": 0.11185095507129406,
+            "min": 0.09806295399515738
+          },
+          "tpr_at_0.1pct_fpr": {
+            "max": 0.11945117029862792,
+            "mean": 0.10451977401129943,
+            "min": 0.09584342211460856
+          },
+          "tpr_at_1pct_fpr": {
+            "max": 0.266545601291364,
+            "mean": 0.24979822437449553,
+            "min": 0.23769168684422923
+          }
+        },
+        "bound_within_claim": true,
+        "claimed_epsilon": null,
+        "per_seed": [
+          {
+            "auc": 0.8130497134110412,
+            "claimed_epsilon": null,
+            "epsilon_lower_bound": 2.9004514887892703,
+            "low_resolution": true,
+            "n_members": 4956,
+            "n_nonmembers": 4957,
+            "ndcg@10": 0.033739932182504505,
+            "raw_auc": 0.7454764729702072,
+            "raw_tpr_at_1pct_fpr": 0.09806295399515738,
+            "rounds_completed": 400,
+            "seed": 0,
+            "tpr_at_0.1pct_fpr": 0.09826472962066182,
+            "tpr_at_1pct_fpr": 0.23769168684422923
+          },
+          {
+            "auc": 0.811677928164458,
+            "claimed_epsilon": null,
+            "epsilon_lower_bound": 2.932245205522637,
+            "low_resolution": true,
+            "n_members": 4956,
+            "n_nonmembers": 4957,
+            "ndcg@10": 0.03453125100699271,
+            "raw_auc": 0.7512004163978089,
+            "raw_tpr_at_1pct_fpr": 0.11460855528652139,
+            "rounds_completed": 400,
+            "seed": 1,
+            "tpr_at_0.1pct_fpr": 0.11945117029862792,
+            "tpr_at_1pct_fpr": 0.24515738498789347
+          },
+          {
+            "auc": 0.8172011135962987,
+            "claimed_epsilon": null,
+            "epsilon_lower_bound": 3.0181903378995156,
+            "low_resolution": true,
+            "n_members": 4956,
+            "n_nonmembers": 4957,
+            "ndcg@10": 0.035194363849872054,
+            "raw_auc": 0.7537610577683168,
+            "raw_tpr_at_1pct_fpr": 0.1228813559322034,
+            "rounds_completed": 400,
+            "seed": 2,
+            "tpr_at_0.1pct_fpr": 0.09584342211460856,
+            "tpr_at_1pct_fpr": 0.266545601291364
+          }
+        ],
+        "target_epsilon": null
+      }
+    },
+    "training": {
+      "models": 15,
+      "trained_now": 0
+    }
+  },
+  "settings": {
+    "attack_seed": 0,
+    "delta": 2.0177562550443908e-05,
+    "epsilons": [
+      null,
+      8.0,
+      1.0
+    ],
+    "n_members_per_target": 4956,
+    "n_reference": 4,
+    "n_users": 9913,
+    "overfit_factor": 5,
+    "regime": "small",
+    "regime_rounds": 400,
+    "regime_sample_rate": 0.05,
+    "score": "mean reference loss over references not trained on the user, minus target loss; loss on a fixed 50/50 visible/hidden split of the final history",
+    "target_seeds": [
+      0,
+      1,
+      2
+    ]
+  },
+  "status": "VALID",
+  "wall_seconds": 5.04
+}

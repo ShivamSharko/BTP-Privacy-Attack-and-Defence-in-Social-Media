@@ -1,64 +1,88 @@
-"""Analytic first-layer inversion against a single client update (RQ3).
+"""History inversion: which items did a user interact with, judging from one model update?
 
-For a linear layer, the weight gradient is an outer product of the backpropagated
-error and the layer input. With one local epoch the returned delta is -lr times
-that gradient, so the top right singular vector of the first-layer block recovers
-the client's pooled input direction up to sign.
+With the hybrid model's loss (``prism.models.hybrid.user_loss``; the gradient is derived
+in the docstring of ``prism.fl.fast``) one local step leaves two traces in the update:
 
-The sign ambiguity is resolved by the attacker trying both signs, so retrieval
-uses absolute cosine. This is deliberately favourable to the attacker, which makes
-any resulting privacy claim conservative.
+* an item the client HID and tried to predict gets a positive bias change, because its
+  gradient is softmax - 1/|T| and the softmax term is small;
+* every item the client used as VISIBLE history gets the same extra embedding-row change,
+  because the user vector is the mean of those rows. Visible items are masked from the
+  softmax, so their bias change is zero.
 
-Threat model: an honest-but-curious coordinator that observes an INDIVIDUAL update,
-which is the non-SecAgg+ mode in the roadmap. It does not apply to a securely
-aggregated sum.
+Hidden plus visible items are the user's whole history, so the score of an item is the sum
+of the z-score (across items) of its bias change and the z-score of the L2 norm of its
+embedding-row change. Blocks are taken from ``layout.slices`` by name.
+
+Threat model: an honest-but-curious server that sees one client's INDIVIDUAL update. It
+does not apply to a securely aggregated sum of many clients, where the traces of one
+client are mixed with the others'.
 """
 
 from __future__ import annotations
 
 import numpy as np
-import numpy.typing as npt
+from numpy.typing import NDArray
+
+from prism.attacks.membership import auc_score
+from prism.models.hybrid import Layout
+
+TOP_K = 10
+_CONSTANT_TOLERANCE = 1e-12
 
 
-def first_layer_block(
-    flat: npt.NDArray[np.float32], hidden: int, dim_in: int
-) -> npt.NDArray[np.float32]:
-    """Extract the user-tower first-layer weight matrix from a flat vector."""
-    size = hidden * dim_in
-    if flat.size < size:
-        raise ValueError("flat vector too short for the first layer")
-    return flat[:size].reshape(hidden, dim_in)
+def _zscore(values: NDArray[np.float64]) -> NDArray[np.float64]:
+    """Standardise across items; a constant block gives zeros."""
+    spread = float(np.ptp(values))
+    if spread <= _CONSTANT_TOLERANCE * float(np.max(np.abs(values))):
+        return np.zeros_like(values)
+    return np.asarray((values - values.mean()) / values.std(), dtype=np.float64)
 
 
-def recover_direction(block: npt.NDArray[np.float32]) -> npt.NDArray[np.float64]:
-    """Top right singular vector of the gradient block, unit-normalised."""
-    _, _, vt = np.linalg.svd(np.asarray(block, dtype=np.float64), full_matrices=False)
-    direction: npt.NDArray[np.float64] = np.asarray(vt[0], dtype=np.float64)
-    norm = float(np.linalg.norm(direction))
-    if norm == 0.0:
-        return direction
-    return np.asarray(direction / norm, dtype=np.float64)
+def history_scores(update: NDArray[np.floating], layout: Layout) -> NDArray[np.float64]:
+    """One score per item: z(bias change) + z(norm of the embedding-row change)."""
+    vector = np.asarray(update, dtype=np.float64)
+    if vector.shape != (layout.total,):
+        raise ValueError("update length does not match the layout")
+    bias = vector[layout.slices["bias"]]
+    rows = vector[layout.slices["emb"]].reshape(layout.shape("emb"))
+    return _zscore(bias) + _zscore(np.linalg.norm(rows, axis=1))
 
 
-def absolute_cosine(direction: npt.NDArray[np.float64], target: npt.NDArray[np.float32]) -> float:
-    """Sign-invariant cosine similarity to the true pooled vector."""
-    denom = float(np.linalg.norm(direction)) * float(np.linalg.norm(target))
-    if denom == 0.0:
-        return 0.0
-    return abs(float(direction @ np.asarray(target, dtype=np.float64))) / denom
-
-
-def topk_item_recovery(
-    direction: npt.NDArray[np.float64],
-    item_vectors: npt.NDArray[np.float32],
-    true_items: npt.NDArray[np.int64],
-    k: int = 10,
+def _precision_at_k(
+    scores: NDArray[np.float64], is_history: NDArray[np.bool_], k: int = TOP_K
 ) -> float:
-    """Fraction of a client's training items appearing in the top-k retrieval."""
-    if true_items.size == 0:
-        return float("nan")
-    sims = np.abs(np.asarray(item_vectors, dtype=np.float64) @ direction)
-    k = min(k, sims.size)
-    top = np.argpartition(-sims, k - 1)[:k]
-    hits = len({int(i) for i in top} & {int(i) for i in true_items})
-    return hits / float(true_items.size)
+    """Share of the k top-scored items that are history; a tie at the cut is split evenly."""
+    k = min(k, scores.size)
+    cut = float(np.sort(scores)[::-1][k - 1])
+    above = scores > cut
+    tied = scores == cut
+    expected = float(is_history[above].sum()) + (k - int(above.sum())) * float(
+        is_history[tied].mean()
+    )
+    return expected / k
+
+
+def _two_numbers(scores: NDArray[np.float64], history: NDArray[np.int64]) -> tuple[float, float]:
+    is_history = np.zeros(scores.size, dtype=bool)
+    is_history[history] = True
+    if not is_history.any() or is_history.all():
+        return float("nan"), float("nan")
+    auc = auc_score(scores[is_history], scores[~is_history])
+    return auc, _precision_at_k(scores, is_history)
+
+
+def recovery_metrics(
+    scores: NDArray[np.float64],
+    history: NDArray[np.int64],
+    popularity: NDArray[np.integer],
+) -> dict[str, float]:
+    """AUC and precision@10 of the scores, and of a popularity-only prior, for one user."""
+    history = np.unique(np.asarray(history, dtype=np.int64))
+    auc, precision = _two_numbers(np.asarray(scores, dtype=np.float64), history)
+    prior_auc, prior_precision = _two_numbers(np.asarray(popularity, dtype=np.float64), history)
+    return {
+        "auc": auc,
+        "precision_at_10": precision,
+        "prior_auc": prior_auc,
+        "prior_precision_at_10": prior_precision,
+    }

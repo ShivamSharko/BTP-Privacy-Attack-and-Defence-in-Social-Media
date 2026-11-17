@@ -1,0 +1,83 @@
+{
+  "config": {
+    "model": {
+      "content_scale": 0.4,
+      "dim": 16,
+      "temperature": 20.0,
+      "use_content": true,
+      "use_ids": true
+    },
+    "name": "poisoning",
+    "phase": "final",
+    "privacy_claim": true,
+    "regime": "small",
+    "seed": 0,
+    "target_epsilon": null,
+    "train": {
+      "clip_norm": 5.0,
+      "hide_fraction": 0.5,
+      "local_lr": 1.0,
+      "local_steps": 1,
+      "momentum": 0.9,
+      "noise_multiplier": 0.0,
+      "rounds": 200,
+      "sample_rate": 0.02,
+      "server_lr": 0.05,
+      "server_opt": "sgd"
+    },
+    "variant": "plaintext_trimmed_mean-f0.1"
+  },
+  "config_hash": "cf7de17f9c0eccc10368c8868662ce39cd91a3b10b9c95cba994e03f7f0a486a",
+  "diagnostics": {
+    "max_cohort": 236,
+    "mean_clipped_fraction": 0.9399375811562988,
+    "mean_cohort": 199.48,
+    "mean_update_norm_first": 24.404486901981315,
+    "mean_update_norm_last": 22.301136058765454,
+    "min_cohort": 160,
+    "nonfinite_updates": 0
+  },
+  "evaluated_on": "test",
+  "halted_by_gate": false,
+  "id": "poisoning_small_cliponly_plaintext_trimmed_mean-f0.1_final_seed0",
+  "items": 6319,
+  "ledger": null,
+  "limitations": [
+    "Privacy unit is one user (add or remove one user's whole history); delta = 1/(10 n).",
+    "Epsilon assumes ideal Poisson sampling of clients, which real devices cannot guarantee.",
+    "Gaussian noise is floating point from a seeded generator, not a hardened sampler.",
+    "The clipping norm and hyperparameters were chosen on the same users' data; that selection is not covered by epsilon.",
+    "Single-process simulation: no real network, devices or trust boundary.",
+    "The 'diagnostics' block depends on who took part and would not be released in deployment."
+  ],
+  "metrics": {
+    "coverage@10": 0.45719259376483623,
+    "distinct@10": 2889.0,
+    "exposure_gini": 0.9128056548690935,
+    "hr@10": 0.032430794099818146,
+    "mrr": 0.01799212374094728,
+    "ndcg@10": 0.00461194877729529,
+    "recall@20": 0.009347218299169803,
+    "users_evaluated": 9898.0
+  },
+  "model_sha256": "d14ef7709c0864a2ae3a8f48f9088e7e92d5efbbe7f4669ea3c3bdc94ee3c43f",
+  "n_malicious": 991,
+  "ndcg_ci95": [
+    0.0040543811119598,
+    0.005169533809961218
+  ],
+  "parameters": 107679,
+  "privacy": null,
+  "provenance": {
+    "git_commit": "1718f84647e8c80d050a0950edea3c12ab982fcb",
+    "uv_lock_sha256": "b44bad23ad394602b37f146e788bbb1f7ab4fafe68cab49731f8c9816e131d79"
+  },
+  "rounds_completed": 200,
+  "simulated_noise_multiplier": null,
+  "status": "ok",
+  "target_exposure": 0.0,
+  "threads": 2,
+  "torch_version": "2.15.0+cpu",
+  "users": 9913,
+  "wall_seconds": 549.25
+}

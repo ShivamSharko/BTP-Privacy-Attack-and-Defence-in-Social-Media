@@ -1,0 +1,111 @@
+{
+  "availability_scenario": "activity",
+  "config": {
+    "model": {
+      "content_scale": 0.4,
+      "dim": 16,
+      "temperature": 20.0,
+      "use_content": true,
+      "use_ids": true
+    },
+    "name": "participation",
+    "phase": "final",
+    "privacy_claim": true,
+    "regime": "small",
+    "seed": 1,
+    "target_epsilon": 8.0,
+    "train": {
+      "clip_norm": 5.0,
+      "hide_fraction": 0.5,
+      "local_lr": 1.0,
+      "local_steps": 1,
+      "momentum": 0.9,
+      "noise_multiplier": 0.91708,
+      "rounds": 400,
+      "sample_rate": 0.05,
+      "server_lr": 0.05,
+      "server_opt": "sgd"
+    },
+    "variant": "activity"
+  },
+  "config_hash": "3674cb9275cb15ee1ad253edb6cdb26648725905f88be3e33b4ec32cd5eb69a6",
+  "diagnostics": {
+    "max_cohort": 287,
+    "mean_clipped_fraction": 0.8926260364666762,
+    "mean_cohort": 247.655,
+    "mean_update_norm_first": 21.92552375793457,
+    "mean_update_norm_last": 9.00766500517552,
+    "min_cohort": 200,
+    "nonfinite_updates": 0
+  },
+  "evaluated_on": "test",
+  "halted_by_gate": false,
+  "id": "participation_small_eps8_activity_final_seed1",
+  "items": 6319,
+  "ledger": {
+    "path": "ledger/participation/participation_small_eps8_activity_final_seed1.jsonl",
+    "public_key_hex": "9301c820a5d066f18a60cc3ad8836d83c8de83f6e6f3d9c547f7bbf56d5d7f3c",
+    "refused_rounds": [],
+    "root_hex": "c58c8a0dbc5b35c1bad403d6dd11ad388c6620315b38a689708343285afe6090",
+    "size": 401,
+    "verified": true
+  },
+  "limitations": [
+    "Privacy unit is one user (add or remove one user's whole history); delta = 1/(10 n).",
+    "Epsilon assumes ideal Poisson sampling of clients, which real devices cannot guarantee.",
+    "Gaussian noise is floating point from a seeded generator, not a hardened sampler.",
+    "The clipping norm and hyperparameters were chosen on the same users' data; that selection is not covered by epsilon.",
+    "Single-process simulation: no real network, devices or trust boundary.",
+    "The 'diagnostics' block depends on who took part and would not be released in deployment."
+  ],
+  "metrics": {
+    "coverage@10": 0.13783826554834624,
+    "distinct@10": 871.0,
+    "exposure_gini": 0.9953619880527862,
+    "hr@10": 0.12770256617498485,
+    "mrr": 0.05926876635216328,
+    "ndcg@10": 0.02208179923231006,
+    "recall@20": 0.034273986243733644,
+    "users_evaluated": 9898.0
+  },
+  "model_sha256": "2ababd4731c0cb34c68ea8249f357b6c10971f6582b9f8ad1764988cf20f8355",
+  "ndcg_ci95": [
+    0.020745110528559492,
+    0.0235304073908198
+  ],
+  "parameters": 107679,
+  "privacy": {
+    "adjacency": "add-or-remove one user",
+    "at_delta_n2": 10.9945345760926,
+    "budget_epsilon": 8.0,
+    "delta": 1.0087763542822556e-05,
+    "delta_n2": 1.017629732958999e-08,
+    "excludes": "hyperparameter and clipping-norm selection",
+    "gate_ok": true,
+    "gate_reason": "ok",
+    "n_users": 9913,
+    "noise_multiplier": 0.91708,
+    "of_record": 7.982805525656229,
+    "pld": 7.972328674052427,
+    "prv": 7.982805525656229,
+    "rdp": 8.850436080117976,
+    "rounds": 400,
+    "sample_rate": 0.05,
+    "unamplified": 329.8567431806764,
+    "unit": "user"
+  },
+  "privacy_note": "epsilon 8 is NOMINAL: availability here is a rank over all users, so adding or removing one user shifts other users' inclusion probabilities and the add-or-remove analysis does not hold for anyone",
+  "provenance": {
+    "code_sha256": "41ffd012c1e8db001bb920c3fc7bcea388b09da709bc49ce827abb76648e55c8",
+    "git_commit": "1718f84647e8c80d050a0950edea3c12ab982fcb",
+    "git_dirty": true,
+    "uv_lock_sha256": "4a11483b5839e22468be078a16640ae2ab9947e89047bf09060accf22a77c466"
+  },
+  "rounds_completed": 400,
+  "simulated_noise_multiplier": null,
+  "status": "ok",
+  "threads": 2,
+  "torch_version": "2.15.0+cpu",
+  "users": 9913,
+  "wall_seconds": 90.96
+}

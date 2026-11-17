@@ -1,0 +1,4 @@
+Privacy level,Claimed epsilon,AUC (mean over seeds),TPR at 1% FPR,Empirical epsilon lower bound (max over seeds),Bound within claim
+non-private,n/a,0.8140,0.2498,3.02,yes
+epsilon 1,1.00,0.5179,0.0122,0.07,yes
+epsilon 8,7.97,0.5306,0.0130,0.00,yes

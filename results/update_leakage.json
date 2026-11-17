@@ -1,0 +1,436 @@
+{
+  "controls": {
+    "masked_is_chance": {
+      "measured": {
+        "auc": 0.4995838182293074
+      },
+      "passed": true,
+      "threshold": {
+        "auc_within": [
+          0.45,
+          0.55
+        ]
+      },
+      "what": "mean history AUC from one masked secure-aggregation payload"
+    },
+    "raw_recovers_history": {
+      "measured": {
+        "auc": 0.9999417232872478,
+        "precision_at_10": 0.9995,
+        "prior_precision_at_10": 0.0931
+      },
+      "passed": true,
+      "threshold": {
+        "min_auc": 0.8,
+        "min_precision_at_10_over_prior": 5.0
+      },
+      "what": "mean history AUC and precision@10 when the server sees the raw clipped update"
+    }
+  },
+  "experiment": "update_leakage",
+  "invalid_reasons": [],
+  "limitations": [
+    "Updates are single local steps taken at one model state, not a whole training run.",
+    "The server is honest-but-curious: it follows the protocol and only inspects what it receives.",
+    "The secure sum is a simulation of the arithmetic, not a deployable protocol.",
+    "The local-noise epsilon is for one release of one update, not for a whole training run.",
+    "Adjacency: 'single_release_epsilon' uses the project's add-or-remove unit (the neighbouring input is the same user with no data), so the sensitivity is the clipping norm C. 'single_release_epsilon_replace_adjacency' uses the stricter local-DP convention in which any two inputs of one device are neighbours (replace one update by another), so the sensitivity is 2C and the same noise gives a larger epsilon.",
+    "Targets are users with at least two history items; link results use pairs among targets only."
+  ],
+  "model_state": {
+    "file": "privacy_utility_large_nondp_main_final_seed0.npz",
+    "source": "checkpoint"
+  },
+  "results": {
+    "local_noise_z0.5": {
+      "link": {
+        "auc": 0.48004877022912995,
+        "mean_cosine_friends": -4.893590636188132e-05,
+        "mean_cosine_non_friends": 0.00013906651470502144,
+        "pairs": 632.0,
+        "tpr_at_1pct_fpr": 0.014240506329113924
+      },
+      "recovery": {
+        "auc": {
+          "ci95": [
+            0.5042213720200281,
+            0.5116442744974727
+          ],
+          "mean": 0.5079330479948045
+        },
+        "precision_at_10": {
+          "ci95": [
+            0.0045975,
+            0.0075
+          ],
+          "mean": 0.006
+        },
+        "prior_auc": {
+          "ci95": [
+            0.7642702621956408,
+            0.7763549903542696
+          ],
+          "mean": 0.7705297881768508
+        },
+        "prior_precision_at_10": {
+          "ci95": [
+            0.0849975,
+            0.1015
+          ],
+          "mean": 0.0931
+        }
+      },
+      "single_release_epsilon": 9.993257159379697,
+      "single_release_epsilon_replace_adjacency": 24.373717011226326
+    },
+    "local_noise_z1": {
+      "link": {
+        "auc": 0.4869436989264541,
+        "mean_cosine_friends": -0.00024090335905438312,
+        "mean_cosine_non_friends": -8.711031446948684e-05,
+        "pairs": 632.0,
+        "tpr_at_1pct_fpr": 0.004746835443037975
+      },
+      "recovery": {
+        "auc": {
+          "ci95": [
+            0.49907729070363277,
+            0.50696597973498
+          ],
+          "mean": 0.502904919943079
+        },
+        "precision_at_10": {
+          "ci95": [
+            0.004,
+            0.0070999999999999995
+          ],
+          "mean": 0.0055
+        },
+        "prior_auc": {
+          "ci95": [
+            0.7642702621956408,
+            0.7763549903542696
+          ],
+          "mean": 0.7705297881768508
+        },
+        "prior_precision_at_10": {
+          "ci95": [
+            0.0849975,
+            0.1015
+          ],
+          "mean": 0.0931
+        }
+      },
+      "single_release_epsilon": 4.375137835312847,
+      "single_release_epsilon_replace_adjacency": 9.993257159379697
+    },
+    "local_noise_z2": {
+      "link": {
+        "auc": 0.49547598541900334,
+        "mean_cosine_friends": -9.114646003781462e-05,
+        "mean_cosine_non_friends": -3.101206858301612e-05,
+        "pairs": 632.0,
+        "tpr_at_1pct_fpr": 0.014240506329113924
+      },
+      "recovery": {
+        "auc": {
+          "ci95": [
+            0.496979354464454,
+            0.5052971691102098
+          ],
+          "mean": 0.5013126865755678
+        },
+        "precision_at_10": {
+          "ci95": [
+            0.004197499999999999,
+            0.007200000000000001
+          ],
+          "mean": 0.0056
+        },
+        "prior_auc": {
+          "ci95": [
+            0.7642702621956408,
+            0.7763549903542696
+          ],
+          "mean": 0.7705297881768508
+        },
+        "prior_precision_at_10": {
+          "ci95": [
+            0.0849975,
+            0.1015
+          ],
+          "mean": 0.0931
+        }
+      },
+      "single_release_epsilon": 1.9920436634696206,
+      "single_release_epsilon_replace_adjacency": 4.375137835312847
+    },
+    "local_noise_z5": {
+      "link": {
+        "auc": 0.5179858996955616,
+        "mean_cosine_friends": 9.683285809416953e-05,
+        "mean_cosine_non_friends": -9.642971748111836e-05,
+        "pairs": 632.0,
+        "tpr_at_1pct_fpr": 0.014240506329113924
+      },
+      "recovery": {
+        "auc": {
+          "ci95": [
+            0.49767346887210395,
+            0.5054366565711459
+          ],
+          "mean": 0.5015975431941541
+        },
+        "precision_at_10": {
+          "ci95": [
+            0.0029000000000000002,
+            0.005202499999999999
+          ],
+          "mean": 0.004
+        },
+        "prior_auc": {
+          "ci95": [
+            0.7642702621956408,
+            0.7763549903542696
+          ],
+          "mean": 0.7705297881768508
+        },
+        "prior_precision_at_10": {
+          "ci95": [
+            0.0849975,
+            0.1015
+          ],
+          "mean": 0.0931
+        }
+      },
+      "single_release_epsilon": 0.7250840208428544,
+      "single_release_epsilon_replace_adjacency": 1.5541352401302098
+    },
+    "masked": {
+      "link": {
+        "auc": 0.503920645729851,
+        "mean_cosine_friends": 0.00018714982801492473,
+        "mean_cosine_non_friends": 0.00015221818907551544,
+        "pairs": 632.0,
+        "tpr_at_1pct_fpr": 0.012658227848101266
+      },
+      "recovery": {
+        "auc": {
+          "ci95": [
+            0.49550154718999395,
+            0.5038319555176539
+          ],
+          "mean": 0.4995838182293074
+        },
+        "precision_at_10": {
+          "ci95": [
+            0.0044,
+            0.007300000000000001
+          ],
+          "mean": 0.0058
+        },
+        "prior_auc": {
+          "ci95": [
+            0.7642702621956408,
+            0.7763549903542696
+          ],
+          "mean": 0.7705297881768508
+        },
+        "prior_precision_at_10": {
+          "ci95": [
+            0.0849975,
+            0.1015
+          ],
+          "mean": 0.0931
+        }
+      }
+    },
+    "raw": {
+      "link": {
+        "auc": 0.5798124298990547,
+        "mean_cosine_friends": 0.014086005688587132,
+        "mean_cosine_non_friends": 0.002016159216893231,
+        "pairs": 632.0,
+        "tpr_at_1pct_fpr": 0.055379746835443035
+      },
+      "recovery": {
+        "auc": {
+          "ci95": [
+            0.999869200607621,
+            0.9999895164689219
+          ],
+          "mean": 0.9999417232872478
+        },
+        "precision_at_10": {
+          "ci95": [
+            0.999,
+            0.9999
+          ],
+          "mean": 0.9995
+        },
+        "prior_auc": {
+          "ci95": [
+            0.7642702621956408,
+            0.7763549903542696
+          ],
+          "mean": 0.7705297881768508
+        },
+        "prior_precision_at_10": {
+          "ci95": [
+            0.0849975,
+            0.1015
+          ],
+          "mean": 0.0931
+        }
+      }
+    },
+    "reference_histories": {
+      "link": {
+        "auc": 0.7512155003204615,
+        "mean_cosine_friends": 0.05046305709038375,
+        "mean_cosine_non_friends": 0.015506817023958707,
+        "pairs": 632.0,
+        "tpr_at_1pct_fpr": 0.10443037974683544
+      }
+    },
+    "sum_10": {
+      "link": "not_applicable",
+      "recovery": {
+        "auc": {
+          "ci95": [
+            0.9653110169979194,
+            0.9705305291156154
+          ],
+          "mean": 0.9678600341648566
+        },
+        "precision_at_10": {
+          "ci95": [
+            0.11770000000000001,
+            0.1352025
+          ],
+          "mean": 0.126
+        },
+        "prior_auc": {
+          "ci95": [
+            0.7642702621956408,
+            0.7763549903542696
+          ],
+          "mean": 0.7705297881768508
+        },
+        "prior_precision_at_10": {
+          "ci95": [
+            0.0849975,
+            0.1015
+          ],
+          "mean": 0.0931
+        }
+      }
+    },
+    "sum_100": {
+      "link": "not_applicable",
+      "recovery": {
+        "auc": {
+          "ci95": [
+            0.844134195445098,
+            0.8531195243821419
+          ],
+          "mean": 0.8484916268846298
+        },
+        "precision_at_10": {
+          "ci95": [
+            0.0511,
+            0.060502499999999994
+          ],
+          "mean": 0.0557
+        },
+        "prior_auc": {
+          "ci95": [
+            0.7642702621956408,
+            0.7763549903542696
+          ],
+          "mean": 0.7705297881768508
+        },
+        "prior_precision_at_10": {
+          "ci95": [
+            0.0849975,
+            0.1015
+          ],
+          "mean": 0.0931
+        }
+      }
+    },
+    "sum_100_dp": {
+      "link": "not_applicable",
+      "noise_multiplier": 2.06912,
+      "recovery": {
+        "auc": {
+          "ci95": [
+            0.4952789990347294,
+            0.5031342686241098
+          ],
+          "mean": 0.4992018888537508
+        },
+        "precision_at_10": {
+          "ci95": [
+            0.0044,
+            0.0077
+          ],
+          "mean": 0.006
+        },
+        "prior_auc": {
+          "ci95": [
+            0.7642702621956408,
+            0.7763549903542696
+          ],
+          "mean": 0.7705297881768508
+        },
+        "prior_precision_at_10": {
+          "ci95": [
+            0.0849975,
+            0.1015
+          ],
+          "mean": 0.0931
+        }
+      },
+      "target_epsilon": 8.0
+    }
+  },
+  "settings": {
+    "clip_norm": 5.0,
+    "cohort_sizes": [
+      10,
+      100
+    ],
+    "friend_graph": true,
+    "hide_fraction": 0.5,
+    "list": [
+      "raw",
+      "local_noise_z0.5",
+      "local_noise_z1",
+      "local_noise_z2",
+      "local_noise_z5",
+      "masked",
+      "sum_10",
+      "sum_100",
+      "sum_100_dp",
+      "reference_histories"
+    ],
+    "local_lr": 1.0,
+    "local_noise": [
+      0.5,
+      1.0,
+      2.0,
+      5.0
+    ],
+    "local_steps": 1,
+    "mask_cohort": 3,
+    "n_items": 6319,
+    "n_targets": 1000,
+    "n_users": 9913,
+    "phase": "final",
+    "regime": "large",
+    "seed": 0
+  },
+  "status": "VALID",
+  "wall_seconds": 59.00836470001377
+}

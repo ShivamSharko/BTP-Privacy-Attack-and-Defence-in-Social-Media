@@ -5,8 +5,9 @@ Neighbourhood: add or remove one user.
 Mechanism: per-client L2 clipping of the whole update, Gaussian noise added ONCE
 by the aggregator to the summed update, divided by the EXPECTED cohort size.
 
-Accountant of record: Opacus PRV. RDP is computed as a required upper bound.
-The dp_accounting PLD cross-check is deferred (ADR-036).
+This module holds the low-level pieces: delta, clipping of one vector, and the
+Opacus PRV and RDP accountants. The value of record and the three-accountant
+consistency gate (PRV, PLD, RDP) live in ``prism.privacy.accounting``.
 
 LIMITATION (ADR-037): noise uses a seeded NumPy PCG64 generator and float
 Gaussian draws so runs are reproducible from published seeds. Reported epsilon

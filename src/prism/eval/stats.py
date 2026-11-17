@@ -53,13 +53,18 @@ def paired_tests(
         wilcoxon_p = float(stats.wilcoxon(treated, control, zero_method="wilcox").pvalue)
     except ValueError:
         wilcoxon_p = 1.0
+    all_degraded = float(math.pow(0.5, n)) if negative == n else 1.0
+    all_improved = float(math.pow(0.5, n)) if positive == n else 1.0
     return {
         "mean_difference": float(diff.mean()),
         "seeds_degraded": negative,
         "seeds_improved": positive,
         "wilcoxon_two_sided_p": wilcoxon_p,
         "min_possible_two_sided_p": min_two_sided_sign_p(n),
-        "sign_test_one_sided_p": float(math.pow(0.5, n)) if negative == n else 1.0,
+        "sign_test_p_all_degraded": all_degraded,
+        "sign_test_p_all_improved": all_improved,
+        # alias of sign_test_p_all_degraded, kept for existing callers
+        "sign_test_one_sided_p": all_degraded,
     }
 
 
@@ -107,3 +112,17 @@ def epsilon_lower_bound(
     _, fpr_high = clopper_pearson(false_pos, negatives, alpha)
     fpr_high = max(fpr_high, 1.0 / negatives)
     return max(0.0, math.log((tpr_low - delta) / fpr_high))
+
+
+def user_bootstrap_ci(
+    values: npt.NDArray[np.float64], draws: int = 1000, seed: int = 0
+) -> tuple[float, float]:
+    """Percentile bootstrap 95% CI for a mean over users; NaN entries (skipped users) are ignored."""
+    kept = values[np.isfinite(values)]
+    if kept.size == 0:
+        return float("nan"), float("nan")
+    rng = np.random.default_rng(seed)
+    means = np.empty(draws, dtype=np.float64)
+    for index in range(draws):
+        means[index] = kept[rng.integers(0, kept.size, size=kept.size)].mean()
+    return float(np.percentile(means, 2.5)), float(np.percentile(means, 97.5))

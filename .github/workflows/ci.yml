@@ -19,7 +19,7 @@ jobs:
   quality:
     name: Lint, types, tests, licences, audit
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - name: Checkout (full history for secret scan)
         uses: actions/checkout@v4
@@ -49,8 +49,22 @@ jobs:
       - name: Mypy (strict)
         run: uv run mypy
 
-      - name: Pytest
+      - name: Pytest (overall coverage gate: 85%, set in pyproject.toml)
         run: uv run pytest --cov --cov-report=term-missing
+
+      - name: Coverage gate for privacy-critical code (90%)
+        run: >-
+          uv run coverage report --fail-under=90
+          --include="src/prism/privacy/*,src/prism/ledger/*,src/prism/fl/secagg.py,src/prism/fl/aggregate.py,src/prism/fl/fast.py,src/prism/fl/sampling.py"
+
+      - name: End-to-end demonstration on synthetic data
+        run: uv run prism demo-small
+
+      - name: No dataset files or keys are tracked
+        run: |
+          if git ls-files | grep -E '^(data|raw|keys)/|\.pem$|yelp_academic_dataset'; then
+            echo "dataset or key material is tracked by git"; exit 1
+          fi
 
       - name: Dependency licence gate (ADR-015)
         run: uv run python scripts/check_licenses.py

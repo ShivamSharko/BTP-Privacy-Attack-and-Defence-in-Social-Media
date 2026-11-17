@@ -8,6 +8,8 @@ import numpy as np
 import numpy.typing as npt
 from scipy import sparse
 
+from prism.data.social import SocialGraph
+
 KNN_NEIGHBOURS: int = 100
 
 
@@ -115,5 +117,23 @@ def ease_score_fn(
 
     def score_fn(users: npt.NDArray[np.int64]) -> npt.NDArray[np.float32]:
         return np.asarray(matrix[users] @ weights32, dtype=np.float32)
+
+    return score_fn
+
+
+def friend_score_fn(
+    graph: SocialGraph,
+    train_items: Sequence[npt.NDArray[np.int64]],
+    n_items: int,
+    popularity_weight: float = 1e-3,
+) -> Callable[[npt.NDArray[np.int64]], npt.NDArray[np.float32]]:
+    """Score = friends holding the item, plus a small popularity tie-break."""
+    matrix = _binary_matrix(train_items, n_items)
+    popularity = item_popularity(train_items, n_items)
+    prior = (popularity_weight * popularity / max(float(popularity.max()), 1.0)).astype(np.float32)
+
+    def score_fn(users: npt.NDArray[np.int64]) -> npt.NDArray[np.float32]:
+        counts = np.asarray((graph.adjacency[users] @ matrix).todense(), dtype=np.float32)
+        return counts + prior
 
     return score_fn

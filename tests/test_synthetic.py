@@ -70,3 +70,14 @@ def test_learnable(tmp_path: Path) -> None:
     knn = ranking_metrics(knn_score_fn(train, bundle.n_items), train, val, bundle.n_items)
     print(f"MostPopular={pop['ndcg@10']:.4f} ItemKNN={knn['ndcg@10']:.4f}")
     assert knn["ndcg@10"] >= 1.5 * pop["ndcg@10"]
+
+
+def test_friend_graph_written_and_deterministic(tmp_path: Path) -> None:
+    from prism.data.social import FRIENDS_FILE, load_friend_graph
+
+    write_synthetic_dataset(tmp_path / "a", seed=3)
+    write_synthetic_dataset(tmp_path / "b", seed=3)
+    assert (tmp_path / "a" / FRIENDS_FILE).exists()
+    first = load_friend_graph(tmp_path / "a")
+    second = load_friend_graph(tmp_path / "b")
+    assert (first.adjacency != second.adjacency).nnz == 0

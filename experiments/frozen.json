@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "tuned_on": "validation split only (phase tune: train history, validation targets), 17 Nov 2026 12:37-12:57 IST, 29 runs in results/runs/tune-s1, tune-s2, tune-s3; frozen before any test-split evaluation of this model",
+  "model": {"dim": 16, "temperature": 20.0, "content_scale": 0.4, "use_content": true, "use_ids": true},
+  "regimes": {
+    "large": {
+      "sample_rate": 0.5, "rounds": 40, "server_opt": "adam", "server_lr": 0.05, "momentum": 0.9,
+      "clip_norm": 5.0, "private_server_opt": "adam", "private_server_lr": 0.02
+    },
+    "small": {
+      "sample_rate": 0.05, "rounds": 400, "server_opt": "adam", "server_lr": 0.02, "momentum": 0.9,
+      "clip_norm": 5.0, "private_server_opt": "sgd", "private_server_lr": 0.05
+    }
+  },
+  "epsilons": [1.0, 2.0, 4.0, 8.0, 16.0],
+  "seeds": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+  "notes": "Validation NDCG@10 at seed 0: MostPopular 0.0174, ItemKNN 0.0308, item-item ridge 0.0342. large: non-private 0.0305, clip-only 0.0296 (lr 0.05), epsilon 8 0.0215. small: non-private 0.0314, clip-only 0.0317 (adam), epsilon 8 0.0190. Private runs use the private_server_* settings; so does the clip-only diagnostic. Model dimension 8 and clip norms 2 and 10 were tried and were not better under DP."
+}

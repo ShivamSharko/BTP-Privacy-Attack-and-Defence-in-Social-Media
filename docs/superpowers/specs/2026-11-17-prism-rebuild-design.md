@@ -495,3 +495,96 @@ pushing to GitHub.
 - The Streamlit dashboard in the roadmap's Must list is replaced by a static HTML report.
 - Scratch work, research notes and the vendored superpowers copy live in `_workspace/`, which is
   git-ignored.
+
+---
+
+## 9. Amendments after approval (17 November 2026)
+
+These record what changed after the owner approved the design, so the sections above stay as approved.
+
+### 9.1 Owner directions
+
+- **The project must be about social media.** Title: *Privacy Attack and Defence in Social Media*.
+  The friend network becomes core scope (9.2). Gossip is removed from the cut order in 6.2.
+- **The owner makes all git commits.** The plan's "one commit per task" no longer applies. Three
+  local commits had been made on `rebuild/v2` before this direction arrived; nothing was pushed.
+- **No conference or journal papers anywhere, and the literature review is part of this build**
+  (already recorded in 1.3).
+
+### 9.2 Social layer
+
+The dataset is a social review platform. The friend graph for the 9,913 users has 70,691
+friendships; 77% of users have at least one friend, the median user has 3 and the mean is 14.3.
+
+| Addition | What it measures | Where |
+|---|---|---|
+| Friends-based baseline | Recommend what a user's friends visited. Shows how much signal the social graph carries | `eval/baselines.py`, baselines table |
+| Friendship-link inference (RQ3) | Can a curious server tell who is friends with whom from the similarity of their model updates? Measured for raw updates, updates with local noise, and under secure aggregation, where the server holds no per-user vector | `attacks/links.py`, `experiments/update_leakage.py` |
+| Gossip between friends (RQ2) | Each user trains with their friends only, under local differential privacy, compared with server-based training on the same users | `fl/gossip.py`, `experiments/gossip.py` |
+| Social participation bias (RQ5) | Availability correlated with friend count, and quality compared between isolated, lightly connected and well-connected users | `fl/availability.py`, `experiments/participation.py` |
+| Fake-account promotion (RQ4) | The poisoning attack is framed as attacker-controlled accounts pushing one business | `attacks/poisoning.py` |
+
+### 9.3 Model and engine changes found during the build
+
+- The content projection is **fixed**, not trained: the top 16 principal directions of the public
+  text embeddings. On validation it matched the trained projection (0.0347 against 0.0345) and it
+  removes the most expensive part of every client update. Parameters: 107,679 (embedding 101,104,
+  user map 256, bias 6,319). Item embeddings start at zero, so initialisation uses no private data.
+- **Fast clipped sum.** For single-step clients the per-user update norm is computed in closed form
+  and the clipped sum by one weighted backward pass. A real-data run fell from 171 s to 29 s with an
+  identical result. The closed form is checked against autograd in the tests and again on a few
+  users at the start of every run; the run refuses to start if they disagree.
+- **Two regimes, not three.** Section 5.2 planned three regimes and 180 runs. Tuning kept two
+  (`large`: rate 0.5, 40 rounds; `small`: rate 0.05, 400 rounds). The grid is 2 regimes x 10
+  seeds x (non-private, clip-only, five privacy levels) = 140 runs, plus 18 what-if noise
+  simulations that carry no privacy claim.
+- **Command names.** The CLI has one command per experiment (`baselines`, `grid`,
+  `update-leakage`, `membership`, `poisoning`, `gossip`, `participation`, `ledger`, `social`,
+  `demo-small`, `report`) instead of the `data`, `tune`, `train`, `attack` commands sketched in 3.3.
+  Data preparation stays in `scripts/`. Tuning records are under `results/runs/tune-s1` to `tune-s3`.
+- **Empty cohorts are noised.** The old code skipped a round when nobody was sampled. Whether a
+  round is skipped depends on who was sampled, so the new loop always adds the noise.
+- **Receipts are data-independent.** Realised cohort sizes and update norms depend on who took
+  part, so they are kept out of the public ledger and appear only in run records as diagnostics.
+- **The gate uses the value of record.** The number of rounds a run may train is confirmed with
+  both accountants before training, after a test showed a single-accountant check allowed one
+  round too many.
+
+### 9.4 Corrections to section 2
+
+- Flower does document an accountant wrapper for its DP strategies; "no accounting" was wrong.
+  "Preview" status and the Ray-on-Windows caveat stand, and the decision not to use it is unchanged.
+- NIST SP 800-226 advises δ far below 1/n and treats δ above about 10⁻⁵ with suspicion. The
+  headline δ = 1/(10n) ≈ 1.0 × 10⁻⁵ is at that boundary, which is why ε at δ = 1/n² is reported
+  next to it. NIST asks for all privacy parameters to be reported; it does not name the accountant.
+- Tessera is a Go library, not a service. The decision to implement the log in Python is unchanged.
+- Yelp terms: findings must be submitted to Yelp for review before any publication, and the licence
+  runs 12 months from 15 November 2026. Both are tracked in `docs/yelp-compliance.md`.
+
+### 9.5 Independent review (17 November 2026, about 15:40)
+
+A fresh reviewer on a different model read the whole build with privacy correctness first. It
+found no defect that makes a privacy claim or a headline result wrong: every path to the noisy sum
+clips, the closed-form norm was re-derived and agrees with autograd including the edge cases, the
+noise is added once per round including empty rounds, the accountants receive the rates, rounds and
+population sizes that training uses, and the ledger hashing and proofs follow the RFC.
+
+It found three major and nine minor issues. What was done about each:
+
+| Finding | Action |
+|---|---|
+| H5 was decided by a two-sided test that cannot reach 0.05 with five seeds, and the sign test only looked in the wrong direction | Fixed. H5 is now decided by the pre-registered sign pattern, separately for activity and friend count |
+| Run records did not identify the code that produced them, and resume could reuse a record from older code | Partly fixed. Records now store a hash of the package source and a dirty flag, reuse of a record from other code is flagged (`stale_code`) and can be refused with `PRISM_STRICT_RESUME=1`. The records of 17 November were produced before the code was committed and carry only the base commit |
+| In the fast path one non-finite update could discard a whole chunk of up to 128 users | Fixed. Such a chunk is recomputed per user, so only the offending user is dropped. No run of 17 November had a non-finite update |
+| Local-DP epsilon uses add-or-remove adjacency | Documented, and the stricter replace-one figure is reported next to it |
+| The nominal-epsilon caveat for rank-based availability was understated | Reworded: with rank-based availability the add-or-remove analysis holds for no user |
+| Receipts of availability runs recorded the wrong expected cohort | Fixed, and the participation experiment was rerun |
+| The audit trusted a stored flag and did not bind a ledger to its run | Fixed. The audit checks origin, lineage, configuration hash and model hash against the run record |
+| A refused model was still written to disk | Fixed. Only released models are kept |
+| Some resume keys ignored inputs that change results | Guards added for the poisoning trim fraction, the gossip settings and missing checkpoints |
+| The H4 rule in code was stricter than the pre-registration | Fixed to the pre-registered wording |
+| Three documentation statements contradicted the code | Corrected |
+| The empirical epsilon lower bound was described as a 95% statement | Reworded as a sanity check with about 90% joint confidence |
+
+Not reviewed: most of the report generator, the data-preparation pipeline, the baselines module,
+the demonstration and the tests themselves.

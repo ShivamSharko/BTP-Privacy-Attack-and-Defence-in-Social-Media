@@ -1,0 +1,394 @@
+{
+  "controls": [
+    {
+      "measured": 8742.661389884433,
+      "name": "positive_promotion",
+      "passed": true,
+      "threshold": 10.0,
+      "what": "mean target exposure at fraction 0.3 over the clean mean (floor 1/9913 users) in secure_sum_norm_bound"
+    },
+    {
+      "measured": 0.00010101010101010101,
+      "name": "negative_clean",
+      "passed": true,
+      "threshold": 0.05,
+      "what": "largest target exposure at fraction 0 over all modes and seeds"
+    }
+  ],
+  "experiment": "poisoning",
+  "h4": {
+    "gap_largest_at_max_share": false,
+    "holds": false,
+    "lower_at_every_share": true,
+    "per_fraction": [
+      {
+        "exposure": {
+          "plaintext_median": 0.004303722746450856,
+          "plaintext_trimmed_mean": 0.0011227040720000502,
+          "secure_sum_norm_bound": 0.9459325786654665
+        },
+        "fraction": 0.1,
+        "gap": 0.9448098745934664,
+        "trimmed_mean_lower": true
+      },
+      {
+        "exposure": {
+          "plaintext_median": 0.04855142506015567,
+          "plaintext_trimmed_mean": 0.0027370566432663138,
+          "secure_sum_norm_bound": 0.9537360304155449
+        },
+        "fraction": 0.2,
+        "gap": 0.9509989737722786,
+        "trimmed_mean_lower": true
+      },
+      {
+        "exposure": {
+          "plaintext_median": 0.16199596170719474,
+          "plaintext_trimmed_mean": 0.05972524496925306,
+          "secure_sum_norm_bound": 0.8819390083611856
+        },
+        "fraction": 0.3,
+        "gap": 0.8222137633919325,
+        "trimmed_mean_lower": true
+      }
+    ],
+    "statement": "plaintext trimmed mean limits target promotion better than the secure-sum mode at every attacker fraction, and the gap is largest at the largest fraction"
+  },
+  "invalid_reasons": [],
+  "limitations": [
+    "One attack strategy: norm-bounded targeted promotion of a single item.",
+    "Attackers do not adapt to the aggregator; an adaptive attacker could do better against the trimmed mean and the median.",
+    "The robust modes run without DP noise, so no privacy guarantee applies to them.",
+    "Coordinate-wise robust aggregators need the server to see each individual update, which secure aggregation prevents; the robust modes are therefore not compatible with it.",
+    "Three seeds by default; min and max over seeds are reported, not confidence intervals.",
+    "Run records are reused when the configuration matches; records produced on 17 November 2026 predate the commit of the code that produced them.",
+    "Exposure is the share of other users whose top-10 contains the target, on one target item per seed drawn from the least popular third."
+  ],
+  "results": {
+    "plaintext_median": {
+      "0.0": {
+        "exposure": {
+          "max": 0.00010101010101010101,
+          "mean": 3.367003367003367e-05,
+          "min": 0.0,
+          "per_seed": [
+            0.0,
+            0.0,
+            0.00010101010101010101
+          ]
+        },
+        "exposure_ratio": 0.3337710437710438,
+        "ndcg": {
+          "max": 0.004931518340681969,
+          "mean": 0.004911346685557445,
+          "min": 0.004874268338380638,
+          "per_seed": [
+            0.004874268338380638,
+            0.004931518340681969,
+            0.004928253377609726
+          ]
+        },
+        "utility_drop": 0.0
+      },
+      "0.1": {
+        "exposure": {
+          "max": 0.012798922196025598,
+          "mean": 0.004303722746450856,
+          "min": 0.0,
+          "per_seed": [
+            0.0,
+            0.012798922196025598,
+            0.00011224604332697273
+          ]
+        },
+        "exposure_ratio": 42.66280358556734,
+        "ndcg": {
+          "max": 0.0047302575438833445,
+          "mean": 0.004583092435344696,
+          "min": 0.004370263994931758,
+          "per_seed": [
+            0.0047302575438833445,
+            0.004370263994931758,
+            0.0046487557672189855
+          ]
+        },
+        "utility_drop": 0.06683589476141648
+      },
+      "0.2": {
+        "exposure": {
+          "max": 0.14540171803941385,
+          "mean": 0.04855142506015567,
+          "min": 0.0,
+          "per_seed": [
+            0.0,
+            0.14540171803941385,
+            0.0002525571410531633
+          ]
+        },
+        "exposure_ratio": 481.29027662132313,
+        "ndcg": {
+          "max": 0.004402624999632091,
+          "mean": 0.003929245495437704,
+          "min": 0.003608452277158392,
+          "per_seed": [
+            0.004402624999632091,
+            0.003608452277158392,
+            0.00377665920952263
+          ]
+        },
+        "utility_drop": 0.19996576356699822
+      },
+      "0.3": {
+        "exposure": {
+          "max": 0.4740109731446723,
+          "mean": 0.16199596170719474,
+          "min": 0.002886002886002886,
+          "per_seed": [
+            0.00909090909090909,
+            0.4740109731446723,
+            0.002886002886002886
+          ]
+        },
+        "exposure_ratio": 1605.8659684034214,
+        "ndcg": {
+          "max": 0.00346809976636517,
+          "mean": 0.0030274619078614687,
+          "min": 0.0026984865313005677,
+          "per_seed": [
+            0.00346809976636517,
+            0.0029157994259186677,
+            0.0026984865313005677
+          ]
+        },
+        "utility_drop": 0.3835780486105416
+      }
+    },
+    "plaintext_trimmed_mean": {
+      "0.0": {
+        "exposure": {
+          "max": 0.0,
+          "mean": 0.0,
+          "min": 0.0,
+          "per_seed": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "exposure_ratio": 0.0,
+        "ndcg": {
+          "max": 0.004796965240006266,
+          "mean": 0.004721551715353237,
+          "min": 0.004678392216801049,
+          "per_seed": [
+            0.004796965240006266,
+            0.004678392216801049,
+            0.004689297689252398
+          ]
+        },
+        "utility_drop": 0.0
+      },
+      "0.1": {
+        "exposure": {
+          "max": 0.0032558661726731783,
+          "mean": 0.0011227040720000502,
+          "min": 0.0,
+          "per_seed": [
+            0.0,
+            0.0032558661726731783,
+            0.00011224604332697273
+          ]
+        },
+        "exposure_ratio": 11.129365465736498,
+        "ndcg": {
+          "max": 0.00461194877729529,
+          "mean": 0.004327753002691906,
+          "min": 0.004111209201119755,
+          "per_seed": [
+            0.00461194877729529,
+            0.004111209201119755,
+            0.004260101029660673
+          ]
+        },
+        "utility_drop": 0.08340451114424982
+      },
+      "0.2": {
+        "exposure": {
+          "max": 0.00808489135927236,
+          "mean": 0.0027370566432663138,
+          "min": 0.0,
+          "per_seed": [
+            0.0,
+            0.00808489135927236,
+            0.00012627857052658164
+          ]
+        },
+        "exposure_ratio": 27.13244250469897,
+        "ndcg": {
+          "max": 0.004183157827690298,
+          "mean": 0.0037347714512339703,
+          "min": 0.0034798030330848214,
+          "per_seed": [
+            0.004183157827690298,
+            0.0034798030330848214,
+            0.003541353492926793
+          ]
+        },
+        "utility_drop": 0.2089949075238376
+      },
+      "0.3": {
+        "exposure": {
+          "max": 0.17196072769275195,
+          "mean": 0.05972524496925306,
+          "min": 0.003318903318903319,
+          "per_seed": [
+            0.003318903318903319,
+            0.17196072769275195,
+            0.003896103896103896
+          ]
+        },
+        "exposure_ratio": 592.0563533802056,
+        "ndcg": {
+          "max": 0.0033355662934071027,
+          "mean": 0.0029004531225740675,
+          "min": 0.0023080113188785737,
+          "per_seed": [
+            0.0033355662934071027,
+            0.0030577817554365266,
+            0.0023080113188785737
+          ]
+        },
+        "utility_drop": 0.38569917318864444
+      }
+    },
+    "secure_sum_norm_bound": {
+      "0.0": {
+        "exposure": {
+          "max": 0.00010101010101010101,
+          "mean": 3.367003367003367e-05,
+          "min": 0.0,
+          "per_seed": [
+            0.0,
+            0.0,
+            0.00010101010101010101
+          ]
+        },
+        "exposure_ratio": 0.3337710437710438,
+        "ndcg": {
+          "max": 0.0281477804547841,
+          "mean": 0.02785273171693733,
+          "min": 0.027329047301210236,
+          "per_seed": [
+            0.028081367394817654,
+            0.027329047301210236,
+            0.0281477804547841
+          ]
+        },
+        "utility_drop": 0.0
+      },
+      "0.1": {
+        "exposure": {
+          "max": 0.9490460157126824,
+          "mean": 0.9459325786654665,
+          "min": 0.9442137164664945,
+          "per_seed": [
+            0.9490460157126824,
+            0.9445380038172224,
+            0.9442137164664945
+          ]
+        },
+        "exposure_ratio": 9377.02965231077,
+        "ndcg": {
+          "max": 0.02195828792570532,
+          "mean": 0.021660949255583137,
+          "min": 0.021240362823910966,
+          "per_seed": [
+            0.02195828792570532,
+            0.021240362823910966,
+            0.021784197017133123
+          ]
+        },
+        "utility_drop": 0.22230431557953623
+      },
+      "0.2": {
+        "exposure": {
+          "max": 0.9547979797979798,
+          "mean": 0.9537360304155449,
+          "min": 0.9525192574820053,
+          "per_seed": [
+            0.9547979797979798,
+            0.9538908539666499,
+            0.9525192574820053
+          ]
+        },
+        "exposure_ratio": 9454.385269509297,
+        "ndcg": {
+          "max": 0.021943226944347197,
+          "mean": 0.021227905513581193,
+          "min": 0.020493113413123393,
+          "per_seed": [
+            0.021943226944347197,
+            0.020493113413123393,
+            0.021247376183272985
+          ]
+        },
+        "utility_drop": 0.23785193749335404
+      },
+      "0.3": {
+        "exposure": {
+          "max": 0.9512265512265512,
+          "mean": 0.8819390083611856,
+          "min": 0.8165945165945165,
+          "per_seed": [
+            0.9512265512265512,
+            0.8779959572624891,
+            0.8165945165945165
+          ]
+        },
+        "exposure_ratio": 8742.661389884433,
+        "ndcg": {
+          "max": 0.020463689762567048,
+          "mean": 0.01678403201529421,
+          "min": 0.010436664130088154,
+          "per_seed": [
+            0.020463689762567048,
+            0.01945174215322744,
+            0.010436664130088154
+          ]
+        },
+        "utility_drop": 0.3974008658874996
+      }
+    }
+  },
+  "settings": {
+    "clip_norm": 5.0,
+    "exposure_ratio_denominator": "max(mean clean exposure of the mode, 1/users)",
+    "fractions": [
+      0.0,
+      0.1,
+      0.2,
+      0.3
+    ],
+    "modes": [
+      "secure_sum_norm_bound",
+      "plaintext_trimmed_mean",
+      "plaintext_median"
+    ],
+    "noise": "none (clip only)",
+    "phase": "final",
+    "regime": "small",
+    "rounds": 200,
+    "sample_rate": 0.02,
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "skipped_runs": 36,
+    "trim_fraction": 0.35,
+    "users": 9913,
+    "utility_drop": "(clean mean NDCG@10 - NDCG@10) / clean mean NDCG@10, same mode"
+  },
+  "status": "VALID",
+  "wall_seconds": 7.0
+}
