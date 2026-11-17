@@ -1,0 +1,24 @@
+{
+  "clip_norm": 4.9214,
+  "results": {
+    "0.0": {
+      "mean_absolute_cosine": 0.042807407219207366,
+      "mean_top10_item_recovery": 0.0009710884353741498,
+      "median_absolute_cosine": 0.03480545116818945,
+      "users": 200
+    },
+    "0.534": {
+      "mean_absolute_cosine": 0.039125476897023614,
+      "mean_top10_item_recovery": 0.0009328523328523328,
+      "median_absolute_cosine": 0.033705589134837274,
+      "users": 200
+    },
+    "1.0961": {
+      "mean_absolute_cosine": 0.03990322536412314,
+      "mean_top10_item_recovery": 0.0017849041728058845,
+      "median_absolute_cosine": 0.034572019974853305,
+      "users": 200
+    }
+  },
+  "scope": "single-client update, non-SecAgg+ threat model"
+}

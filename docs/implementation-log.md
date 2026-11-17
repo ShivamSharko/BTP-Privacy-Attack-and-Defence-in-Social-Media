@@ -15,9 +15,13 @@ The single progress tracker. PROJECT_ROADMAP.md remains the SSOT for decisions.
 | 7A | 17 Nov 2026 | Frozen content features, ranking metrics, MostPopular and ItemKNN baselines | src/prism/data/features.py, src/prism/eval/, results/features_card.json, results/baselines.json | In progress |
 | 7B | 17 Nov 2026 | Two-tower trainer, user-level DP, PRV/RDP accounting, resumable central/federated grid | src/prism/privacy/dp.py, src/prism/models/two_tower.py, scripts/run_grid.py | Done |
 | 8 | 17 Nov 2026 | Grid complete (60/60 runs); reproducible summary with bootstrap CIs, paired tests, Holm correction | results/summary.json, results/summary_table.csv | Done |
-| 9 | 17 Nov 2026 | Grid extended: 10 seeds plus round-matched central control | scripts/run_grid.py, results/summary.json | In progress |
+| 9 | 17 Nov 2026 | Grid extended: 10 seeds plus round-matched central control | scripts/run_grid.py, results/summary.json | Done |
+| 10 | 17 Nov 2026 | Interaction-level MI over 180 checkpoints; analytic first-layer inversion | results/attacks_membership.json, results/attacks_inversion.json | In progress |
 
 ## Open items
+- Holm rejects all five federated and all five central_matched comparisons; central_matched epsilon=16 is marginal at p=0.0488.
+- Topology confound resolved with non-overlapping non-private intervals; per-epsilon cross-topology intervals overlap so no per-epsilon winner is claimed.
+- User-level membership inference with a held-out user population and reference models is still outstanding (~10 training runs).
 - DP mechanism verified active: C=4.9214; federated z 1.0961/0.8306/0.6745/0.5340/0.4247 for eps 1/2/4/8/16; central z 5.0149/2.8135/1.6893/1.0804/0.7370; clipped deltas 3.49-4.01 all below C; non-private runs have C=None and z=0.
 - Clipping barely binds at convergence because deltas fall below C, so the DP effect comes mainly from the added noise, not the clipping.
 - Federated retention 76.8/85.1/87.3/89.7/93.8 percent at eps 1/2/4/8/16; four configurations sit at p=0.0625, the arithmetic floor for 5 seeds.
