@@ -12,68 +12,32 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 from collections import defaultdict
 from pathlib import Path
 from typing import Any, Final
 
 import numpy as np
-from scipy import stats
+
+from prism.eval.stats import (
+    ALPHA,
+    bootstrap_ci,
+    holm_adjust,
+    min_two_sided_sign_p,
+    paired_tests,
+)
+
+__all__ = [
+    "bootstrap_ci",
+    "holm_adjust",
+    "main",
+    "min_two_sided_sign_p",
+    "paired_tests",
+]
 
 RUNS: Final[Path] = Path("results/runs")
 OUT_JSON: Final[Path] = Path("results/summary.json")
 OUT_CSV: Final[Path] = Path("results/summary_table.csv")
-BOOTSTRAP_DRAWS: Final[int] = 10000
-ALPHA: Final[float] = 0.05
 METRIC: Final[str] = "ndcg@10"
-
-
-def bootstrap_ci(values: np.ndarray, seed: int = 0) -> tuple[float, float]:
-    """Percentile bootstrap CI for the mean over seeds."""
-    rng = np.random.default_rng(seed)
-    n = values.size
-    draws = rng.integers(0, n, size=(BOOTSTRAP_DRAWS, n))
-    means = values[draws].mean(axis=1)
-    return float(np.percentile(means, 2.5)), float(np.percentile(means, 97.5))
-
-
-def holm_adjust(pvalues: list[float]) -> list[bool]:
-    """Holm-Bonferroni step-down decisions at ALPHA."""
-    m = len(pvalues)
-    order = sorted(range(m), key=lambda i: pvalues[i])
-    decisions = [False] * m
-    for rank, index in enumerate(order):
-        threshold = ALPHA / (m - rank)
-        if pvalues[index] <= threshold:
-            decisions[index] = True
-        else:
-            break
-    return decisions
-
-
-def min_two_sided_sign_p(n: int) -> float:
-    """Smallest possible two-sided sign-test p-value for n paired seeds."""
-    return min(1.0, 2.0 * math.pow(0.5, n))
-
-
-def paired_tests(treated: np.ndarray, control: np.ndarray) -> dict[str, Any]:
-    """Paired comparison of two seed-matched configurations."""
-    diff = treated - control
-    n = int(diff.size)
-    negative = int((diff < 0).sum())
-    positive = int((diff > 0).sum())
-    try:
-        wilcoxon_p = float(stats.wilcoxon(treated, control, zero_method="wilcox").pvalue)
-    except ValueError:
-        wilcoxon_p = 1.0
-    return {
-        "mean_difference": float(diff.mean()),
-        "seeds_degraded": negative,
-        "seeds_improved": positive,
-        "wilcoxon_two_sided_p": wilcoxon_p,
-        "min_possible_two_sided_p": min_two_sided_sign_p(n),
-        "sign_test_one_sided_p": float(math.pow(0.5, n)) if negative == n else 1.0,
-    }
 
 
 def load_groups() -> dict[tuple[str, str], dict[int, float]]:

@@ -99,3 +99,21 @@ def knn_score_fn(
         return np.asarray(block.todense(), dtype=np.float32)
 
     return score_fn
+
+
+def ease_score_fn(
+    train_items: Sequence[npt.NDArray[np.int64]], n_items: int, l2: float = 500.0
+) -> Callable[[npt.NDArray[np.int64]], npt.NDArray[np.float32]]:
+    """EASE: closed-form item-item ridge regression with a zero diagonal."""
+    matrix = _binary_matrix(train_items, n_items)
+    gram = (matrix.T @ matrix).toarray().astype(np.float64)
+    gram[np.diag_indices(n_items)] += l2
+    precision = np.linalg.inv(gram)
+    weights = precision / -np.diag(precision)
+    np.fill_diagonal(weights, 0.0)
+    weights32 = weights.astype(np.float32)
+
+    def score_fn(users: npt.NDArray[np.int64]) -> npt.NDArray[np.float32]:
+        return np.asarray(matrix[users] @ weights32, dtype=np.float32)
+
+    return score_fn
