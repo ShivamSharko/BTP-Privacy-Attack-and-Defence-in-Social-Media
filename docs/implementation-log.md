@@ -14,9 +14,14 @@ The single progress tracker. PROJECT_ROADMAP.md remains the SSOT for decisions.
 | 6 | 16 Nov 2026 | Data-layer test hardening; metro CLI made testable; hardware and split shares recorded | tests/test_build_philly_subset_stages.py, tests/test_metro_analysis_stages.py, tests/test_splits_errors.py, tests/test_environment_paths.py | In progress |
 | 7A | 17 Nov 2026 | Frozen content features, ranking metrics, MostPopular and ItemKNN baselines | src/prism/data/features.py, src/prism/eval/, results/features_card.json, results/baselines.json | In progress |
 | 7B | 17 Nov 2026 | Two-tower trainer, user-level DP, PRV/RDP accounting, resumable central/federated grid | src/prism/privacy/dp.py, src/prism/models/two_tower.py, scripts/run_grid.py | Done |
-| 8 | 17 Nov 2026 | Grid complete (60/60 runs); reproducible summary with bootstrap CIs, paired tests, Holm correction | results/summary.json, results/summary_table.csv | In progress |
+| 8 | 17 Nov 2026 | Grid complete (60/60 runs); reproducible summary with bootstrap CIs, paired tests, Holm correction | results/summary.json, results/summary_table.csv | Done |
+| 9 | 17 Nov 2026 | Grid extended: 10 seeds plus round-matched central control | scripts/run_grid.py, results/summary.json | In progress |
 
 ## Open items
+- DP mechanism verified active: C=4.9214; federated z 1.0961/0.8306/0.6745/0.5340/0.4247 for eps 1/2/4/8/16; central z 5.0149/2.8135/1.6893/1.0804/0.7370; clipped deltas 3.49-4.01 all below C; non-private runs have C=None and z=0.
+- Clipping barely binds at convergence because deltas fall below C, so the DP effect comes mainly from the added noise, not the clipping.
+- Federated retention 76.8/85.1/87.3/89.7/93.8 percent at eps 1/2/4/8/16; four configurations sit at p=0.0625, the arithmetic floor for 5 seeds.
+- Central shows no detectable effect; eps=2 exceeds non-private, so the claim must be "not detectable at n=5", never "no cost".
 - Federated DP shows a monotonic privacy-utility curve: retention 76.6% (eps 1), 84.9% (2), 87.3% (4), 89.5% (8), 93.7% (16) versus federated non-private 0.02384.
 - Central DP shows no detectable degradation at any epsilon; all differences are inside seed noise and eps=2 exceeds non-private, so the correct claim is "no detectable effect", not "no cost".
 - CONFOUND: federated used 400 server rounds versus central 40 at matched data budget. H1 as literally pre-registered gives 120.4% retention (satisfied) but is confounded by round count. A round-matched central control (q=0.02, E=1, T=400) is required.

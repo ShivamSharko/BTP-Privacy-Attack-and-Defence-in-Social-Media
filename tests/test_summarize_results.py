@@ -35,3 +35,7 @@ def test_paired_tests_detects_uniform_degradation() -> None:
     assert result["seeds_degraded"] == 5
     assert result["mean_difference"] == pytest.approx(-0.002)
     assert result["sign_test_one_sided_p"] == pytest.approx(0.03125)
+
+
+def test_min_two_sided_p_for_ten_seeds() -> None:
+    assert min_two_sided_sign_p(10) == pytest.approx(0.001953125)

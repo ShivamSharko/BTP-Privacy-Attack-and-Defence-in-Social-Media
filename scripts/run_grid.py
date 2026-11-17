@@ -46,7 +46,12 @@ CLIP_CACHE: Final[Path] = Path("results/clip_calibration.json")
 NOISE_CACHE: Final[Path] = Path("results/noise_calibration.json")
 DATASET_CARD: Final[Path] = Path("results/dataset_card.json")
 EPSILONS: Final[tuple[float, ...]] = (1.0, 2.0, 4.0, 8.0, 16.0)
-SEEDS: Final[tuple[int, ...]] = (0, 1, 2, 3, 4)
+SEEDS: Final[tuple[int, ...]] = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+TOPOLOGY_ROUNDS: Final[dict[str, int]] = {
+    "central": 40,
+    "central_matched": 400,
+    "federated": 400,
+}
 LOCAL_LR: Final[float] = 2.0
 SERVER_LR: Final[float] = 1.0
 THREADS: Final[int] = 2
@@ -65,11 +70,15 @@ class Job:
 
     @property
     def sample_rate(self) -> float:
-        return 0.20 if self.topology == "central" else 0.01
+        if self.topology == "central":
+            return 0.20
+        if self.topology == "central_matched":
+            return 0.02
+        return 0.01
 
     @property
     def local_epochs(self) -> int:
-        return 1 if self.topology == "central" else 2
+        return 2 if self.topology == "federated" else 1
 
     @property
     def identifier(self) -> str:
@@ -281,8 +290,14 @@ def run_job(job: Job) -> dict[str, Any]:
     return record
 
 
-def build_jobs(smoke: bool, variant: str) -> list[Job]:
-    """Enumerate the grid."""
+def build_jobs(
+    smoke: bool,
+    variant: str,
+    seeds: tuple[int, ...] = SEEDS,
+    topologies: tuple[str, ...] = tuple(TOPOLOGY_ROUNDS),
+    epsilons: tuple[float, ...] = EPSILONS,
+) -> list[Job]:
+    """Enumerate the grid, optionally restricted to a subset."""
     if smoke:
         return [
             Job("central", None, 0, 4, variant),
@@ -291,10 +306,12 @@ def build_jobs(smoke: bool, variant: str) -> list[Job]:
             Job("federated", 8.0, 0, 8, variant),
         ]
     jobs: list[Job] = []
-    for topology, rounds in (("central", 40), ("federated", 400)):
-        for seed in SEEDS:
+    for topology, rounds in TOPOLOGY_ROUNDS.items():
+        if topology not in topologies:
+            continue
+        for seed in seeds:
             jobs.append(Job(topology, None, seed, rounds, variant))
-            for epsilon in EPSILONS:
+            for epsilon in epsilons:
                 jobs.append(Job(topology, epsilon, seed, rounds, variant))
     return jobs
 
@@ -306,14 +323,37 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--smoke", action="store_true")
     parser.add_argument("--variant", default="semantic", choices=["semantic", "tfidf"])
     parser.add_argument("--only", default=None, help="substring filter on run id")
+    parser.add_argument("--seeds", default=None, help="comma-separated seed list")
+    parser.add_argument("--topologies", default=None, help="comma-separated topology list")
+    parser.add_argument("--epsilons", default=None, help="comma-separated epsilon list")
     args = parser.parse_args(argv)
 
-    jobs = build_jobs(bool(args.smoke), str(args.variant))
+    seeds = SEEDS if args.seeds is None else tuple(int(x) for x in str(args.seeds).split(","))
+    topologies = (
+        tuple(TOPOLOGY_ROUNDS)
+        if args.topologies is None
+        else tuple(str(x) for x in str(args.topologies).split(","))
+    )
+    epsilons = (
+        EPSILONS
+        if args.epsilons is None
+        else tuple(float(x) for x in str(args.epsilons).split(","))
+    )
+    jobs = build_jobs(bool(args.smoke), str(args.variant), seeds, topologies, epsilons)
     if args.only:
         jobs = [job for job in jobs if str(args.only) in job.identifier]
     RUNS.mkdir(parents=True, exist_ok=True)
     pending = [job for job in jobs if not (RUNS / f"{job.identifier}.json").exists()]
     print(f"{len(jobs)} jobs total, {len(pending)} pending, {args.workers} workers", flush=True)
+    done = [json.loads(p.read_text(encoding="utf-8")) for p in RUNS.glob("*.json")]
+    if done:
+        mean_wall = sum(float(r.get("wall_seconds", 0.0)) for r in done) / len(done)
+        estimate = mean_wall * len(pending) / max(int(args.workers), 1) / 60.0
+        print(
+            f"mean completed run {mean_wall:.1f}s; rough estimate {estimate:.0f} min "
+            f"at {args.workers} workers (hybrid CPU gives less than linear speedup)",
+            flush=True,
+        )
     if not pending:
         print("Nothing to do.")
         return 0

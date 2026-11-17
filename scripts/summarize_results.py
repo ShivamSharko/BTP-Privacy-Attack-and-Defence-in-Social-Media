@@ -103,10 +103,10 @@ def main(argv: list[str] | None = None) -> int:
     central_control = groups.get(("central", "nondp"), {})
     summary: dict[str, Any] = {"metric": metric, "alpha": ALPHA, "topologies": {}}
     rows: list[str] = [
-        "topology,epsilon_tag,n_seeds,mean,sd,ci_low,ci_high,retention_own,retention_vs_central_nondp,wilcoxon_p,holm_reject"
+        "topology,epsilon_tag,n_seeds,mean,sd,ci_low,ci_high,retention_own,retention_vs_central_nondp,retention_vs_central_matched_nondp,wilcoxon_p,holm_reject"
     ]
 
-    for topology in ("central", "federated"):
+    for topology in ("central", "central_matched", "federated"):
         own_control = groups.get((topology, "nondp"), {})
         if not own_control:
             continue
@@ -145,6 +145,19 @@ def main(argv: list[str] | None = None) -> int:
                     if central_control
                     else None
                 ),
+                "retention_vs_central_matched_nondp": (
+                    mean
+                    / float(
+                        np.mean(
+                            [
+                                groups[("central_matched", "nondp")][s]
+                                for s in sorted(groups[("central_matched", "nondp")])
+                            ]
+                        )
+                    )
+                    if groups.get(("central_matched", "nondp"))
+                    else None
+                ),
             }
             if tag in tests:
                 entry.update(tests[tag])
@@ -154,11 +167,13 @@ def main(argv: list[str] | None = None) -> int:
                 f"{topology},{tag},{entry['n_seeds']},{mean:.6f},{entry['sd']:.6f},"
                 f"{low:.6f},{high:.6f},{entry['retention_vs_own_nondp']:.4f},"
                 f"{entry['retention_vs_central_nondp'] if entry['retention_vs_central_nondp'] is not None else ''},"
+                f"{entry['retention_vs_central_matched_nondp'] if entry['retention_vs_central_matched_nondp'] is not None else ''},"
                 f"{entry.get('wilcoxon_two_sided_p', '')},{entry.get('holm_reject', '')}"
             )
         summary["topologies"][topology] = entries
 
     summary["confounds"] = [
+        "Resolved: the round-matched central control (q=0.02, E=1, T=400) reaches 0.02484 non-private versus federated 0.02368 at the same expected user-update budget. The earlier federated advantage over central was a 10x optimisation-step artifact, not a topology benefit. H1 must name its reference explicitly: against round-matched central, FL+DP at epsilon 8 retains about 88 percent and does not meet the 90 percent threshold.",
         "Central used 40 server rounds; federated used 400 at a matched expected user-update budget. The federated advantage reflects 10x more optimisation steps, not an intrinsic benefit of decentralisation. A round-matched central control is required.",
         "With 5 seeds the minimum achievable two-sided sign/Wilcoxon p-value is 0.0625, so two-sided significance at alpha=0.05 is impossible regardless of effect size.",
         "Neither topology exceeded the MostPopular baseline; the model is content-only with no user-ID embeddings.",
