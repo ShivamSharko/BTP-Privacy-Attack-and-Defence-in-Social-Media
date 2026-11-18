@@ -85,7 +85,7 @@ for (const [width, height] of sizes) {
   }
   await page.close();
   shrunk.sort((a, b) => a.fit - b.fit);
-  const worst = shrunk.slice(0, 6).map((s) => `${s.name} ${Math.round(s.fit * 100)}%`).join(", ");
+  const worst = shrunk.slice(0, 24).map((s) => `${s.name} ${Math.round(s.fit * 100)}%`).join(", ");
   console.log(`${width}x${height}: ${slides.length} slides, ${bad.length} problem(s), ${shrunk.length} shrunk to fit${worst ? ` (smallest: ${worst})` : ""}`);
   if (bad.length > 0) console.log(bad.join("\n"));
   failures += bad.length;

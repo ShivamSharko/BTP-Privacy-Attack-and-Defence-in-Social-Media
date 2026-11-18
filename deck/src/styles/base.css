@@ -202,6 +202,13 @@ select {
   padding: calc(1.1 * var(--u)) var(--gutter) calc(0.6 * var(--u));
   overflow: hidden;
   background: linear-gradient(90deg, var(--scrim) 0%, var(--scrim) 72%, transparent 100%);
+  /* The text under the headline is set larger than the same tokens in the figure card, so it
+     reads from the back of a room. Only the column's own copies of the tokens are raised. */
+  --t-body: calc(1.15 * var(--u));
+  --t-small: calc(0.88 * var(--u));
+  --t-lead: calc(1.3 * var(--u));
+  font-size: var(--t-body);
+  line-height: 1.42;
 }
 .panel__inner {
   max-width: var(--panel-w);
@@ -213,11 +220,11 @@ select {
   font-size: var(--t-head);
   line-height: 1.06;
   letter-spacing: -0.015em;
-  margin: 0 0 0.55em;
+  margin: 0 0 0.48em;
   text-wrap: balance;
 }
 .panel p {
-  margin: 0 0 0.85em;
+  margin: 0 0 0.7em;
   max-width: 62ch;
   text-wrap: pretty;
 }
@@ -616,7 +623,7 @@ select {
   left: 0;
   top: 0;
   font-family: var(--font-text);
-  font-size: calc(0.885 * var(--u));
+  font-size: calc(1.04 * var(--u));
   color: var(--ink);
   white-space: nowrap;
   user-select: none;
@@ -624,7 +631,7 @@ select {
   will-change: transform;
 }
 .label3d[data-small="true"] {
-  font-size: calc(0.73 * var(--u));
+  font-size: calc(0.86 * var(--u));
 }
 
 .loading {
@@ -644,4 +651,24 @@ select {
     transition: none !important;
     animation-duration: 0.01ms !important;
   }
+}
+
+/* The text column's larger type gets slightly tighter spacing, so a dense slide still fits
+   without being scaled down. */
+.panel .note {
+  margin-bottom: 0.7em;
+  padding: 0.4em 0 0.4em 0.85em;
+}
+.panel .steps,
+.panel .list {
+  margin-bottom: 0.7em;
+}
+.panel .steps li,
+.panel .list li {
+  margin-bottom: 0.28em;
+}
+.panel .controls {
+  margin-top: 0.8em;
+  padding-top: 0.7em;
+  gap: 0.6em;
 }
