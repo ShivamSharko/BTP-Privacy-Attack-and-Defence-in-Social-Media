@@ -46,3 +46,10 @@ Thumbs.db
 
 # Non-project workspace: scratch files, research notes, vendored tools (never committed)
 /_workspace/
+
+# deck (interactive 3D slide deck)
+/deck/node_modules/
+/deck/dist/
+/deck/e2e/shots/
+/deck/test-results/
+/deck/playwright-report/

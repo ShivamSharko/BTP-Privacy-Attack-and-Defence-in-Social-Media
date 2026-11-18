@@ -1,0 +1,17 @@
+{
+  "h3.margin": {
+    "quote": "recovers a member's history no better than the popularity prior plus 0.05 AUC",
+    "source": "PREREGISTRATION.md",
+    "value": 0.05
+  },
+  "speed.after_s": {
+    "quote": "A real-data run fell from 171 s to 29 s with an identical result.",
+    "source": "docs/adr/ADR-045-fast-clipped-sum.md",
+    "value": 29
+  },
+  "speed.before_s": {
+    "quote": "A real-data run fell from 171 s to 29 s with an identical result.",
+    "source": "docs/adr/ADR-045-fast-clipped-sum.md",
+    "value": 171
+  }
+}

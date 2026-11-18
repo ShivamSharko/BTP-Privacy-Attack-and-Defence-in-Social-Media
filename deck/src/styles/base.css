@@ -1,0 +1,642 @@
+/* Non-colour tokens and the page skeleton. Colours are written by applyTheme() in roles.ts. */
+:root {
+  --font-display: "Bricolage Grotesque Variable", "Bricolage Grotesque", system-ui, sans-serif;
+  --font-text: "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-code: "JetBrains Mono", ui-monospace, monospace;
+
+  /* One hundredth of the width of the largest 16:9 box that fits the window, and one pixel
+     of the 1920x1080 design. Every size below is a multiple of these, so a slide is laid out
+     the same in any window and never needs a scroller. */
+  --u: min(1vw, 1.7778vh);
+  --px: calc(var(--u) / 19.2);
+
+  /* Type scale, ratio about 1.25. */
+  --t-small: calc(0.78 * var(--u));
+  --t-body: calc(1.02 * var(--u));
+  --t-lead: calc(1.2 * var(--u));
+  --t-head: calc(2.5 * var(--u));
+  --t-title: calc(5 * var(--u));
+
+  --panel-w: calc(33.33 * var(--u));
+  --gutter: calc(2.5 * var(--u));
+  --rail-h: calc(3.33 * var(--u));
+  --head-h: calc(2.92 * var(--u));
+
+  --fast: 150ms;
+  --normal: 250ms;
+  --slow: 400ms;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* First paint and tests, before applyTheme runs. */
+  --dusk: #1b1d3a;
+  --dusk-2: #2a2350;
+  --ink: #edebff;
+  --ink-soft: #b9b7dd;
+  --rule: rgba(237, 235, 255, 0.16);
+  --slab: rgba(20, 21, 46, 0.82);
+  --scrim: rgba(27, 29, 58, 0.92);
+  --honest: #ffc66b;
+  --protected: #5fe0cf;
+  --attacker: #ff5c7a;
+  --noise: #8f92b8;
+  --ledger: #c9f26b;
+  --model: #edebff;
+  --muted: #5a5e8c;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--dusk);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--t-body);
+  line-height: 1.5;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 3px solid var(--protected);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- deck skeleton ---------- */
+
+.deck {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, var(--dusk) 0%, var(--dusk) 55%, var(--dusk-2) 100%);
+}
+
+.deck__world {
+  position: absolute;
+  inset: 0;
+  transition: opacity var(--slow) var(--ease);
+}
+.deck__world[data-dim="true"] {
+  opacity: 0.28;
+}
+
+.deck__fallback {
+  position: absolute;
+  top: var(--head-h);
+  bottom: var(--rail-h);
+  left: calc(var(--panel-w) + var(--gutter) * 2);
+  right: var(--gutter);
+  display: grid;
+  place-items: center;
+}
+.deck__fallback svg {
+  width: 100%;
+  height: 100%;
+  max-height: 70vh;
+}
+.deck__fallback-note {
+  position: absolute;
+  bottom: calc(8 * var(--px));
+  right: 0;
+  font-size: var(--t-small);
+  color: var(--ink-soft);
+}
+
+/* header */
+.head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--head-h);
+  padding: 0 var(--gutter);
+  display: flex;
+  align-items: center;
+  gap: calc(18 * var(--px));
+  font-size: var(--t-small);
+  color: var(--ink-soft);
+  pointer-events: none;
+}
+.head__num {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--t-lead);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.head__theory {
+  font-size: var(--t-body);
+  color: var(--ink);
+}
+.head__where {
+  margin-left: auto;
+}
+
+/* badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(8 * var(--px));
+  padding: 3px calc(12 * var(--px)) 3px calc(9 * var(--px));
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  font-size: var(--t-small);
+  color: var(--ink);
+  pointer-events: auto;
+}
+.badge__dot {
+  width: calc(10 * var(--px));
+  height: calc(10 * var(--px));
+  border-radius: 50%;
+}
+.badge[data-badge="measured"] .badge__dot {
+  background: var(--honest);
+}
+.badge[data-badge="computed"] .badge__dot {
+  border: 2.5px solid var(--protected);
+}
+.badge[data-badge="illustration"] .badge__dot {
+  border: 2px dashed var(--noise);
+}
+.badge[data-badge="source"] .badge__dot {
+  border-radius: 2px;
+  background: var(--protected);
+}
+.badge__src {
+  color: var(--ink-soft);
+}
+
+/* text panel: a column on a soft scrim, not a card */
+.panel {
+  position: absolute;
+  top: var(--head-h);
+  bottom: var(--rail-h);
+  left: 0;
+  width: calc(var(--panel-w) + var(--gutter) * 2);
+  padding: calc(1.1 * var(--u)) var(--gutter) calc(0.6 * var(--u));
+  overflow: hidden;
+  background: linear-gradient(90deg, var(--scrim) 0%, var(--scrim) 72%, transparent 100%);
+}
+.panel__inner {
+  max-width: var(--panel-w);
+}
+.panel h1 {
+  font-family: var(--font-display);
+  font-weight: 650;
+  font-stretch: 88%;
+  font-size: var(--t-head);
+  line-height: 1.06;
+  letter-spacing: -0.015em;
+  margin: 0 0 0.55em;
+  text-wrap: balance;
+}
+.panel p {
+  margin: 0 0 0.85em;
+  max-width: 62ch;
+  text-wrap: pretty;
+}
+.panel p strong {
+  font-weight: 700;
+}
+.panel code {
+  font-family: var(--font-code);
+  font-size: 0.88em;
+}
+.tex-block {
+  margin: 0.2em 0 0.9em;
+  font-size: 1.02em;
+}
+
+.note {
+  margin: 0 0 0.85em;
+  padding: 0.5em 0 0.5em 0.9em;
+  border-left: 3px solid var(--noise);
+  color: var(--ink);
+  max-width: 62ch;
+}
+.note[data-tone="warn"] {
+  border-left-color: var(--attacker);
+}
+.note[data-tone="good"] {
+  border-left-color: var(--protected);
+}
+
+.caption {
+  margin: 0.4em 0 0.9em;
+  font-size: var(--t-small);
+  color: var(--ink-soft);
+  max-width: 80ch;
+}
+.steps,
+.list {
+  margin: 0 0 0.85em;
+  padding-left: 1.3em;
+  max-width: 62ch;
+}
+.steps li,
+.list li {
+  margin-bottom: 0.35em;
+  padding-left: 0.2em;
+}
+.steps li::marker {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1em;
+  font-variant-numeric: tabular-nums;
+}
+.table caption {
+  text-align: left;
+  font-size: var(--t-small);
+  color: var(--ink-soft);
+  padding-bottom: calc(6 * var(--px));
+}
+.table th,
+.table td {
+  text-align: right;
+  padding: calc(7 * var(--px)) calc(12 * var(--px));
+  border-bottom: 1px solid var(--rule);
+}
+.table th:first-child,
+.table td:first-child {
+  text-align: left;
+  padding-left: 0;
+}
+.table thead th {
+  font-weight: 400;
+  font-size: var(--t-small);
+  color: var(--ink-soft);
+  border-bottom: 1px solid var(--ink-soft);
+}
+.table tbody th {
+  font-weight: 400;
+}
+.stage h2 {
+  font-family: var(--font-display);
+  font-weight: 650;
+  font-size: var(--t-lead);
+  margin: 0 0 0.5em;
+}
+
+/* controls */
+.controls {
+  margin-top: 1.1em;
+  padding-top: 0.9em;
+  border-top: 1px solid var(--rule);
+  display: grid;
+  gap: 0.75em;
+}
+.slider {
+  display: grid;
+  grid-template-columns: minmax(7em, auto) 1fr minmax(4.2em, auto);
+  align-items: center;
+  gap: calc(14 * var(--px));
+}
+.slider__value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+.slider input[type="range"] {
+  width: 100%;
+  accent-color: var(--protected);
+  height: calc(28 * var(--px));
+  margin: 0;
+}
+.choice {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: calc(6 * var(--px)) calc(14 * var(--px));
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.choice legend {
+  float: left;
+  padding: 0;
+  margin-right: calc(14 * var(--px));
+}
+.choice__options {
+  display: inline-flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--rule);
+  border-radius: calc(6 * var(--px));
+  overflow: hidden;
+}
+.choice__opt {
+  position: relative;
+}
+.choice__opt input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+.choice__opt span {
+  display: block;
+  padding: calc(5 * var(--px)) calc(12 * var(--px));
+  min-height: calc(34 * var(--px));
+  font-size: 0.92em;
+  transition: background var(--fast) var(--ease);
+}
+.choice__opt input:checked + span {
+  background: var(--ink);
+  color: var(--dusk);
+  font-weight: 700;
+}
+.choice__opt input:focus-visible + span {
+  outline: 3px solid var(--protected);
+  outline-offset: -3px;
+}
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(10 * var(--px));
+}
+.btn {
+  min-height: calc(38 * var(--px));
+  padding: calc(6 * var(--px)) calc(16 * var(--px));
+  border-radius: calc(6 * var(--px));
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--dusk);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--fast) var(--ease);
+}
+.btn:active {
+  transform: scale(0.96);
+}
+.btn[data-kind="quiet"] {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--rule);
+  font-weight: 400;
+}
+.readouts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(8 * var(--px)) calc(26 * var(--px));
+}
+.readout {
+  display: grid;
+}
+.readout__label {
+  font-size: var(--t-small);
+  color: var(--ink-soft);
+}
+.readout__value {
+  font-family: var(--font-display);
+  font-weight: 650;
+  font-size: var(--t-lead);
+  font-variant-numeric: tabular-nums;
+}
+
+/* stage: charts and code over the dimmed world */
+.stage {
+  position: absolute;
+  top: calc(var(--head-h) + 0.84 * var(--u));
+  bottom: calc(var(--rail-h) + 0.4 * var(--u));
+  left: calc(var(--panel-w) + var(--gutter) * 2.4);
+  /* Never wider than it is in a 16:9 window, so a chart keeps its height in a wide one. */
+  right: max(var(--gutter), calc(100vw - 100 * var(--u) + var(--gutter)));
+  background: var(--slab);
+  border-top: 2px solid var(--ink);
+  border-radius: 0 0 calc(4 * var(--px)) calc(4 * var(--px));
+  padding: calc(1.12 * var(--u)) calc(1.67 * var(--u));
+  overflow: hidden;
+  backdrop-filter: blur(calc(6 * var(--px)));
+}
+
+/* rail: a line with one stop per concept */
+.rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--rail-h);
+  padding: 0 var(--gutter);
+  display: flex;
+  align-items: center;
+  gap: calc(18 * var(--px));
+  font-size: var(--t-small);
+}
+.rail__line {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  position: relative;
+  height: 100%;
+}
+.rail__line::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(22 * var(--px));
+  height: 2px;
+  background: var(--rule);
+}
+.rail__stop {
+  flex: 1;
+  position: relative;
+  height: 100%;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--ink-soft);
+  text-align: left;
+}
+.rail__dot {
+  position: absolute;
+  top: calc(16 * var(--px));
+  left: 0;
+  width: calc(14 * var(--px));
+  height: calc(14 * var(--px));
+  border-radius: 50%;
+  background: var(--dusk);
+  border: 2px solid var(--noise);
+  transition: transform var(--normal) var(--ease), background var(--normal) var(--ease);
+}
+.rail__stop[data-state="done"] .rail__dot {
+  background: var(--noise);
+}
+.rail__stop[data-state="current"] .rail__dot {
+  background: var(--honest);
+  border-color: var(--honest);
+  transform: scale(1.35);
+}
+.rail__label {
+  position: absolute;
+  top: calc(36 * var(--px));
+  left: 0;
+  white-space: nowrap;
+  font-size: calc(0.68 * var(--u));
+  opacity: 0;
+  transition: opacity var(--normal) var(--ease);
+}
+.rail__stop[data-state="current"] .rail__label,
+.rail__stop:hover .rail__label,
+.rail__stop:focus-visible .rail__label {
+  opacity: 1;
+  color: var(--ink);
+}
+.rail__ticks {
+  position: absolute;
+  top: calc(20 * var(--px));
+  left: calc(22 * var(--px));
+  right: calc(6 * var(--px));
+  display: flex;
+  gap: 3px;
+}
+.rail__tick {
+  flex: 0 1 calc(10 * var(--px));
+  min-width: 2px;
+  height: calc(6 * var(--px));
+  border-radius: 1px;
+  background: var(--muted);
+}
+.rail__tick[data-on="true"] {
+  background: var(--ink);
+}
+.rail__count {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.rail__nav {
+  display: flex;
+  gap: calc(6 * var(--px));
+}
+.rail__nav button {
+  width: calc(40 * var(--px));
+  height: calc(36 * var(--px));
+  border-radius: calc(6 * var(--px));
+  border: 1px solid var(--rule);
+  background: transparent;
+  cursor: pointer;
+}
+.rail__nav button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* overview */
+.overview {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim);
+  padding: calc(1.2 * var(--u)) var(--gutter);
+  overflow: hidden;
+  z-index: 20;
+}
+.overview h2 {
+  font-family: var(--font-display);
+  font-size: var(--t-head);
+  margin: 0 0 0.6em;
+}
+.overview__group {
+  display: grid;
+  grid-template-columns: minmax(12em, 18em) 1fr;
+  gap: calc(8 * var(--px)) calc(20 * var(--px));
+  padding: calc(10 * var(--px)) 0;
+  border-top: 1px solid var(--rule);
+}
+.overview__slides {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(6 * var(--px));
+}
+.overview__slide {
+  padding: calc(4 * var(--px)) calc(10 * var(--px));
+  border: 1px solid var(--rule);
+  border-radius: calc(4 * var(--px));
+  background: transparent;
+  cursor: pointer;
+  font-size: var(--t-small);
+  text-align: left;
+}
+.overview__slide[data-current="true"] {
+  background: var(--ink);
+  color: var(--dusk);
+}
+.overview__slide[data-kind="impact"] {
+  border-left: 3px solid var(--honest);
+}
+.overview__slide[data-kind="code"] {
+  border-left: 3px solid var(--protected);
+}
+
+/* 3D labels: HTML on a layer over the canvas, positioned by LabelProjector */
+.labels {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* Labels never run under the text column, the header or the rail. */
+  clip-path: inset(var(--head-h) 0 var(--rail-h) calc(var(--panel-w) + var(--gutter) * 2 - calc(12 * var(--px))));
+}
+.label3d {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: var(--font-text);
+  font-size: calc(0.885 * var(--u));
+  color: var(--ink);
+  white-space: nowrap;
+  user-select: none;
+  text-shadow: 0 0 calc(6 * var(--px)) var(--dusk), 0 0 2px var(--dusk), 0 0 calc(12 * var(--px)) var(--dusk);
+  will-change: transform;
+}
+.label3d[data-small="true"] {
+  font-size: calc(0.73 * var(--u));
+}
+
+.loading {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--ink-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

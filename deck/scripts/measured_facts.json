@@ -1,0 +1,10 @@
+{
+  "coverage.overall": {
+    "source": "uv run pytest --cov (measured on 19 November 2026 for this deck)",
+    "value": 86.41
+  },
+  "coverage.privacy": {
+    "source": "uv run coverage report over src/prism/privacy, src/prism/ledger and fl/secagg.py, aggregate.py, fast.py, sampling.py, as in .github/workflows/ci.yml (measured on 19 November 2026)",
+    "value": 95
+  }
+}

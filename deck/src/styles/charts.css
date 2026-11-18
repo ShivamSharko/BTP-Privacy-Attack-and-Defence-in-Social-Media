@@ -1,0 +1,386 @@
+/* Charts, stat rows, code view, stack list. Colours come only from role and base tokens. */
+
+/* ---------- charts ---------- */
+.chart {
+  position: relative;
+  margin: 0;
+  width: 100%;
+}
+.chart__svg {
+  display: block;
+  overflow: visible;
+  font-family: var(--font-text);
+  fill: var(--ink);
+}
+.chart__rule {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+.chart__baseline {
+  stroke: var(--ink-soft);
+  stroke-width: 1.5;
+}
+.chart__axis text,
+.chart__tick {
+  fill: var(--ink-soft);
+}
+.chart__axis-label {
+  fill: var(--ink-soft);
+  font-weight: 700;
+}
+.chart__value {
+  fill: var(--ink);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.chart__whisker line {
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+.chart__threshold line {
+  stroke: var(--attacker);
+  stroke-width: 2;
+  stroke-dasharray: 8 6;
+}
+.chart__threshold text {
+  fill: var(--attacker);
+  font-weight: 700;
+}
+.chart__reference line {
+  stroke: var(--noise);
+  stroke-width: 1;
+}
+.chart__reference text {
+  fill: var(--noise);
+}
+.chart__line {
+  stroke-width: 3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.chart__band {
+  opacity: 0.2;
+}
+.chart__end-label {
+  font-weight: 700;
+}
+
+.chart__mark {
+  cursor: pointer;
+  transition: opacity var(--fast) var(--ease);
+}
+.chart__mark:hover,
+.chart__mark:focus-visible {
+  opacity: 0.85;
+  outline: none;
+  stroke: var(--ink);
+  stroke-width: 3;
+}
+
+/* one grow/fade on first paint */
+@keyframes chart-grow {
+  from {
+    opacity: 0;
+    transform: scaleY(0.2);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+@keyframes chart-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+rect.chart__mark {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: chart-grow var(--slow) var(--ease) both;
+}
+.chart__point,
+.chart__line {
+  animation: chart-fade var(--slow) var(--ease) both;
+}
+/* The band keeps its own opacity: animating it to 1 would paint it solid. */
+@keyframes chart-band-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.2;
+  }
+}
+.chart__band {
+  animation: chart-band-fade var(--slow) var(--ease) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  rect.chart__mark,
+  .chart__point,
+  .chart__line,
+  .chart__band {
+    animation: none;
+  }
+}
+
+.chart__tip {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - calc(12 * var(--px))));
+  display: grid;
+  gap: 2px;
+  min-width: 8em;
+  max-width: 22em;
+  padding: calc(8 * var(--px)) calc(12 * var(--px));
+  background: var(--scrim);
+  border: 1px solid var(--rule);
+  border-top: 2px solid var(--ink);
+  border-radius: calc(4 * var(--px));
+  color: var(--ink);
+  font-size: var(--t-small);
+  pointer-events: none;
+  z-index: 5;
+}
+.chart__tip[data-below="true"] {
+  transform: translate(-50%, calc(14 * var(--px)));
+}
+.chart__tip-value {
+  font-family: var(--font-display);
+  font-size: var(--t-lead);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.chart__tip-line {
+  color: var(--ink-soft);
+}
+
+.chart__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(6 * var(--px)) calc(22 * var(--px));
+  list-style: none;
+  margin: calc(8 * var(--px)) 0 0;
+  padding: 0;
+  font-size: var(--t-small);
+  color: var(--ink-soft);
+}
+.chart__legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(8 * var(--px));
+}
+.chart__swatch {
+  width: calc(14 * var(--px));
+  height: calc(14 * var(--px));
+  border-radius: 3px;
+}
+
+/* ---------- stat row ---------- */
+.stats {
+  display: grid;
+  gap: calc(1.12 * var(--u)) calc(2 * var(--u));
+  margin: 0 0 1em;
+}
+.stat {
+  min-width: 0;
+  border-top: 1px solid var(--rule);
+  padding-top: calc(10 * var(--px));
+}
+.stat__value {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: calc(2.29 * var(--u));
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.stat__label {
+  margin-top: calc(8 * var(--px));
+  font-size: var(--t-small);
+  color: var(--ink-soft);
+}
+.stat__note {
+  margin-top: 2px;
+  font-size: var(--t-small);
+  color: var(--ink);
+}
+
+/* ---------- code view ---------- */
+.codeview {
+  display: grid;
+  gap: calc(10 * var(--px));
+  min-width: 0;
+}
+.codeview__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(4 * var(--px));
+  border-bottom: 1px solid var(--rule);
+}
+.codeview__tab {
+  padding: calc(6 * var(--px)) calc(14 * var(--px));
+  background: transparent;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  font-family: var(--font-code);
+  font-size: var(--t-small);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color var(--fast) var(--ease), border-color var(--fast) var(--ease);
+}
+.codeview__tab[aria-selected="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--protected);
+}
+.code__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: calc(4 * var(--px)) calc(18 * var(--px));
+  margin-bottom: calc(8 * var(--px));
+  font-size: var(--t-small);
+  color: var(--ink-soft);
+}
+.code__file {
+  font-family: var(--font-code);
+  color: var(--ink);
+}
+.code__name {
+  margin-left: auto;
+  font-family: var(--font-code);
+}
+.code__pre {
+  margin: 0;
+  padding: calc(10 * var(--px)) 0;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--rule);
+  border-radius: calc(4 * var(--px));
+  font-family: var(--font-code);
+  /* As large as the longest line of the excerpt allows, so no line is ever cut. */
+  font-size: min(0.82em, calc(100cqw / (var(--cols, 96) + 9) / 0.6));
+  line-height: 1.5;
+  tab-size: 4;
+}
+.code__row {
+  display: flex;
+  min-width: max-content;
+  padding-right: calc(16 * var(--px));
+}
+.code__row[data-hl="true"] {
+  background: color-mix(in srgb, var(--protected) 20%, transparent);
+  box-shadow: inset 3px 0 0 var(--protected);
+}
+.code__num {
+  flex: none;
+  width: 4.2em;
+  padding-right: 1.2em;
+  text-align: right;
+  color: var(--muted);
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+}
+.code__src {
+  white-space: pre;
+  color: var(--ink);
+}
+.code__src .hljs-keyword,
+.code__src .hljs-literal,
+.code__src .hljs-built_in {
+  color: var(--protected);
+}
+.code__src .hljs-string,
+.code__src .hljs-subst {
+  color: var(--honest);
+}
+.code__src .hljs-comment {
+  color: var(--noise);
+  font-style: italic;
+}
+.code__src .hljs-number {
+  color: var(--ledger);
+}
+.code__src .hljs-title,
+.code__src .hljs-title.function_,
+.code__src .hljs-title.class_ {
+  color: var(--model);
+  font-weight: 700;
+}
+.code__src .hljs-params,
+.code__src .hljs-meta {
+  color: var(--ink-soft);
+}
+
+/* ---------- stack list ---------- */
+.stack {
+  display: grid;
+  margin: 0;
+}
+.stack__row {
+  display: grid;
+  grid-template-columns: minmax(8em, 14em) 1fr;
+  gap: calc(4 * var(--px)) calc(20 * var(--px));
+  padding: calc(8 * var(--px)) 0;
+  border-top: 1px solid var(--rule);
+}
+.stack dt {
+  font-weight: 700;
+}
+.stack dd {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+/* Code is shown as typed: no programming ligatures. */
+.codeview,
+.codeview pre,
+.panel code {
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+
+/* The listing is measured against its own card: the type shrinks until the longest line fits. */
+.codeview > *,
+.code {
+  min-width: 0;
+  max-width: 100%;
+}
+.code {
+  container-type: inline-size;
+}
+.code__pre {
+  max-width: 100%;
+}
+
+.stat__value[data-long="true"] {
+  font-size: calc(1.67 * var(--u));
+}
+.stat__value[data-long="very"] {
+  font-size: calc(1.25 * var(--u));
+  white-space: normal;
+}
+
+/* A long excerpt is paged, never scrolled. */
+.code__pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(6 * var(--px)) calc(12 * var(--px));
+  margin-top: calc(8 * var(--px));
+  font-size: var(--t-small);
+  color: var(--ink-soft);
+}
+.code__pager .btn {
+  min-height: 0;
+  padding: calc(3 * var(--px)) calc(12 * var(--px));
+}
+.code__pager .btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.code__row {
+  padding-right: 1ch;
+}

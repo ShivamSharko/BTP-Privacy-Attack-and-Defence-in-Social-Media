@@ -303,3 +303,15 @@ The project code is MIT licensed. The Yelp data is not part of this repository a
 - Device trace source, checksum and handling: `docs/data-access.md`, section "Device availability trace".
 - Explanations of every component for the oral examination: `docs/viva-notes.md`.
 - Roadmap and decision records: `PROJECT_ROADMAP.md`; progress log: `docs/implementation-log.md`.
+
+## 11. The interactive deck
+
+`deck/` holds "PRISM-Rec Explained", an 88-slide interactive 3D presentation of the project. Each concept is shown in the same order: the theory with a live 3D scene, then the measured impact with interactive charts, then the code. Every number is read from the result files in `results/` when the deck is built, and every code excerpt is copied from `src/prism` with its real line numbers.
+
+```
+cd deck
+npm install
+npm run dev
+```
+
+Then open http://localhost:5173. Keys, checks and how to regenerate the deck's data after a rerun are in `deck/README.md`. The deck is for local use: like the results it shows, it must not be hosted publicly before the dataset provider's review.
