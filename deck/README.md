@@ -44,30 +44,22 @@ npm run preview
 and open http://localhost:4173. The deck needs no internet connection once installed:
 fonts, formulas, data and code excerpts are all bundled.
 
-**Not public.** The repository is private and the dataset provider's pre-publication review
-has not been done, so the deck must not be reachable by the public. It contains no row of the
-dataset, only aggregate results already under `results/`, but it does contain the source of
-every function in `src/prism` (the code slides read it from `src/data/code.json`).
+**Public since 19 November 2026.** The owners made the repository public and hosted the deck
+at https://prism-rec-deck.vercel.app to share it with the guide. The deck contains no row of the dataset, only
+aggregate results already under `results/`, and the source of every function in `src/prism`
+(the code slides read it from `src/data/code.json`). The dataset provider's pre-publication
+review had not been done when this was decided; see CHANGE-025 in `PROJECT_ROADMAP.md`.
 
-## Sharing it with the guide (private Vercel deployment)
+## Hosting (Vercel)
 
-The deck can be hosted on Vercel for the guide without making it public, on the free plan:
+The Vercel project `prism-rec-deck` builds the `deck` folder of the `main` branch on every
+push. `vercel.json` gives the build command (`npm run build`) and the output folder (`dist`),
+and `package.json` pins Node 24. Every page carries a no-index header, so search engines are
+asked not to list it; the address itself is open to anyone who has it.
 
-1. Import this GitHub repository at vercel.com/new and set **Root Directory** to `deck`.
-   `vercel.json` gives the build command (`npm run build`) and the output folder (`dist`);
-   `package.json` pins Node 24.
-2. Before sharing anything, open the project's **Settings, Deployment Protection**, turn on
-   **Vercel Authentication** and set the scope to **All Deployments**. Every address of the
-   deployment then asks for a Vercel login that has access to the project, so a stranger who
-   finds the address sees a login page, not the slides.
-3. Open the deployment, press **Share**, choose **Anyone with the link** and send that link to
-   the guide. The free plan allows one such link per account. It needs no Vercel account to
-   open, and switching it back to **Only people with access** revokes it.
-
-The share link is a secret: whoever has it can open the deck, so send it directly and revoke
-it after the review. Every page also carries a no-index header, so search engines do not list
-it. Do not turn protection off and do not add a public custom domain before the dataset
-provider's review is done.
+To take the deck offline again, open the project's **Settings, Deployment Protection** on
+Vercel, turn on **Vercel Authentication** and set the scope to **All Deployments** (free on
+every plan): every address then asks for a Vercel login.
 
 ## Presenting
 

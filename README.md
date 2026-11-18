@@ -106,7 +106,9 @@ pre-registered sign rule for friend-count availability under privacy only, and w
 See `results/report/report.html`. The hypotheses, their decision rules and what was expected in
 advance are in `PREREGISTRATION.md` (Amendments 1 and 2). An independent review of the code and
 what was changed after it are in section 9.5 of the design document. The one item still open is
-the pre-publication review by the dataset provider, which the owners must request.
+the pre-publication review by the dataset provider, which the owners must request. The
+repository and the deck were made public on 19 November 2026 before that review (CHANGE-025
+in `PROJECT_ROADMAP.md`).
 
 ## 3. Quick start without the dataset
 
@@ -287,7 +289,7 @@ _workspace/             git-ignored scratch space for notes and throwaway experi
 - The sensitivity runs (k = 10, k = 20, 4 stars or more) reuse the hyperparameters tuned on the main dataset; nothing was re-tuned, and they use fewer seeds and privacy levels than the main grid. They test sensitivity to preprocessing of the same Philadelphia sample, not to another city.
 - The Flower parity check is on a small synthetic problem (400 users, 5 rounds) with a custom strategy. It shows that the plumbing agrees to float32 rounding, not that anything holds at scale, and Flower is not used for the main results. It runs in a separate environment and is not a dependency.
 - A ledger proves what was recorded and that it was not altered afterwards; it does not prove that the training happened as described.
-- The pre-publication review by the dataset provider has not been done. It stays with the project owners and blocks any public presentation or publication of results.
+- The pre-publication review by the dataset provider has not been done. It stays with the project owners. The owners made this repository and the deck public on 19 November 2026 to share them with the guide, before that review (CHANGE-025 in `PROJECT_ROADMAP.md`); the review is still to be requested.
 
 ## 9. Data and licence
 
@@ -305,6 +307,8 @@ The project code is MIT licensed. The Yelp data is not part of this repository a
 - Roadmap and decision records: `PROJECT_ROADMAP.md`; progress log: `docs/implementation-log.md`.
 
 ## 11. The interactive deck
+
+Hosted copy: https://prism-rec-deck.vercel.app
 
 `deck/` holds "PRISM-Rec Explained", a 92-slide interactive 3D presentation of the project. Each concept is shown in the same order: the theory with a live 3D scene, then the measured impact with interactive charts, then the code. Every number is read from the result files in `results/` when the deck is built, and every code excerpt is copied from `src/prism` with its real line numbers.
 
