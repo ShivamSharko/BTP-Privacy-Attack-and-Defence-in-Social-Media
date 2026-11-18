@@ -102,6 +102,68 @@ test("keyboard shortcuts: overview, theme, home and end", async ({ page }) => {
   await expect.poll(() => shownSlide(page)).toBe(deck.slides[0].id);
 });
 
+/** Everything on the page that can scroll, and every box that holds more than it shows. */
+function findOverflow(): string[] {
+  const found: string[] = [];
+  for (const el of document.querySelectorAll<HTMLElement>(".deck *")) {
+    const style = getComputedStyle(el);
+    const canScroll = /auto|scroll/.test(`${style.overflowX} ${style.overflowY}`);
+    const over = el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1;
+    const box = el.matches(".panel, .stage, .overview, .code__pre");
+    if (over && (canScroll || box)) found.push(`${canScroll ? "scrolls" : "cut off"}: ${el.tagName.toLowerCase()}.${el.className}`);
+  }
+  const fits = [...document.querySelectorAll("[data-fit]")].map((el) => Number(el.getAttribute("data-fit")));
+  if (Math.min(1, ...fits) < 0.72) found.push(`shrunk to ${Math.min(...fits)} to fit`);
+  const root = document.scrollingElement;
+  if (root && (root.scrollHeight > window.innerHeight + 1 || root.scrollWidth > window.innerWidth + 1)) found.push("the page itself scrolls");
+  return found;
+}
+
+test("no slide has a scroller or anything cut off, at three window sizes", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "reduced-motion", "layout does not depend on motion or WebGL, so it is checked once");
+  const problems: string[] = [];
+  for (const [width, height] of [
+    [1600, 900],
+    [1366, 650],
+    [1024, 768],
+  ]) {
+    await page.setViewportSize({ width, height });
+    const deck = await openDeck(page, "/?solo=1");
+    const check = async (name: string) => {
+      for (const p of await page.evaluate(findOverflow)) problems.push(`${width}x${height} ${name}: ${p}`);
+    };
+    for (const slide of deck.slides) {
+      await page.evaluate((id) => {
+        window.location.hash = `#/${id}`;
+      }, slide.id);
+      await expect.poll(() => shownSlide(page)).toBe(slide.id);
+      await page.waitForTimeout(150);
+      await check(slide.id);
+      const tabs = page.locator(".stage .codeview__tab");
+      for (let t = 1; t < (await tabs.count()); t++) {
+        await tabs.nth(t).click();
+        await page.waitForTimeout(80);
+        await check(`${slide.id} tab ${t + 1}`);
+      }
+    }
+    await page.keyboard.press("o");
+    await page.waitForTimeout(200);
+    await check("all-slides page");
+    await page.keyboard.press("Escape");
+  }
+  expect(problems).toEqual([]);
+});
+
+test("the counter shows the slide inside its topic, not out of the whole deck", async ({ page }) => {
+  const deck = await openDeck(page);
+  const second = deck.slides.findIndex((s) => !s.id.startsWith(deck.slides[0].id.split("/")[0]));
+  const topic = deck.slides[second].id.split("/")[0];
+  const inTopic = deck.slides.filter((s) => s.id.startsWith(`${topic}/`)).length;
+  await openDeck(page, `/#/${deck.slides[second + 1].id}`);
+  await expect(page.locator(".rail__count")).toHaveText(`2 / ${inTopic}`);
+  await expect(page.locator(".rail")).not.toContainText(String(deck.slides.length));
+});
+
 test("records frame times per slide as a report", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "motion", "frame times are sampled once, with motion on");
   const deck = await openDeck(page, "/?perf=1");

@@ -41,6 +41,18 @@ const toy: TheoryDef = {
 
 const registry = buildRegistry([toy]);
 
+const second: TheoryDef = {
+  ...toy,
+  id: "next",
+  number: 4,
+  title: "The next concept",
+  short: "Next",
+  slides: [
+    { id: "next/1", kind: "theory", title: "Next one", badge: "illustration", pose: DEFAULT_POSE, step: 0, Panel: () => <h1>Next one text</h1> },
+    { id: "next/2", kind: "theory", title: "Next two", badge: "illustration", pose: DEFAULT_POSE, step: 0, Panel: () => <h1>Next two text</h1> },
+  ],
+};
+
 describe("slide frame without WebGL", () => {
   beforeEach(() => {
     useDeck.setState({ index: 0, count: 0, overview: false, webgl: false, reducedMotion: true });
@@ -80,6 +92,26 @@ describe("slide frame without WebGL", () => {
     useDeck.getState().last();
     expect(await screen.findByText("Code text")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Next slide" })).toBeDisabled();
+  });
+
+  it("counts slides inside the topic, never across the whole deck", () => {
+    const both = buildRegistry([toy, second]);
+    useDeck.getState().setCount(both.slides.length);
+    useDeck.getState().go(4);
+    render(<Frame registry={both} />);
+    expect(screen.getByText("Next one text")).toBeInTheDocument();
+    const count = document.querySelector(".rail__count") as HTMLElement;
+    expect(count.textContent).toBe("1 / 2");
+    expect(count.getAttribute("aria-label")).toBe("Slide 1 of 2 in The next concept");
+    expect(document.body.textContent).not.toContain("5 / 6");
+    expect(document.body.textContent).not.toContain("/ 6");
+  });
+
+  it("wraps the text column and the figure card in a box that shrinks to fit, with no scroller", () => {
+    useDeck.getState().go(2);
+    render(<Frame registry={registry} />);
+    expect(document.querySelector(".panel .fit")).not.toBeNull();
+    expect(document.querySelector(".stage .fit")).not.toBeNull();
   });
 
   it("opens the overview and jumps to a slide from it", async () => {

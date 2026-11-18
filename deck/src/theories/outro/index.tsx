@@ -5,6 +5,7 @@ import { ReplayPanel, SandboxPanel, TradeoffPanel } from "./panels";
 import { ProvenancePanel, ProvenanceStage, ReproducePanel, ReproduceStage } from "./reproduce";
 import { Scene } from "./Scene";
 import { DepsPanel, DepsStage, StackPanel, StackStage } from "./stack";
+import { ThanksPanel } from "./thanks";
 
 export const theory: TheoryDef = {
   id: "outro",
@@ -103,13 +104,22 @@ export const theory: TheoryDef = {
     {
       id: "outro/9",
       kind: "extra",
-      title: "Provenance, and the end",
+      title: "Provenance",
       badge: "computed",
       pose: { position: [0, 3, 16], target: [0, 0, 0] },
       step: 3,
       layout: "stage",
       Panel: ProvenancePanel,
       Stage: ProvenanceStage,
+    },
+    {
+      id: "outro/10",
+      kind: "extra",
+      title: "Thank you",
+      badge: "illustration",
+      pose: { position: [0, 5.2, 16.5], target: [0, -0.4, 0] },
+      step: 3,
+      Panel: ThanksPanel,
     },
   ],
 };

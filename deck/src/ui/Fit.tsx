@@ -37,10 +37,10 @@ export function Fit({ box, children }: { box: string; children: ReactNode }) {
         const padY = (parseFloat(style.paddingTop) || 0) + (parseFloat(style.paddingBottom) || 0);
         const padX = (parseFloat(style.paddingLeft) || 0) + (parseFloat(style.paddingRight) || 0);
         scale = Math.min(fitScale(outer.clientHeight, outer.scrollHeight, padY), fitScale(outer.clientWidth, outer.scrollWidth, padX));
-        for (let i = 0; i < 16; i++) {
-          inner.style.zoom = String(scale);
-          if (scale <= SMALLEST_FIT || !overflows()) break;
+        inner.style.zoom = String(scale);
+        for (let tries = 0; tries < 28 && scale > SMALLEST_FIT && overflows(); tries++) {
           scale = Math.max(SMALLEST_FIT, scale * 0.975);
+          inner.style.zoom = String(scale);
         }
       }
       inner.dataset.fit = scale.toFixed(3);

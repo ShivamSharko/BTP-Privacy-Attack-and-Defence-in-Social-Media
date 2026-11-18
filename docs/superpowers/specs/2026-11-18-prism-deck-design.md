@@ -1,8 +1,11 @@
 # PRISM-Rec Explained: interactive 3D slide deck — design
 
 Date: 18 November 2026. Status: **approved by the owner on 18 November 2026 and built
-on 19 November 2026**. As built the deck has 88 slides, not 65: the builders added a
-slide wherever a panel would otherwise have been crammed, as section 6 requires. The
+on 19 November 2026**. As built the deck had 88 slides, not 65: the builders added a
+slide wherever a panel would otherwise have been crammed, as section 6 requires. Four more
+(introduction, problem statement, the data, thank you) were added on the owner's request
+the same day, so it now has 92. On the same request every scroller was removed (sizes scale
+with the window) and the counter shows the slide number inside its topic only. The
 slide list as built is in `deck/README.md`; the storyboard in section 7 is the brief it
 was built from.
 

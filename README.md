@@ -306,7 +306,7 @@ The project code is MIT licensed. The Yelp data is not part of this repository a
 
 ## 11. The interactive deck
 
-`deck/` holds "PRISM-Rec Explained", an 88-slide interactive 3D presentation of the project. Each concept is shown in the same order: the theory with a live 3D scene, then the measured impact with interactive charts, then the code. Every number is read from the result files in `results/` when the deck is built, and every code excerpt is copied from `src/prism` with its real line numbers.
+`deck/` holds "PRISM-Rec Explained", a 92-slide interactive 3D presentation of the project. Each concept is shown in the same order: the theory with a live 3D scene, then the measured impact with interactive charts, then the code. Every number is read from the result files in `results/` when the deck is built, and every code excerpt is copied from `src/prism` with its real line numbers.
 
 ```
 cd deck

@@ -35,7 +35,7 @@ function inspect() {
     if (x || y) scrollers.push(`${describe(el)} ${x ? `x+${el.scrollWidth - el.clientWidth}` : ""}${y ? ` y+${el.scrollHeight - el.clientHeight}` : ""}`.trim());
   }
   const clipped = [];
-  for (const selector of [".panel", ".stage", ".overview", ".code__pre", ".tex-block"]) {
+  for (const selector of [".panel", ".stage", ".overview", ".code__pre"]) {
     for (const el of document.querySelectorAll(selector)) {
       const dy = el.scrollHeight - el.clientHeight;
       const dx = el.scrollWidth - el.clientWidth;

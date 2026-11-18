@@ -4,6 +4,16 @@
     "source": "PREREGISTRATION.md",
     "value": 0.05
   },
+  "people.guide": {
+    "quote": "**Guide:** Dr. Malika Acharya",
+    "source": "PREREGISTRATION.md",
+    "value": "Dr. Malika Acharya"
+  },
+  "people.owners": {
+    "quote": "**Owners:** Shivam Agarwal (23UEC621), Mokshit Jain (23UEC574)",
+    "source": "PREREGISTRATION.md",
+    "value": "Shivam Agarwal and Mokshit Jain"
+  },
   "speed.after_s": {
     "quote": "A real-data run fell from 171 s to 29 s with an identical result.",
     "source": "docs/adr/ADR-045-fast-clipped-sum.md",

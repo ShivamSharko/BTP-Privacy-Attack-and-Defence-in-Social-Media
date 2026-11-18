@@ -68,6 +68,25 @@ Writing rules:
   `sim.ts`. No conference or journal paper is cited; name standards (RFC 6962), libraries and
   project files instead. No mention of any university department.
 
+## Fitting the window: no scrollers
+
+The deck has no scroller anywhere, at any window size. Three things keep it that way:
+
+- Every size in `styles/base.css` is a multiple of `--u` (one hundredth of the widest 16:9 box
+  that fits the window) or `--px` (one pixel of the 1920×1080 design). A slide is laid out the
+  same in any window, only larger or smaller. In your own styles use `em`, `var(--t-small)`
+  and the other tokens, or `calc(12 * var(--px))`. Do not use `vw`, `vh` or fixed pixels for
+  anything that takes up room, and never set `overflow: auto` or `overflow: scroll`.
+- The text column and the figure card are each wrapped in `Fit` (`ui/Fit.tsx`). Content that
+  is still too tall is drawn smaller until it fits. That is a safety net, not a layout tool:
+  if your slide is shrunk below about 90%, shorten it or split it.
+- `CodeView` shows an excerpt of up to 26 lines whole. A longer one is shown 24 lines at a
+  time with "Earlier lines" and "Later lines" buttons, opening on the page that holds the
+  first highlighted line, and its type shrinks until the longest line fits the card.
+
+`node e2e/overflow.mjs --only <id>` walks your slides at six window sizes and fails if any
+element can scroll, if anything is cut off, or if a slide had to shrink below 72%.
+
 ## Numbers and code
 
 ```ts
@@ -160,6 +179,7 @@ From `deck/`:
 npx vitest run src/theories/<id>
 npx tsc --noEmit                      # other folders may show errors while they are being built; yours must show none
 node e2e/smoke.mjs <id>               # dev server is already running on port 5173; do not start another
+node e2e/overflow.mjs --only <id>     # no scroller, nothing cut off, at six window sizes
 ```
 
 The smoke script saves a picture of each of your slides to `deck/e2e/shots/<id>-<n>.png` and

@@ -24,6 +24,17 @@ describe("closing: putting it together", () => {
     for (const p of POINTS) expect(text).toContain(p.label);
   });
 
+  it("ends by thanking the guide and the panel", () => {
+    const last = theory.slides[theory.slides.length - 1];
+    expect(last.title).toBe("Thank you");
+    const text = renderAllSlides(theory);
+    const thanks = text.slice(text.indexOf(`[${last.id}]`));
+    expect(thanks).toContain("Thank you.");
+    expect(thanks).toContain(String(fact("people.guide").value));
+    expect(thanks).toContain("the panel");
+    expect(thanks).not.toMatch(/department|electronics/i);
+  });
+
   it("plots every measured configuration it promises", () => {
     expect(POINTS.filter((p) => p.group === "dp")).toHaveLength(12);
     expect(POINTS.filter((p) => p.group === "poison")).toHaveLength(5);

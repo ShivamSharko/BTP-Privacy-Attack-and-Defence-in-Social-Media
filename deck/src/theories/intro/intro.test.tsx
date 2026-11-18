@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fmt, m } from "../../data";
+import { fact, fmt, m } from "../../data";
 import { checkTheory } from "../../deck/checkTheory";
 import { longPanels, renderAllSlides } from "../../test/renderTheory";
 import { theory } from "./index";
@@ -29,6 +29,34 @@ describe("theory 0: the opening", () => {
     expect(byId.H4.verdict).toBe("not supported as stated");
     expect(byId.H5.verdict).toBe("weakly supported");
     expect(HYPOTHESES.filter((h) => h.tone === "against")).toHaveLength(2);
+  });
+
+  it("opens with a title, an introduction and a problem statement, in that order", () => {
+    expect(theory.slides.slice(0, 3).map((s) => s.title)).toEqual([
+      "Privacy attack and defence in social media",
+      "Introduction",
+      "Problem statement",
+    ]);
+    expect(theory.slides).toHaveLength(7);
+    expect(theory.slides.at(-1)?.title).toBe("What we found");
+    const text = renderAllSlides(theory);
+    expect(text).toContain("Problem statement: train a social recommender without collecting its users' data");
+    expect(text).toContain("Federated learning promises a way out");
+  });
+
+  it("names the presenters and the guide exactly as the pre-registration does", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const prereg = readFileSync(join(process.cwd(), "..", "PREREGISTRATION.md"), "utf8");
+    const guide = String(fact("people.guide").value);
+    expect(prereg).toContain(`**Guide:** ${guide}`);
+    for (const name of String(fact("people.owners").value).split(" and ")) expect(prereg).toContain(name);
+    const text = renderAllSlides(theory);
+    expect(text).toContain(guide);
+    expect(text).toContain(String(fact("people.owners").value));
+    // Names only: no roll number and no department on any slide.
+    expect(text).not.toMatch(/[0-9]{2}U[A-Z]{2}[0-9]{3}/);
+    expect(text).not.toMatch(/department|electronics/i);
   });
 
   it("keeps every panel short enough to read from the back of a room", () => {

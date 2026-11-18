@@ -4,11 +4,12 @@ An interactive 3D slide deck that explains the project one concept at a time. Ea
 runs in the same order: the theory with a live 3D scene you can manipulate, then the
 measured impact with interactive charts, then the code that implements it.
 
-88 slides: an opening, thirteen concepts, and a closing with a live sandbox.
+92 slides: an opening with the introduction and problem statement, thirteen concepts, and a
+closing with a live sandbox and a thank-you slide.
 
 | # | Concept | Slides |
 |---|---|---|
-| | Opening: the problem, the system end to end, what we found | 4 |
+| | Opening: title, introduction, problem statement, what leaks, the data, the system, what we found | 7 |
 | 1 | The hybrid recommender | 5 |
 | 2 | A federated round | 4 |
 | 3 | Attack: what one update reveals | 5 |
@@ -22,7 +23,7 @@ measured impact with interactive charts, then the code that implements it.
 | 11 | Who actually takes part | 7 |
 | 12 | The transparency ledger | 6 |
 | 13 | How we know: the method | 5 |
-| | Closing: sandbox, trade-offs, failure modes, stack, limits, reproduce | 9 |
+| | Closing: sandbox, trade-offs, failure modes, stack, limits, reproduce, thank you | 10 |
 
 ## Run it
 
@@ -58,6 +59,11 @@ the dataset, only aggregate results already under `results/`.
 | F | fullscreen |
 | T | light theme (better on a washed-out projector) and back |
 | R | reset the current scene |
+
+The counter beside the arrows is the slide's number inside its topic ("3 / 6"). Nothing on
+any slide scrolls: the whole layout scales with the window, a slide that is still too tall is
+drawn slightly smaller, and a long code excerpt is shown a page at a time with "Earlier
+lines" and "Later lines" buttons.
 
 Drag the scene to look around it and use the wheel to zoom; the view returns on the next
 slide. Sliders, choices and buttons are in the text column, and many scenes can be clicked
@@ -99,13 +105,15 @@ A slide that reads a key that no longer exists fails the tests instead of showin
 ```
 uv run pytest tests/test_deck_export.py     # from the repository root: the exported data
 npm run typecheck                           # TypeScript, strict
-npm test                                    # 393 unit and component tests
-npm run build && npm run e2e                # walks all 88 slides in Edge: motion, reduced motion, no WebGL
+npm test                                    # 418 unit and component tests
+npm run build && npm run e2e                # walks all 92 slides in Edge: motion, reduced motion, no WebGL, no scrollers
+npm run dev  (then)  npm run overflow       # no scroller and nothing cut off at six window sizes
 npm run preview  (then)  node e2e/frames.mjs  # frame times in a real window on this machine's GPU
 ```
 
 The frame-time pass mark is a median of at most 16.7 ms and a 95th percentile of at most
-25 ms on every slide at 1920×1080. The last measurement is in `e2e/frame-report.json`.
+25 ms on every slide at 1920×1080. The last measurement is in `e2e/frame-report.json`; it was taken when the deck
+had 88 slides, before the introduction, problem statement, data and thank-you slides were added.
 
 ## Layout
 
@@ -117,7 +125,7 @@ src/world/                 the one 3D canvas, the camera rig, stations, and the 
 src/ui/                    slide frame, text, inputs, charts, code view
 src/sim/                   seeded randomness shared by the simulations
 src/theories/<id>/         one folder per concept: slides, scene, simulation, tests
-e2e/                       smoke script, end-to-end walk, frame-time check
+e2e/                       smoke script, end-to-end walk, overflow check, frame-time check
 docs/BUILDING_A_THEORY.md  how to add or change a concept
 ```
 

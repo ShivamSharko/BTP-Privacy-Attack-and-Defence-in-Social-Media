@@ -632,11 +632,13 @@ select {
   color: var(--ink-soft);
 }
 
+/* No transitions at all, not very short ones: a short transition on every property delays
+   each size change by a frame, and the fit-to-box measurement then reads stale sizes. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    transition-duration: 0.01ms !important;
+    transition: none !important;
     animation-duration: 0.01ms !important;
   }
 }

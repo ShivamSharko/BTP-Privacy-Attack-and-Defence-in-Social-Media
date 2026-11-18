@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { fmt, m } from "../../data";
+import { fact, fmt, m } from "../../data";
 import type { TheoryDef } from "../../deck/types";
 import { Button, Buttons, Caption, Choice, Controls, H, List, Note, P, Readout, Readouts } from "../../ui";
 import { Fallback } from "./Fallback";
@@ -11,27 +11,116 @@ import { AGAINST, FIGURES, HYPOTHESES, word } from "./verdicts";
 
 const TITLE: CSSProperties & Record<"--t-head", string> = { "--t-head": "calc(3.65 * var(--u))" };
 
+/** Named as the project's own pre-registration names them; the export checks the quote. */
+const GUIDE = String(fact("people.guide").value);
+const PRESENTERS = String(fact("people.owners").value);
+
 /* ---------------------------------------------------------------- 0.1 title */
 
 function TitlePanel() {
-  const highlight = useIntro((s) => s.highlight);
-  const setHighlight = useIntro((s) => s.setHighlight);
   const reassemble = useIntro((s) => s.reassemble);
-  const drawn = introGraph();
   return (
     <>
       <div style={TITLE}>
         <H>Privacy attack and defence in social media</H>
       </div>
       <P>
-        PRISM-Rec trains a place recommender for a check-in app across its users' phones, so no history is uploaded.
-        We attack it as a curious server, an outsider and a crowd of malicious accounts would, and measure how much each
-        defence holds back.
+        PRISM-Rec: a place recommender for a social check-in app, trained across its users' phones, then attacked and
+        defended, with every result measured.
       </P>
       <P>
-        The data is real: the Philadelphia area of the Yelp Open Dataset, with {fmt.int(m("dataset_card", "users"))} users,{" "}
+        <strong>{PRESENTERS}</strong>
+        <br />
+        B.Tech project, guided by <strong>{GUIDE}</strong>
+      </P>
+      <Controls>
+        <Buttons>
+          <Button kind="quiet" onClick={reassemble}>
+            Assemble again
+          </Button>
+        </Buttons>
+        <Caption>
+          The lights are generated in this browser to match the measured friend graph and show no real user. Drag the
+          scene to look around it.
+        </Caption>
+      </Controls>
+    </>
+  );
+}
+
+/* ---------------------------------------------------------------- 0.2 introduction */
+
+function IntroductionPanel() {
+  return (
+    <>
+      <H>A social app recommends well because it knows where you go and who your friends are.</H>
+      <P>
+        A check-in app suggests places from your reviews and your friends. The usual way to train its recommender is
+        to copy every user's history to one server, which then holds a map of everyone's habits and friendships, open
+        to a breach or a curious insider.
+      </P>
+      <P>
+        Federated learning promises a way out. The model travels to the phones, each phone trains on its own history,
+        and only a small change to the model comes back.
+      </P>
+      <P>
+        This project builds that system, attacks it the way a real adversary would, adds the standard defences one at
+        a time, and measures what each one protects and what it costs in accuracy.
+      </P>
+      <Note tone="warn">
+        The promise is not a proof: keeping data on the phone does not by itself keep it private.
+      </Note>
+    </>
+  );
+}
+
+/* ---------------------------------------------------------------- 0.3 problem statement */
+
+function StatementPanel() {
+  const count = word(HYPOTHESES.length);
+  return (
+    <>
+      <H>
+        Problem statement: train a social recommender without collecting its users' data, and measure how private it
+        really is.
+      </H>
+      <P>
+        Given a check-in app whose users each hold their own review history and friend list, train one shared
+        recommender so that:
+      </P>
+      <List
+        items={[
+          <>no history is uploaded, and the server cannot read one back from what it does receive;</>,
+          <>an outsider holding the released model cannot tell who was in the training set;</>,
+          <>a group of malicious accounts cannot push a chosen business into everyone's recommendations;</>,
+          <>the recommendations stay useful, and anyone can check that the rules were followed.</>,
+        ]}
+      />
+      <P>
+        These goals pull against each other. The project measures, for each defence, how much it protects and how much
+        accuracy it costs, on real data.
+      </P>
+      <Note>
+        {count.charAt(0).toUpperCase() + count.slice(1)} hypotheses and their pass marks were written down before the
+        test data were touched. The scoreboard at the end of this opening shows how each one came out.
+      </Note>
+    </>
+  );
+}
+
+/* ---------------------------------------------------------------- 0.5 the data */
+
+function DataPanel() {
+  const highlight = useIntro((s) => s.highlight);
+  const setHighlight = useIntro((s) => s.setHighlight);
+  const drawn = introGraph();
+  return (
+    <>
+      <H>The data is real: reviews, businesses and friendships from one metropolitan area.</H>
+      <P>
+        The experiments use the Philadelphia area of the Yelp Open Dataset: {fmt.int(m("dataset_card", "users"))} users,{" "}
         {fmt.int(m("dataset_card", "items"))} businesses, {fmt.int(m("dataset_card", "interactions"))} reviews and{" "}
-        {fmt.int(m("social_graph", "edges"))} friendships.
+        {fmt.int(m("social_graph", "edges"))} friendships. A review stands in for a check-in.
       </P>
       <Note>
         The picture is generated in this browser to match the measured friend graph and shows no real user. Measured:
@@ -56,18 +145,12 @@ function TitlePanel() {
           <Readout label="with none, drawn" value={fmt.pct(drawn.stats.isolatedShare, 0)} role="honest" />
           <Readout label="most friends, drawn" value={fmt.int(drawn.stats.max)} role="honest" />
         </Readouts>
-        <Buttons>
-          <Button kind="quiet" onClick={reassemble}>
-            Assemble again
-          </Button>
-        </Buttons>
-        <Caption>Drag the scene to look around it.</Caption>
       </Controls>
     </>
   );
 }
 
-/* ---------------------------------------------------------------- 0.2 the problem */
+/* ---------------------------------------------------------------- 0.4 the three leaks */
 
 const LEAK_CONCEPT: Record<Exclude<Leak, "all">, { id: string; label: string }> = {
   update: { id: "leak", label: "Open: what an update reveals" },
@@ -125,7 +208,7 @@ function ProblemPanel() {
   );
 }
 
-/* ---------------------------------------------------------------- 0.3 the system */
+/* ---------------------------------------------------------------- 0.6 the system */
 
 function SystemPanel() {
   const stage = useIntro((s) => s.stage);
@@ -176,7 +259,7 @@ function SystemPanel() {
   );
 }
 
-/* ---------------------------------------------------------------- 0.4 what we found */
+/* ---------------------------------------------------------------- 0.7 what we found */
 
 function FoundPanel() {
   const against = word(AGAINST.length);
@@ -213,6 +296,7 @@ export const theory: TheoryDef = {
   short: "Opening",
   Scene,
   Fallback,
+  // Scene steps: 0 the friend graph, 1 the three leaks, 2 the pipeline, 3 the graph behind the scoreboard.
   slides: [
     {
       id: "intro/1",
@@ -226,6 +310,24 @@ export const theory: TheoryDef = {
     {
       id: "intro/2",
       kind: "extra",
+      title: "Introduction",
+      badge: "illustration",
+      pose: { position: [-3.4, 1.9, 11.4], target: [0, 0.1, 0] },
+      step: 0,
+      Panel: IntroductionPanel,
+    },
+    {
+      id: "intro/3",
+      kind: "extra",
+      title: "Problem statement",
+      badge: "illustration",
+      pose: { position: [-1.2, 2.8, 14.6], target: [0, 0.9, 0] },
+      step: 1,
+      Panel: StatementPanel,
+    },
+    {
+      id: "intro/4",
+      kind: "extra",
       title: "What a recommender learns, and what leaks",
       badge: "illustration",
       pose: { position: [0.6, 3.6, 13.6], target: [0, 0.9, 0] },
@@ -233,7 +335,17 @@ export const theory: TheoryDef = {
       Panel: ProblemPanel,
     },
     {
-      id: "intro/3",
+      id: "intro/5",
+      kind: "extra",
+      title: "The data",
+      badge: "measured",
+      sources: ["dataset_card", "social_graph"],
+      pose: { position: [0, 7.4, 11.2], target: [0, -0.8, 0] },
+      step: 0,
+      Panel: DataPanel,
+    },
+    {
+      id: "intro/6",
       kind: "extra",
       title: "The system end to end",
       badge: "illustration",
@@ -242,7 +354,7 @@ export const theory: TheoryDef = {
       Panel: SystemPanel,
     },
     {
-      id: "intro/4",
+      id: "intro/7",
       kind: "extra",
       title: "What we found",
       badge: "measured",
