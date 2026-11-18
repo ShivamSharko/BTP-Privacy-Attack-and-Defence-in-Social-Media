@@ -428,9 +428,12 @@ select {
   position: absolute;
   top: calc(var(--head-h) + 0.84 * var(--u));
   bottom: calc(var(--rail-h) + 0.4 * var(--u));
-  left: calc(var(--panel-w) + var(--gutter) * 2.4);
-  /* Never wider than it is in a 16:9 window, so a chart keeps its height in a wide one. */
-  right: max(var(--gutter), calc(100vw - 100 * var(--u) + var(--gutter)));
+  /* Set a clear gap to the right of the text column. The card is never wider than it is in a
+     16:9 window, so a chart keeps its height in a wide one; there, the spare width is split
+     evenly so the card sits in the middle of the space beside the text. */
+  --stage-spare: max(0px, calc((100vw - 100 * var(--u)) / 2));
+  left: calc(var(--panel-w) + var(--gutter) * 3.2 + var(--stage-spare));
+  right: calc(var(--gutter) * 0.5 + var(--stage-spare));
   background: var(--slab);
   border-top: 2px solid var(--ink);
   border-radius: 0 0 calc(4 * var(--px)) calc(4 * var(--px));
