@@ -1,14 +1,15 @@
-import { useEffect, useState } from "react";
-import { fromHash, toHash } from "./deck/hash";
+import { useEffect, useRef, useState } from "react";
+import { cutRegistry, EDITIONS, pickEdition } from "./deck/editions";
+import { addressOf, followHash, fromHash, toHash } from "./deck/hash";
 import { describeTarget, keyAction } from "./deck/keys";
 import { loadRegistry, type Registry } from "./deck/registry";
-import { useDeck } from "./deck/store";
+import { useDeck, useEdition } from "./deck/store";
 import { applyTheme } from "./styles/roles";
 import { Frame } from "./ui/Frame";
 
 declare global {
   interface Window {
-    __deck?: { slides: { id: string; title: string; kind: string }[]; failed: string[] };
+    __deck?: { edition: string; slides: { id: string; title: string; kind: string }[]; failed: string[] };
   }
 }
 
@@ -23,19 +24,28 @@ function hasWebgl(): boolean {
 
 export function App() {
   const [registry, setRegistry] = useState<Registry | null>(null);
+  /** Every slide of the full deck, whichever edition is on screen. */
+  const everySlideId = useRef<string[]>([]);
   const index = useDeck((s) => s.index);
   const theme = useDeck((s) => s.theme);
+  const edition = useEdition();
 
-  // Load every theory folder once, then open the slide named in the address bar.
+  // Load every theory folder once, keep the slides of this edition, then open the slide named in the address bar.
   useEffect(() => {
     let cancelled = false;
-    void loadRegistry().then((loaded) => {
+    void loadRegistry().then((everything) => {
       if (cancelled) return;
+      const chosen = EDITIONS[pickEdition(window.location.href, import.meta.env.VITE_EDITION)];
+      const loaded = cutRegistry(everything, chosen);
+      if (loaded.missing.length > 0) console.warn(`[deck] the ${chosen.id} edition lists slides that do not exist:`, loaded.missing);
       const deck = useDeck.getState();
+      deck.setEdition(chosen.id, everything.slides.length);
+      everySlideId.current = everything.ids;
       deck.setWebgl(hasWebgl() && !window.location.href.includes("nowebgl=1"));
       deck.setCount(loaded.slides.length);
       deck.go(fromHash(window.location.hash, loaded.ids));
       window.__deck = {
+        edition: chosen.id,
         slides: loaded.slides.map(({ slide }) => ({ id: slide.id, title: slide.title, kind: slide.kind })),
         failed: loaded.failed,
       };
@@ -61,14 +71,22 @@ export function App() {
     if (!registry) return;
     const id = registry.ids[index];
     if (id && window.location.hash.split("?")[0] !== toHash(id)) {
-      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}${toHash(id)}`);
+      window.history.replaceState(null, "", addressOf(id, window.location));
     }
-    document.title = id ? `${registry.slides[index].slide.title} | PRISM-Rec Explained` : "PRISM-Rec Explained";
-  }, [registry, index]);
+    document.title = id ? `${registry.slides[index].slide.title} | ${edition.name}` : edition.name;
+  }, [registry, index, edition]);
 
   useEffect(() => {
     if (!registry) return;
-    const onHash = () => useDeck.getState().go(fromHash(window.location.hash, registry.ids));
+    const onHash = () => {
+      const deck = useDeck.getState();
+      const target = followHash(window.location.hash, registry.ids, everySlideId.current);
+      if (target !== null) deck.go(target);
+      // The address always names the slide on screen, also when the deck stayed put or the hash named a
+      // slide this edition shows another slide for.
+      const here = registry.ids[useDeck.getState().index];
+      if (here && window.location.hash.split("?")[0] !== toHash(here)) window.history.replaceState(null, "", addressOf(here, window.location));
+    };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, [registry]);

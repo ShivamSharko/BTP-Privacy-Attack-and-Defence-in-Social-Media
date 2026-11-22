@@ -1,5 +1,7 @@
 # PRISM-Rec: Privacy Attack and Defence in Social Media
 
+**Slides, in the browser:** [PRISM-Rec in Brief](https://prism-rec-brief.vercel.app), the short version (30 slides), and [PRISM-Rec Explained](https://prism-rec-deck.vercel.app), the full deck (92 slides, with the code).
+
 ## 1. What this is
 
 PRISM-Rec (Python package `prism`) is a research harness. It trains a recommender for a social review platform in a simulated federated setting, with user-level differential privacy. The data is the Yelp Open Dataset, Philadelphia area: 9,913 users, 6,319 businesses, 410,193 interactions and a friend network of 70,691 friendships. The harness measures six things:
@@ -308,7 +310,7 @@ The project code is MIT licensed. The Yelp data is not part of this repository a
 
 ## 11. The interactive deck
 
-Hosted copy: https://prism-rec-deck.vercel.app
+Hosted copies: the full deck, https://prism-rec-deck.vercel.app, and the short version, https://prism-rec-brief.vercel.app
 
 `deck/` holds "PRISM-Rec Explained", a 92-slide interactive 3D presentation of the project. Each concept is shown in the same order: the theory with a live 3D scene, then the measured impact with interactive charts, then the code. Every number is read from the result files in `results/` when the deck is built, and every code excerpt is copied from `src/prism` with its real line numbers.
 
@@ -318,4 +320,4 @@ npm install
 npm run dev
 ```
 
-Then open http://localhost:5173. Keys, checks and how to regenerate the deck's data after a rerun are in `deck/README.md`. The deck is for local use: like the results it shows, it must not be hosted publicly before the dataset provider's review.
+Then open http://localhost:5173. Keys, checks and how to regenerate the deck's data after a rerun are in `deck/README.md`. The same folder also builds "PRISM-Rec in Brief", 30 of those slides with no code, for a talk of about fifteen minutes (`?edition=brief`, or a build with `VITE_EDITION=brief`). The full deck is hosted since the owner's decision of 19 November 2026 (CHANGE-025 in `PROJECT_ROADMAP.md`) and the short version since 22 November 2026 (CHANGE-026); the dataset provider's review is still to be requested.

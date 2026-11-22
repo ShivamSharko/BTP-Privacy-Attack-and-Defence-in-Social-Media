@@ -1,7 +1,8 @@
 import { motion } from "motion/react";
 import { lazy, Suspense } from "react";
+import { topicNumber } from "../deck/editions";
 import type { Registry } from "../deck/registry";
-import { useDeck } from "../deck/store";
+import { useDeck, useEdition } from "../deck/store";
 import type { Badge, FlatSlide, SlideKind } from "../deck/types";
 import { Fit } from "./Fit";
 import { Overview } from "./Overview";
@@ -48,13 +49,14 @@ function BadgeTag({ flat }: { flat: FlatSlide }) {
   );
 }
 
-function Head({ flat }: { flat: FlatSlide }) {
+function Head({ flat, registry }: { flat: FlatSlide; registry: Registry }) {
   const { theory } = flat;
-  const numbered = theory.number >= 1 && theory.number <= 13;
+  const edition = useEdition();
+  const number = topicNumber(registry, theory, edition);
   return (
     <header className="head">
-      {numbered ? <span className="head__num">{theory.number}</span> : null}
-      <span className="head__theory">{theory.number === 0 ? "PRISM-Rec explained" : theory.title}</span>
+      {number !== null ? <span className="head__num">{number}</span> : null}
+      <span className="head__theory">{theory.number === 0 ? edition.head : theory.title}</span>
       <span className="head__where">{whereInTheory(flat)}</span>
       <BadgeTag flat={flat} />
     </header>
@@ -89,7 +91,7 @@ export function Frame({ registry }: { registry: Registry }) {
         )}
       </div>
 
-      <Head flat={flat} />
+      <Head flat={flat} registry={registry} />
 
       <motion.main
         key={slide.id}

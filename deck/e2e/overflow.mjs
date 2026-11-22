@@ -1,6 +1,6 @@
 // Checks that no slide has a scroller and that nothing is cut off, at several window sizes.
 // Usage (dev server on 5173 or preview on 4173 already running):
-//   node e2e/overflow.mjs [--base http://localhost:5173] [--sizes 1920x1080,1536x730] [--only dp]
+//   node e2e/overflow.mjs [--base http://localhost:5173] [--sizes 1920x1080,1536x730] [--only dp] [--edition brief]
 // A slide fails when any element can scroll, or when the text column or the figure card holds
 // more than it shows. The report also lists how far each slide had to be shrunk to fit.
 import { chromium } from "@playwright/test";
@@ -12,6 +12,7 @@ const option = (name, fallback) => {
 };
 const base = option("base", "http://localhost:5173");
 const only = option("only", "");
+const edition = option("edition", "");
 const sizes = option("sizes", "1920x1080,1536x730,1366x650,1280x720,1024x768,2560x1080")
   .split(",")
   .map((s) => s.split("x").map(Number));
@@ -51,7 +52,7 @@ function inspect() {
 let failures = 0;
 for (const [width, height] of sizes) {
   const page = await browser.newPage({ viewport: { width, height } });
-  await page.goto(`${base}/?solo=1`, { waitUntil: "load" });
+  await page.goto(`${base}/?solo=1${edition ? `&edition=${edition}` : ""}`, { waitUntil: "load" });
   await page.waitForFunction(() => window.__deck !== undefined, null, { timeout: 30000 });
   const deck = await page.evaluate(() => window.__deck);
   const slides = deck.slides.filter((s) => !only || s.id.startsWith(`${only}/`));

@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { fact } from "../../data";
-import { useDeck } from "../../deck/store";
-import { Button, Buttons, Caption, Controls, H, P } from "../../ui";
+import { useDeck, useInDeck } from "../../deck/store";
+import { Button, Buttons, Caption, Controls, H, OtherEdition, P } from "../../ui";
 
 const BIG: CSSProperties & Record<"--t-head", string> = { "--t-head": "calc(3.65 * var(--u))" };
 
@@ -15,6 +15,8 @@ function open(id: string): void {
 /** The last slide: thanks, and a way back into the deck for questions. */
 export function ThanksPanel() {
   const toggleOverview = useDeck((s) => s.toggleOverview);
+  // The brief edition leaves the sandbox slide out, so it offers the full deck in its place.
+  const sandbox = useInDeck("outro/1");
   return (
     <>
       <div style={BIG}>
@@ -30,13 +32,19 @@ export function ThanksPanel() {
           <Button kind="quiet" onClick={() => open("intro/1")}>
             Back to the start
           </Button>
-          <Button kind="quiet" onClick={() => open("outro/1")}>
-            The live sandbox
-          </Button>
+          {sandbox ? (
+            <Button kind="quiet" onClick={() => open("outro/1")}>
+              The live sandbox
+            </Button>
+          ) : null}
         </Buttons>
         <Caption>
-          The scene behind is the sandbox from the start of this closing, at rest. It is an illustration, not a result.
+          {sandbox
+            ? "The scene behind is the sandbox from the start of this closing, at rest."
+            : "The scene behind is the project's sandbox, at rest."}{" "}
+          It is an illustration, not a result.
         </Caption>
+        <OtherEdition />
       </Controls>
     </>
   );

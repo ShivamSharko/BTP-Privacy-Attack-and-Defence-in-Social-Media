@@ -1,19 +1,43 @@
 import type { ReactNode } from "react";
 import { raw, type ResultFile } from "../../data";
-import { H, List, Note, P } from "../../ui";
+import { inEdition, topicInEdition } from "../../deck/editions";
+import { useEdition } from "../../deck/store";
+import { H, List, Note, P, Without } from "../../ui";
 
 /**
  * One limitation, found by a phrase from the result file's own list. The text shown is the
  * file's sentence, or a shorter wording of it with the same meaning; a phrase that is no
  * longer in the file makes the slide fail to render, so a changed list is noticed.
  */
-export function limitation(file: ResultFile, phrase: string, short?: string): { file: ResultFile; text: string } {
+export function limitation(file: ResultFile, phrase: string, short?: string, slide?: string, alsoOn?: string): Limitation {
   const key = file === "dataset_card" ? "known_limitations" : "limitations";
   const list = raw<string[]>(file, key);
   const found = list.find((item) => item.includes(phrase));
   if (!found) throw new Error(`results/${file}.json ${key} has no item containing "${phrase}"`);
-  return { file, text: short ?? found };
+  return { file, text: short ?? found, slide, alsoOn };
 }
+
+/** A limitation, the file it comes from and, when it is about one slide's study only, that slide. */
+export interface Limitation {
+  file: ResultFile;
+  text: string;
+  slide?: string;
+  /** A slide outside the file's topic that also shows the study, so the limit stays wherever that slide is. */
+  alsoOn?: string;
+}
+
+/** The topic whose slides show each result file. */
+export const FILE_TOPIC: Partial<Record<ResultFile, string>> = {
+  privacy_utility: "dp",
+  sensitivity: "dp",
+  update_leakage: "leak",
+  membership: "mia",
+  poisoning: "poison",
+  free_riding: "freeride",
+  gossip: "gossip",
+  participation: "part",
+  ledger_audit: "ledger",
+};
 
 /** Participation scenarios whose epsilon note marks the epsilon as nominal, read from every privacy level of every cell. */
 function nominalScenarios(): string[] {
@@ -29,7 +53,7 @@ function listNames(names: string[]): string {
 
 export interface LimitGroup {
   title: string;
-  items: { file: ResultFile; text: string }[];
+  items: Limitation[];
 }
 
 export const GROUPS_A: LimitGroup[] = [
@@ -73,11 +97,13 @@ export const GROUPS_B: LimitGroup[] = [
     title: "What the privacy numbers do not say",
     items: [
       limitation("privacy_utility", "clip-only level is a diagnostic"),
-      limitation("privacy_utility", "What-if levels", "The what-if levels simulate a larger population by dividing the noise; they claim no epsilon."),
+      limitation("privacy_utility", "What-if levels", "The what-if levels simulate a larger population by dividing the noise; they claim no epsilon.", "dp/6"),
       limitation(
         "participation",
         "is NOMINAL",
         `Where availability depends on user data (the ${listNames(nominalScenarios())} scenarios), the epsilon shown is nominal: the analysis does not hold.`,
+        undefined,
+        "intro/7",
       ),
       limitation("gossip", "no amplification by sampling", "Gossip's local epsilon composes every round without amplification, per node and for that node's own data."),
       limitation("update_leakage", "local-noise epsilon is for one release", "The local-noise epsilon in the leakage study covers one release of one update, not a training run."),
@@ -101,11 +127,18 @@ export const GROUPS_B: LimitGroup[] = [
 ];
 
 function Group({ group }: { group: LimitGroup }) {
+  // An edition lists the limits of what it shows: an item about a topic or a study it leaves out is left out too.
+  const edition = useEdition();
+  const items = group.items.filter((item) => {
+    const topic = FILE_TOPIC[item.file];
+    const shown = topic === undefined || topicInEdition(edition, topic) || (item.alsoOn !== undefined && inEdition(edition, item.alsoOn));
+    return shown && (item.slide === undefined || inEdition(edition, item.slide));
+  });
   return (
     <section style={{ marginBottom: "1.1em" }}>
       <h2>{group.title}</h2>
       <List
-        items={group.items.map((item, i): ReactNode => (
+        items={items.map((item, i): ReactNode => (
           <span key={i}>
             {item.text} <span className="caption" style={{ display: "inline" }}>({item.file})</span>
           </span>
@@ -159,9 +192,15 @@ export function LimitsBPanel() {
         A defence that held, held against the attack that was run. None of the attackers adapts to the defence, so a
         good result is an upper bound on what the defence achieves, not a guarantee.
       </P>
+      <Without slide="outro/6">
+        <P>
+          Everything here is a simulation in one process on one city's reviews: no network, no real phones, no second
+          operator.
+        </P>
+      </Without>
       <Note tone="warn">
-        Still open: the dataset provider's pre-publication review has not been done. Until it is done, the results are not
-        presented in public or published.
+        Still open: the dataset provider's pre-publication review has not been done. The deck and the repository were
+        put online to share them with the guide, before that review.
       </Note>
     </>
   );

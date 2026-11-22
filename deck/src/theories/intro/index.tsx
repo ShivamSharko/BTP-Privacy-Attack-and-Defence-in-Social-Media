@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { fact, fmt, m } from "../../data";
 import type { TheoryDef } from "../../deck/types";
-import { Button, Buttons, Caption, Choice, Controls, H, List, Note, P, Readout, Readouts } from "../../ui";
+import { Button, Buttons, Caption, Choice, Controls, H, List, Note, OtherEdition, P, Readout, Readouts } from "../../ui";
 import { Fallback } from "./Fallback";
 import { HUB_SHARE, introGraph, MEASURED } from "./graph";
 import { Scene } from "./Scene";
@@ -43,6 +43,7 @@ function TitlePanel() {
           The lights are generated in this browser to match the measured friend graph and show no real user. Drag the
           scene to look around it.
         </Caption>
+        <OtherEdition />
       </Controls>
     </>
   );
@@ -275,14 +276,14 @@ function FoundPanel() {
       </P>
       <P>
         H1 says where user-level privacy stops at this population size: at ε = {FIGURES.h1Epsilon} the model loses more accuracy than
-        hoped. H4 failed on how the gap grows, not on whether the trimmed mean helps; it helps, but it ruins the model
+        hoped (ε, epsilon, is the privacy budget: smaller is more private). H4 failed on how the gap grows, not on whether the trimmed mean helps; it helps, but it ruins the model
         and cannot be combined with a secure sum.
       </P>
       <P>
         H3 is split: membership inference stayed near chance, but a sum of {FIGURES.h3Cohort} users still leaks history. H5
         holds in {word(FIGURES.h5Held)} setting of {word(FIGURES.h5Cells)}, by a small margin.
       </P>
-      <Caption>Click a row's button to open the evidence.</Caption>
+      <Caption>A row's button opens the evidence.</Caption>
     </>
   );
 }

@@ -1,5 +1,5 @@
 import { fmt, m, raw } from "../../data";
-import { BarChart, Caption, Choice, CodeView, Controls, H, Note, P, Tex } from "../../ui";
+import { BarChart, Caption, Choice, CodeView, Controls, H, Note, P, Tex, Without } from "../../ui";
 import type { Role } from "../../ui";
 import { type Metric, useModel } from "./store";
 
@@ -86,6 +86,13 @@ export function ImpactStage() {
   const show = (v: number) => (metric === "ndcg@10" ? fmt.ndcg(v) : fmt.n(v, 3));
   return (
     <>
+      <Without slide="model/1">
+        <Caption>
+          The model: every place is a direction built from its description plus a learned part, a user is the average
+          of the places in their history, and a place scores by how closely the two directions agree. Fed. large and
+          Fed. small are that model trained with large or small groups of users per round.
+        </Caption>
+      </Without>
       <BarChart
         yLabel=""
         format={show}

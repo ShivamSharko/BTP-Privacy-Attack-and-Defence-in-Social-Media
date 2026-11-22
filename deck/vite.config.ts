@@ -1,9 +1,19 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 
+/**
+ * A build made with VITE_EDITION=brief opens the short version (src/deck/editions.ts). Its page
+ * title is set here too, so a bookmark or a link preview made before the script runs is right.
+ */
+const briefTitle = {
+  name: "edition-title",
+  transformIndexHtml: (html: string) =>
+    process.env.VITE_EDITION === "brief" ? html.replace("<title>PRISM-Rec Explained</title>", "<title>PRISM-Rec in Brief</title>") : html,
+};
+
 export default defineConfig({
   base: "./",
-  plugins: [react()],
+  plugins: [react(), briefTitle],
   // The overlay is off because several people build theory folders against one dev server:
   // a syntax error in one folder must not cover everybody else's slides.
   server: { port: 5173, strictPort: true, hmr: { overlay: false } },

@@ -1,6 +1,8 @@
 import type { CSSProperties } from "react";
 import { raw, type ResultFile } from "../../data";
-import { Caption } from "../../ui";
+import { topicInEdition } from "../../deck/editions";
+import { useEdition } from "../../deck/store";
+import { Caption, Without } from "../../ui";
 import { goTo } from "./store";
 import { HYPOTHESES, type Tone } from "./verdicts";
 
@@ -31,6 +33,8 @@ function Mark({ tone }: { tone: Tone }) {
 
 /** The five hypotheses, their verdicts as derived from the result files, and a way to the evidence. */
 export function Scoreboard() {
+  // The short version leaves some topics out; a row then keeps its verdict and loses only the button.
+  const edition = useEdition();
   return (
     <div>
       <h2>Five hypotheses, written before the test data were touched</h2>
@@ -48,7 +52,7 @@ export function Scoreboard() {
                 {h.verdict}
               </span>
               <span style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {h.links.map((l) => (
+                {h.links.filter((l) => topicInEdition(edition, l.id)).map((l) => (
                   <button
                     key={l.id}
                     type="button"
@@ -61,11 +65,20 @@ export function Scoreboard() {
                     {l.label}
                   </button>
                 ))}
+                {h.links.every((l) => !topicInEdition(edition, l.id)) ? (
+                  <span style={{ fontSize: "var(--t-small)", color: "var(--ink-soft)" }}>Evidence: in the full deck</span>
+                ) : null}
               </span>
             </div>
           </div>
         ))}
       </div>
+      <Without slide="intro/6">
+        <Caption>
+          A secure sum shows the server only the total of the updates. A trimmed mean is an average that drops the
+          extreme values. Each has its own slides later.
+        </Caption>
+      </Without>
       <Caption>
         Verdicts are read from {HYPOTHESES.map((h) => `${h.id}: ${h.derivedFrom}`).join(". ")}. Experiment status:{" "}
         {STATUSES.map((s) => `${s.file} ${s.status}`).join(", ")}.

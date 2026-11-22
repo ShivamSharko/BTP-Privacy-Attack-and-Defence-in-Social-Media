@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { Theme } from "../styles/roles";
+import { EDITIONS, type Edition, type EditionId, inEdition, topicInEdition } from "./editions";
 
 export interface DeckState {
   index: number;
@@ -10,7 +11,12 @@ export interface DeckState {
   resetNonce: number;
   reducedMotion: boolean;
   webgl: boolean;
+  /** Which edition of the deck is on screen. */
+  edition: EditionId;
+  /** Slides in the full edition, whichever edition is on screen. */
+  fullCount: number;
   setCount(count: number): void;
+  setEdition(edition: EditionId, fullCount: number): void;
   go(index: number): void;
   next(): void;
   prev(): void;
@@ -33,6 +39,9 @@ export const useDeck = create<DeckState>((set) => ({
   resetNonce: 0,
   reducedMotion: false,
   webgl: true,
+  edition: "full",
+  fullCount: 0,
+  setEdition: (edition, fullCount) => set({ edition, fullCount }),
   setCount: (count) => set((s) => ({ count, index: clamp(s.index, count) })),
   go: (index) => set((s) => (Number.isFinite(index) ? { index: clamp(index, s.count), overview: false } : s)),
   next: () => set((s) => ({ index: clamp(s.index + 1, s.count) })),
@@ -45,3 +54,18 @@ export const useDeck = create<DeckState>((set) => ({
   setReducedMotion: (reducedMotion) => set({ reducedMotion }),
   setWebgl: (webgl) => set({ webgl }),
 }));
+
+/** The edition on screen. */
+export function useEdition(): Edition {
+  return EDITIONS[useDeck((s) => s.edition)];
+}
+
+/** True when the edition on screen shows the slide, so a button never points at a slide that is not there. */
+export function useInDeck(slideId: string): boolean {
+  return inEdition(useEdition(), slideId);
+}
+
+/** True when the edition on screen shows at least one slide of the topic, so a button can open it. */
+export function useTopicShown(topic: string): boolean {
+  return topicInEdition(useEdition(), topic);
+}

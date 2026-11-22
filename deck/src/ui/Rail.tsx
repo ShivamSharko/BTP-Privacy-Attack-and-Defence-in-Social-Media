@@ -25,7 +25,7 @@ export function Rail({ registry }: { registry: Registry }) {
               className="rail__stop"
               data-state={state}
               aria-current={state === "current" ? "step" : undefined}
-              aria-label={`${theory.title}, ${theory.slides.length} slides`}
+              aria-label={`${theory.title}, ${theory.slides.length} ${theory.slides.length === 1 ? "slide" : "slides"}`}
               onClick={() => go(first)}
             >
               <span className="rail__dot" />

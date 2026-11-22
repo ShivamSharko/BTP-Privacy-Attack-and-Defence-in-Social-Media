@@ -1,32 +1,11 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { expect, type Page, test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { findOverflow, openDeck, shownSlide, watchErrors } from "./helpers";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const EXPECTED_SLIDES = 65;
-
-interface DeckInfo {
-  slides: { id: string; title: string; kind: string }[];
-  failed: string[];
-}
-
-function watchErrors(page: Page): string[] {
-  const errors: string[] = [];
-  page.on("console", (message) => {
-    if (message.type() === "error") errors.push(`console: ${message.text()}`);
-  });
-  page.on("pageerror", (error) => errors.push(`page: ${error.message}`));
-  return errors;
-}
-
-async function openDeck(page: Page, path = "/"): Promise<DeckInfo> {
-  await page.goto(path);
-  await page.waitForFunction(() => (window as unknown as { __deck?: unknown }).__deck !== undefined);
-  return page.evaluate(() => (window as unknown as { __deck: DeckInfo }).__deck);
-}
-
-const shownSlide = (page: Page) => page.locator(".deck").getAttribute("data-slide");
 
 test("every theory folder loads and the deck has the planned slides", async ({ page }) => {
   const deck = await openDeck(page);
@@ -101,23 +80,6 @@ test("keyboard shortcuts: overview, theme, home and end", async ({ page }) => {
   await page.keyboard.press("Home");
   await expect.poll(() => shownSlide(page)).toBe(deck.slides[0].id);
 });
-
-/** Everything on the page that can scroll, and every box that holds more than it shows. */
-function findOverflow(): string[] {
-  const found: string[] = [];
-  for (const el of document.querySelectorAll<HTMLElement>(".deck *")) {
-    const style = getComputedStyle(el);
-    const canScroll = /auto|scroll/.test(`${style.overflowX} ${style.overflowY}`);
-    const over = el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1;
-    const box = el.matches(".panel, .stage, .overview, .code__pre");
-    if (over && (canScroll || box)) found.push(`${canScroll ? "scrolls" : "cut off"}: ${el.tagName.toLowerCase()}.${el.className}`);
-  }
-  const fits = [...document.querySelectorAll("[data-fit]")].map((el) => Number(el.getAttribute("data-fit")));
-  if (Math.min(1, ...fits) < 0.72) found.push(`shrunk to ${Math.min(...fits)} to fit`);
-  const root = document.scrollingElement;
-  if (root && (root.scrollHeight > window.innerHeight + 1 || root.scrollWidth > window.innerWidth + 1)) found.push("the page itself scrolls");
-  return found;
-}
 
 test("no slide has a scroller or anything cut off, at three window sizes", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "reduced-motion", "layout does not depend on motion or WebGL, so it is checked once");

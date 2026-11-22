@@ -87,6 +87,24 @@ The deck has no scroller anywhere, at any window size. Three things keep it that
 `node e2e/overflow.mjs --only <id>` walks your slides at six window sizes and fails if any
 element can scroll, if anything is cut off, or if a slide had to shrink below 72%.
 
+## If your slide is in the short version
+
+`src/deck/editions.ts` lists the slides "PRISM-Rec in Brief" keeps. A kept slide is read
+there without the slides around it, so:
+
+- a term that only a left-out slide explains gets one line, shown only when that slide is
+  absent: `<Without slide="leak/3"> (the chance that a real friend pair scores above a
+  non-friend pair)</Without>`. It may explain; it must not carry a result the full deck does
+  not show. If the panel is near its 150 words, put the line in a `Caption` on the Stage;
+- a pointer at another slide is wrapped so it disappears with that slide:
+  `<With slide="gossip/2"> (next slide)</With>`;
+- a button that opens another slide or topic is drawn only when it has somewhere to go
+  (`useInDeck("outro/1")`, `useTopicShown("part")` from `deck/store`);
+- never write a topic's number in text: the short version renumbers the topics it shows.
+
+`npx vitest run src/deck/brief.test.tsx` reads the short version on its own, and
+`node e2e/overflow.mjs --edition brief` checks its layout.
+
 ## Numbers and code
 
 ```ts

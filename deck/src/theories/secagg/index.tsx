@@ -1,6 +1,6 @@
 import { fact, fmt, m, raw } from "../../data";
 import type { TheoryDef } from "../../deck/types";
-import { BarChart, Caption, CodeView, H, List, Note, P, StatRow } from "../../ui";
+import { BarChart, Caption, CodeView, H, List, Note, P, StatRow, Without } from "../../ui";
 import type { Role } from "../../ui";
 import { Fallback } from "./Fallback";
 import { CohortPanel, DropPanel, PipelinePanel, RingPanel } from "./panels";
@@ -136,6 +136,24 @@ function ImpactStage() {
         One trained model, one seed. Whiskers are 95% intervals over the {fmt.int(TARGETS)} target users sampled, not
         over training runs.
       </Caption>
+      <Caption>
+        Friendships: the link attack compares two users' individual updates. On masked updates its AUC is{" "}
+        {fmt.n(m("update_leakage", "results/masked/link/auc"), 3)}, against {fmt.n(m("update_leakage", "results/raw/link/auc"), 3)} raw, and a
+        sum leaves it no pair to compare.
+      </Caption>
+      <Without slide="intro/6">
+        <Caption>
+          The clip norm is the longest an update may be: a longer one is scaled down to it. Clipping and this noise
+          are explained under differential privacy.
+        </Caption>
+      </Without>
+      <Without slide="secagg/4">
+        <Caption>
+          Why a sum leaks at all: the total still contains every member's update, so scored the same way as one
+          update, its members' places still stand out. Each member's share thins as the group grows, but never
+          reaches zero.
+        </Caption>
+      </Without>
     </>
   );
 }

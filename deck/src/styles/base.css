@@ -260,6 +260,20 @@ select {
   color: var(--ink-soft);
   max-width: 80ch;
 }
+/* The line that links the full deck and the short version to each other. */
+.edition a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+.edition a:hover {
+  text-decoration-thickness: 2px;
+}
+.edition a:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
 .steps,
 .list {
   margin: 0 0 0.85em;

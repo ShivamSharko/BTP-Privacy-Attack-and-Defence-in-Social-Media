@@ -1,5 +1,5 @@
 import { fmt, m, raw } from "../../data";
-import { BarChart, GroupedBars, H, Note, P, StatRow } from "../../ui";
+import { BarChart, Caption, GroupedBars, H, Note, P, StatRow, Without } from "../../ui";
 
 const NP = "results/by_epsilon/nonprivate";
 const E8 = "results/by_epsilon/8.0";
@@ -21,17 +21,21 @@ export function AccuracyPanel() {
         H2 claimed that gossip with local differential privacy shows a substantial utility gap against federated
         training with central privacy, at equal epsilon. At epsilon 8 on {fmt.int(m("gossip", "results/nodes"))} users and{" "}
         {SEEDS} seeds, NDCG@10 is {fmt.ndcg(gossip8)} for gossip and {fmt.ndcg(fed8)} for
-        federated. The gap is {fmt.ndcg(m("gossip", "results/h2/gap_mean"))}, {fmt.pct(m("gossip", "results/h2/relative_gap"), 0)} of
-        the federated score, with a 95% interval of {fmt.ndcg(m("gossip", "results/h2/gap_ci95/0"))} to{" "}
-        {fmt.ndcg(m("gossip", "results/h2/gap_ci95/1"))}. The interval excludes zero.
+        federated: gossip loses {fmt.pct(m("gossip", "results/h2/relative_gap"), 0)} of the federated score. In the one seed with a
+        per-node interval the gap is {fmt.ndcg(m("gossip", "results/h2/gap_mean"))}, 95% interval{" "}
+        {fmt.ndcg(m("gossip", "results/h2/gap_ci95/0"))} to {fmt.ndcg(m("gossip", "results/h2/gap_ci95/1"))}, which excludes zero.
       </P>
       <P>
         Without privacy noise gossip still reaches {fmt.pct(m("gossip", "controls/gossip_share_of_federated/ratio"), 0)} of
         federated: removing the server alone has a price.
+        <Without slide="gossip/3">
+          {" "}
+          With privacy, every node must add its own noise to what it sends, far more than a server adds once to a sum.
+        </Without>
       </P>
       <Note tone="warn">
-        Both private scores are below the MostPopular baseline, {fmt.ndcg(m("gossip", `${E8}/most_popular_ndcg10`))}. The interval is
-        over nodes for one seed; averaged over seeds the gap is {fmt.ndcg(m("gossip", `${E8}/gap/mean_over_seeds`))}.
+        Both private scores are below the MostPopular baseline, {fmt.ndcg(m("gossip", `${E8}/most_popular_ndcg10`))}. Averaged over
+        seeds the gap is {fmt.ndcg(m("gossip", `${E8}/gap/mean_over_seeds`))}.
       </Note>
     </>
   );
@@ -70,6 +74,12 @@ export function AccuracyStage() {
         ]}
         summary={`NDCG@10 on ${m("gossip", "results/nodes")} users, mean of ${SEEDS} seeds with the range of seeds. Without privacy noise gossip scores ${fmt.ndcg(m("gossip", `${NP}/gossip_ndcg10/mean`))} and federated ${fmt.ndcg(m("gossip", `${NP}/federated_ndcg10/mean`))}. At epsilon 8 gossip scores ${fmt.ndcg(m("gossip", `${E8}/gossip_ndcg10/mean`))} and federated ${fmt.ndcg(m("gossip", `${E8}/federated_ndcg10/mean`))}. The MostPopular baseline is ${fmt.ndcg(floor)}.`}
       />
+      <Without slide="gossip/5">
+        <Caption>
+          Only {fmt.int(m("gossip", "results/nodes"))} of the project's users are simulated here, so these scores, MostPopular
+          included, are not on the same scale as the slides on the full population.
+        </Caption>
+      </Without>
     </>
   );
 }

@@ -5,7 +5,9 @@ on 19 November 2026**. As built the deck had 88 slides, not 65: the builders add
 slide wherever a panel would otherwise have been crammed, as section 6 requires. Four more
 (introduction, problem statement, the data, thank you) were added on the owner's request
 the same day, so it now has 92. On the same request every scroller was removed (sizes scale
-with the window) and the counter shows the slide number inside its topic only. The
+with the window) and the counter shows the slide number inside its topic only. On
+22 November 2026 a short edition was added, "PRISM-Rec in Brief": 30 of the same slides,
+selected by a list of ids in `deck/src/deck/editions.ts`, with no code slides. The
 slide list as built is in `deck/README.md`; the storyboard in section 7 is the brief it
 was built from.
 

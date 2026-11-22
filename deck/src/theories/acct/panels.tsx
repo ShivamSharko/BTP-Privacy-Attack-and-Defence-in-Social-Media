@@ -1,5 +1,5 @@
 import { fmt, grid } from "../../data";
-import { Button, Buttons, Choice, Controls, H, Note, P, Readout, Readouts, Slider, Tex } from "../../ui";
+import { Button, Buttons, Choice, Controls, H, Note, P, Readout, Readouts, Slider, Tex, Without } from "../../ui";
 import { calibrationTrace, projectNoise } from "./search";
 import { CALIBRATION_HIGH, CALIBRATION_LOW, CALIBRATION_TOLERANCE, epsilonAt, gate, GATE_ABSOLUTE, GATE_RELATIVE, movedNeedles, RDP_SLACK } from "./sim";
 import { BUDGET, LEVELS, type Needle, type Regime, regimeSetting, TOY_BASE, useAcct } from "./store";
@@ -38,7 +38,7 @@ export function SurfacePanel() {
       <Tex block>{String.raw`\varepsilon = f(z,\ q,\ T)\ \text{ at }\ \delta = \tfrac{1}{10n} \approx ${grid.delta.toExponential(2).replace("e-", String.raw`\times 10^{-`)}}`}</Tex>
       <P>
         The surface is computed with the project's PLD accountant over {grid.users.toLocaleString("en-US")} users. It is
-        not the value of record, which is the larger of PRV and PLD. Drag the marker or click the surface.
+        not the value of record, which is the larger of PRV and PLD<Without slide="acct/2">, two accountants from separate code bases</Without>. Drag the marker or click the surface.
       </P>
       <Controls>
         <Choice<string>
