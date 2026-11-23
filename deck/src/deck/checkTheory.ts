@@ -27,6 +27,20 @@ export function checkTheory(theory: TheoryDef): string[] {
     }
     if (slide.layout === "stage" && !slide.Stage) problems.push(`${slide.id}: layout "stage" needs a Stage`);
     if (!slide.title.trim()) problems.push(`${slide.id}: empty title`);
+
+    const brief = slide.brief;
+    if (brief) {
+      if (slide.kind === "code") problems.push(`${slide.id}: a code slide has no brief variant (the brief edition shows no code)`);
+      if (!brief.title.trim()) problems.push(`${slide.id}: brief variant has an empty title`);
+      if (brief.layout === "stage" && !brief.Stage) problems.push(`${slide.id}: brief layout "stage" needs a Stage`);
+      const badge = brief.badge ?? slide.badge;
+      const sources = brief.sources ?? slide.sources ?? [];
+      if (badge === "source") problems.push(`${slide.id}: a brief variant cannot be badged source`);
+      if (badge !== "illustration" && sources.length === 0) problems.push(`${slide.id}: a brief variant badged ${badge} must list its sources`);
+      for (const source of brief.sources ?? []) {
+        if (!RESULT_FILES.includes(source)) problems.push(`${slide.id}: brief variant has unknown source "${source}"`);
+      }
+    }
   });
 
   if (number === 0 || number === 14) {

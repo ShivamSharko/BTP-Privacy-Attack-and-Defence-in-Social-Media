@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { raw, type ResultFile } from "../../data";
 import { inEdition, topicInEdition } from "../../deck/editions";
 import { useEdition } from "../../deck/store";
-import { H, List, Note, P, Without } from "../../ui";
+import { H, List, Note, P } from "../../ui";
 
 /**
  * One limitation, found by a phrase from the result file's own list. The text shown is the
@@ -126,7 +126,7 @@ export const GROUPS_B: LimitGroup[] = [
   },
 ];
 
-function Group({ group }: { group: LimitGroup }) {
+export function Group({ group }: { group: LimitGroup }) {
   // An edition lists the limits of what it shows: an item about a topic or a study it leaves out is left out too.
   const edition = useEdition();
   const items = group.items.filter((item) => {
@@ -192,12 +192,6 @@ export function LimitsBPanel() {
         A defence that held, held against the attack that was run. None of the attackers adapts to the defence, so a
         good result is an upper bound on what the defence achieves, not a guarantee.
       </P>
-      <Without slide="outro/6">
-        <P>
-          Everything here is a simulation in one process on one city's reviews: no network, no real phones, no second
-          operator.
-        </P>
-      </Without>
       <Note tone="warn">
         Still open: the dataset provider's pre-publication review has not been done. The deck and the repository were
         put online to share them with the guide, before that review.

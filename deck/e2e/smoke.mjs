@@ -1,6 +1,6 @@
 // Visits every slide of one theory in headless Edge, saves a picture of each, and reports
 // console errors. Usage (dev server already running on port 5173):
-//   node e2e/smoke.mjs <theoryId> [--base http://localhost:5173] [--light] [--wait 1800]
+//   node e2e/smoke.mjs <theoryId> [--base http://localhost:5173] [--light] [--wait 1800] [--edition brief]
 import { mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -19,6 +19,7 @@ if (!theoryId) {
 const base = option("base", "http://localhost:5173");
 const wait = Number(option("wait", "1800"));
 const light = args.includes("--light");
+const edition = option("edition", "");
 const shots = join(dirname(fileURLToPath(import.meta.url)), "shots");
 mkdirSync(shots, { recursive: true });
 
@@ -44,7 +45,7 @@ page.on("pageerror", (error) => {
   if (!foreign(text)) problems.push(`[${current}] page error: ${error.message}`);
 });
 
-await page.goto(`${base}/?solo=1#/${theoryId}/1`, { waitUntil: "load" });
+await page.goto(`${base}/?solo=1${edition ? `&edition=${edition}` : ""}#/${theoryId}/1`, { waitUntil: "load" });
 await page.waitForFunction(() => window.__deck !== undefined, null, { timeout: 30000 });
 const deck = await page.evaluate(() => window.__deck);
 const slides = deck.slides.filter((s) => s.id.startsWith(`${theoryId}/`));
@@ -60,7 +61,7 @@ for (const slide of slides) {
   await page.waitForTimeout(wait);
   const shown = await page.evaluate(() => document.querySelector(".deck")?.getAttribute("data-slide"));
   if (shown !== slide.id) problems.push(`[${slide.id}] the deck shows "${shown}" instead`);
-  const file = join(shots, `${slide.id.replace("/", "-")}${light ? "-light" : ""}.png`);
+  const file = join(shots, `${slide.id.replace("/", "-")}${edition ? `-${edition}` : ""}${light ? "-light" : ""}.png`);
   await page.screenshot({ path: file });
   console.log(`${slide.id}  ${slide.kind.padEnd(7)} ${slide.title}  ->  ${file}`);
 }

@@ -1,4 +1,5 @@
 import type { TheoryDef } from "../../deck/types";
+import { BriefAccountingPanel, BriefAccountingStage } from "./brief";
 import { Fallback } from "./Fallback";
 import { CodePanel, CodeStage, ImpactPanel, ImpactStage } from "./impact";
 import { CalibrationPanel, GatePanel, SurfacePanel } from "./panels";
@@ -20,6 +21,7 @@ export const theory: TheoryDef = {
       pose: { position: [4.5, 4.6, 15.5], target: [0, -0.4, 0] },
       step: 0,
       Panel: SurfacePanel,
+      brief: { title: "Epsilon is computed, and three accountants must agree", Panel: BriefAccountingPanel, Stage: BriefAccountingStage, badge: "computed", sources: ["privacy_utility"], pose: { position: [7, 5, 17], target: [0, -0.4, 0] } },
     },
     {
       id: "acct/2",

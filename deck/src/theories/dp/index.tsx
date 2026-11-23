@@ -1,4 +1,5 @@
 import type { TheoryDef } from "../../deck/types";
+import { BriefCurvePanel, BriefCurveStage, BriefMechanismPanel, BriefPromisePanel, BriefWhatIfPanel, BriefWhatIfStage } from "./brief";
 import { CodePanel, CodeStage } from "./code";
 import { Fallback } from "./Fallback";
 import { CurvePanel, CurveStage, SensitivityPanel, SensitivityStage, WhatIfPanel, WhatIfStage } from "./impact";
@@ -21,6 +22,7 @@ export const theory: TheoryDef = {
       pose: { position: [0, 1.4, 15], target: [0, 0.4, 0] },
       step: 0,
       Panel: PromisePanel,
+      brief: { title: "With or without your history, the result looks the same", Panel: BriefPromisePanel },
     },
     {
       id: "dp/2",
@@ -39,6 +41,7 @@ export const theory: TheoryDef = {
       pose: { position: [2.4, 3.2, 10.5], target: [0, 0, 0] },
       step: 2,
       Panel: ClipPanel,
+      brief: { title: "Clip each user, then add noise once", Panel: BriefMechanismPanel, step: 3, pose: { position: [0, 1.4, 12.8], target: [0, 0, 0] } },
     },
     {
       id: "dp/4",
@@ -60,6 +63,7 @@ export const theory: TheoryDef = {
       layout: "stage",
       Panel: CurvePanel,
       Stage: CurveStage,
+      brief: { title: "H1 is not supported", Panel: BriefCurvePanel, Stage: BriefCurveStage },
     },
     {
       id: "dp/6",
@@ -72,6 +76,7 @@ export const theory: TheoryDef = {
       layout: "stage",
       Panel: WhatIfPanel,
       Stage: WhatIfStage,
+      brief: { title: "Less noise helps in one cohort, and the data is not the cause", Panel: BriefWhatIfPanel, Stage: BriefWhatIfStage, sources: ["privacy_utility", "sensitivity"] },
     },
     {
       id: "dp/7",

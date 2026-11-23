@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { fact, hasFact, m } from "../../data";
 import { checkTheory } from "../../deck/checkTheory";
-import { longPanels, renderAllSlides } from "../../test/renderTheory";
-import { provenance } from "./evidence";
+import { briefOf, longPanels, renderAllSlides } from "../../test/renderTheory";
+import { hypothesisOutcomes, provenance, seedCounts } from "./evidence";
 import { theory } from "./index";
 import { formatP, minSignTestP } from "./sim";
 
@@ -38,5 +38,23 @@ describe("theory 13: how we know", () => {
 
   it("keeps every panel short enough to read from the back of a room", () => {
     expect(longPanels(theory)).toEqual([]);
+  });
+
+  it("has a brief slide that carries the controls, the seeds and the provenance", () => {
+    const brief = briefOf(theory);
+    expect(brief.slides.length).toBe(1);
+    const text = renderAllSlides(brief);
+    const p = provenance();
+    expect(text).toContain(`${p.valid} / ${p.files.length}`);
+    expect(text).toContain(`${p.withSameHash} / ${p.files.length}`);
+    expect(text).toContain(String(p.records));
+    expect(text).toContain(String(p.tests));
+    expect(text).toContain(String(fact("runs.engine_hash").value).slice(0, 8));
+    expect(text).toContain(m("membership", "controls/positive_overfit/values/auc").toFixed(3));
+    expect(text).toContain(m("membership", "controls/negative_independent/values/auc").toFixed(3));
+    expect(text).toContain(String(seedCounts().main));
+    expect(text).toContain(hypothesisOutcomes().failed.join(" and "));
+    expect(text).toContain("INVALID");
+    expect(longPanels(brief, 130)).toEqual([]);
   });
 });

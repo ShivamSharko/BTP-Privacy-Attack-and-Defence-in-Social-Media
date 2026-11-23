@@ -38,7 +38,7 @@ describe("the two editions point at each other", () => {
     render(<OtherEdition />);
     const link = screen.getByRole("link", { name: "Open the full deck" });
     expect(link).toHaveAttribute("href", "/?edition=full");
-    expect(link.parentElement).toHaveTextContent("This is the short version: 28 of the full deck's 92 slides.");
+    expect(link.parentElement).toHaveTextContent("This is the short version: 28 slides that sum up the full deck's 92.");
   });
 
   it("the opening slides carry the edition's name at the top", () => {

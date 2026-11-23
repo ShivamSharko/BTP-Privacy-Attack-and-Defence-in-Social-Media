@@ -2,7 +2,7 @@ import type { CSSProperties } from "react";
 import { raw, type ResultFile } from "../../data";
 import { topicInEdition } from "../../deck/editions";
 import { useEdition } from "../../deck/store";
-import { Caption, Without } from "../../ui";
+import { Caption } from "../../ui";
 import { goTo } from "./store";
 import { HYPOTHESES, type Tone } from "./verdicts";
 
@@ -37,7 +37,7 @@ export function Scoreboard() {
   const edition = useEdition();
   return (
     <div>
-      <h2>Five hypotheses, written before the test data were touched</h2>
+      <h2>Five hypotheses, written before the reported model was tested</h2>
       <div role="list">
         {HYPOTHESES.map((h) => (
           <div role="listitem" key={h.id} style={row}>
@@ -73,12 +73,6 @@ export function Scoreboard() {
           </div>
         ))}
       </div>
-      <Without slide="intro/6">
-        <Caption>
-          A secure sum shows the server only the total of the updates. A trimmed mean is an average that drops the
-          extreme values. Each has its own slides later.
-        </Caption>
-      </Without>
       <Caption>
         Verdicts are read from {HYPOTHESES.map((h) => `${h.id}: ${h.derivedFrom}`).join(". ")}. Experiment status:{" "}
         {STATUSES.map((s) => `${s.file} ${s.status}`).join(", ")}.

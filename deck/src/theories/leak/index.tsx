@@ -1,6 +1,7 @@
 import { fmt, m } from "../../data";
 import type { TheoryDef } from "../../deck/types";
-import { Button, Buttons, Caption, Choice, CodeView, Controls, H, Note, P, Readout, Readouts, Slider, StatRow, Tex, Without } from "../../ui";
+import { Button, Buttons, Caption, Choice, CodeView, Controls, H, Note, P, Readout, Readouts, Slider, StatRow, Tex } from "../../ui";
+import { BriefInversionPanel, BriefMeasuredPanel, BriefMeasuredStage } from "./brief";
 import { useInversion, useNetwork, usePair } from "./derived";
 import { Fallback } from "./Fallback";
 import { Ladder } from "./Ladder";
@@ -30,7 +31,7 @@ function InversionPanel() {
       </P>
       <P>
         The real attack adds two standardised numbers per item: the change in its bias, and the size of the change in
-        its embedding row<Without slide="model/1"> (the two things the model learns about each place)</Without>. It needs one user's individual update.
+        its embedding row. It needs one user's individual update.
       </P>
       <Controls>
         <Choice<string>
@@ -142,8 +143,7 @@ function ImpactPanel() {
         guessing popular items.
       </P>
       <P>
-        Friendships leak much less: updates give a link AUC of {fmt.n(raw("raw/link/auc"), 3)}
-        <Without slide="leak/3"> (the chance that a real friend pair scores above a non-friend pair)</Without>, where the histories
+        Friendships leak much less: updates give a link AUC of {fmt.n(raw("raw/link/auc"), 3)}, where the histories
         themselves would give {fmt.n(raw("reference_histories/link/auc"), 3)}.
       </P>
       <Note tone="warn">
@@ -256,6 +256,7 @@ export const theory: TheoryDef = {
       pose: { position: [0, 7.6, 10.2], target: [0, -0.5, 0.8] },
       step: 0,
       Panel: InversionPanel,
+      brief: { title: "What one update gives away", Panel: BriefInversionPanel, step: 0 },
     },
     {
       id: "leak/2",
@@ -286,6 +287,13 @@ export const theory: TheoryDef = {
       layout: "stage",
       Panel: ImpactPanel,
       Stage: ImpactStage,
+      brief: {
+        title: "Measured: a raw update gives the history away",
+        Panel: BriefMeasuredPanel,
+        Stage: BriefMeasuredStage,
+        badge: "measured",
+        sources: ["update_leakage"],
+      },
     },
     {
       id: "leak/5",

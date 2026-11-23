@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 /** The six gates of the order of work, left to right. */
 export const GATES = [
-  { title: "Pre-register", detail: "Hypotheses and decision rules are written down. The test split is untouched." },
+  { title: "Pre-register", detail: "Hypotheses and decision rules are written down before the reported model is tested." },
   { title: "Tune on validation", detail: "Settings are chosen on the validation split only." },
   { title: "Freeze", detail: "The chosen settings are written to a file and not changed again." },
   { title: "Run once", detail: "Train on train plus validation, evaluate once on test, ranking the full catalogue." },

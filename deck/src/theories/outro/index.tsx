@@ -1,4 +1,5 @@
 import type { TheoryDef } from "../../deck/types";
+import { BriefFoundPanel, BriefFoundStage, BriefLimitsPanel, BriefLimitsStage } from "./brief";
 import { Fallback } from "./Fallback";
 import { LimitsAPanel, LimitsAStage, LimitsBPanel, LimitsBStage } from "./limits";
 import { ReplayPanel, SandboxPanel, TradeoffPanel } from "./panels";
@@ -33,6 +34,12 @@ export const theory: TheoryDef = {
       pose: { position: [5.2, 3.4, 13.4], target: [0, -0.1, -0.6] },
       step: 1,
       Panel: TradeoffPanel,
+      brief: {
+        title: "What we found",
+        Panel: BriefFoundPanel,
+        Stage: BriefFoundStage,
+        sources: ["privacy_utility", "gossip", "membership", "update_leakage", "poisoning", "participation"],
+      },
     },
     {
       id: "outro/3",
@@ -89,6 +96,13 @@ export const theory: TheoryDef = {
       layout: "stage",
       Panel: LimitsBPanel,
       Stage: LimitsBStage,
+      brief: {
+        title: "Limits and what is not claimed",
+        Panel: BriefLimitsPanel,
+        Stage: BriefLimitsStage,
+        badge: "measured",
+        sources: ["dataset_card", "participation", "poisoning", "privacy_utility", "free_riding", "membership"],
+      },
     },
     {
       id: "outro/8",

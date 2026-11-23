@@ -1,5 +1,14 @@
 import { render } from "@testing-library/react";
+import { briefSlide } from "../deck/editions";
 import type { TheoryDef } from "../deck/types";
+
+/**
+ * The theory as the brief edition shows it: only the slides that have a brief variant, each in
+ * that variant. Pass it to renderAllSlides and longPanels to test a folder's brief slides.
+ */
+export function briefOf(theory: TheoryDef): TheoryDef {
+  return { ...theory, slides: theory.slides.filter((slide) => slide.brief).map(briefSlide) };
+}
 
 /**
  * Renders every Panel, Stage and the Fallback of a theory in jsdom and returns all the text.

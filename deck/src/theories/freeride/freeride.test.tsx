@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { fmt, m } from "../../data";
 import { checkTheory } from "../../deck/checkTheory";
-import { longPanels, renderAllSlides } from "../../test/renderTheory";
+import { briefOf, longPanels, renderAllSlides } from "../../test/renderTheory";
 import { theory } from "./index";
 
 describe("theory 9: free-riding", () => {
@@ -28,5 +28,16 @@ describe("theory 9: free-riding", () => {
 
   it("keeps every panel short enough to read from the back of a room", () => {
     expect(longPanels(theory)).toEqual([]);
+  });
+
+  it("has one brief slide that introduces free-riding and gives the result", () => {
+    const brief = briefOf(theory);
+    expect(brief.slides.map((s) => s.id)).toEqual(["freeride/3"]);
+    const text = renderAllSlides(brief);
+    expect(text).toContain(fmt.pct(m("free_riding", "results/zero/0.3/cost_to_everyone/relative_ndcg_drop")));
+    expect(text).toContain(fmt.pct(m("free_riding", "results/noise/0.3/cost_to_everyone/relative_ndcg_drop")));
+    expect(text).toContain(fmt.ndcg(m("free_riding", "results/clean/ndcg/mean")));
+    expect(text).toContain(fmt.n(m("free_riding", "results/noise/0.1/detection/norm_auc/mean")));
+    expect(longPanels(brief, 130)).toEqual([]);
   });
 });

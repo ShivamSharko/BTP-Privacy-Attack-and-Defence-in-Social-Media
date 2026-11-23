@@ -1,5 +1,5 @@
 import { fmt } from "../../data";
-import { Button, Buttons, Caption, Choice, Controls, H, Note, P, Readout, Readouts, Slider, Steps, Tex, Without } from "../../ui";
+import { Button, Buttons, Caption, Choice, Controls, H, Note, P, Readout, Readouts, Slider, Steps, Tex } from "../../ui";
 import { pipeValues } from "./PipelineScene";
 import { hexLabel, runFor, signed } from "./ringModel";
 import { buildCohortTable, cohortView, GRID_ITEMS, MAX_COHORT, OTHER_ITEMS, TARGET_ITEMS } from "./sim";
@@ -28,7 +28,7 @@ export function RingPanel() {
       </P>
       <Tex block>{String.raw`\tilde{x}_i = x_i + \sum_{j>i} m_{ij} - \sum_{j<i} m_{ij} \pmod{2^{64}}`}</Tex>
       <Caption>
-        x is a user's update as a whole number<Without slide="secagg/2"> (each value is scaled and rounded first, so masks add exactly)</Without>, m the mask of a pair, the tilde what is sent. Click a user to see its masks.
+        x is a user's update as a whole number, m the mask of a pair, the tilde what is sent. Click a user to see its masks.
       </Caption>
       <Controls>
         <Buttons>

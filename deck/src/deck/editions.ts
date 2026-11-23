@@ -1,12 +1,13 @@
 import { buildRegistry, type Registry } from "./registry";
-import type { TheoryDef } from "./types";
+import type { SlideDef, TheoryDef } from "./types";
 
 export type EditionId = "full" | "brief";
 
 /**
  * One deck, two editions. The full edition shows every slide of every theory folder. The brief
- * edition shows a chosen few of the same slides, in the same order, for a short presentation.
- * No slide is written twice: an edition is only a list of slide ids.
+ * edition shows thirty slides for a short presentation. Each of them sits at the place of one
+ * slide of the full deck and reuses that topic's 3D scene, but it has its own headline, text and
+ * figure (the slide's `brief` variant), written to carry the main points of the whole topic.
  */
 export interface Edition {
   id: EditionId;
@@ -24,23 +25,27 @@ export interface Edition {
 export const BRIEF_LIMIT = 30;
 
 /**
- * The brief edition: three attack and defence pairs (the update, the model, the crowd), each with
- * the slide that explains it and the measurement that settles it, then gossip between friends, the
- * ledger audit, the trade-off picture and what is not claimed. No code slides: the code stays in
- * the full deck. Free-riding, participation and the method are left out whole.
+ * The brief edition, slide by slide. Every topic of the deck is here: the opening, the model and
+ * a training round, three attack and defence pairs (the update, the model, the crowd), free-riding,
+ * gossip between friends, participation, the ledger, the method and the closing. A topic gets one
+ * slide for the idea and, where a measurement settles it, one for the result. No code slides: the
+ * code stays in the full deck. What each slide must say is in docs/BRIEF_EDITION.md.
  */
 const BRIEF_SLIDES: readonly string[] = [
-  "intro/1", "intro/3", "intro/4", "intro/5", "intro/7",
+  "intro/1", "intro/3", "intro/4", "intro/5", "intro/6",
   "model/4",
-  "fed/1", "fed/2",
-  "leak/1", "leak/2", "leak/4",
+  "fed/1",
+  "leak/1", "leak/4",
   "secagg/1", "secagg/5",
   "mia/1", "mia/4",
-  "dp/1", "dp/3", "dp/4", "dp/5",
+  "dp/1", "dp/3", "dp/5", "dp/6",
   "acct/1",
-  "poison/1", "poison/2", "poison/5", "poison/6",
+  "poison/1", "poison/5", "poison/6",
+  "freeride/3",
   "gossip/1", "gossip/4",
+  "part/3",
   "ledger/5",
+  "method/1",
   "outro/2", "outro/7", "outro/10",
 ];
 
@@ -82,6 +87,24 @@ export function topicInEdition(edition: Edition, topic: string): boolean {
   return edition.slides === null || edition.slides.some((id) => id.split("/")[0] === topic);
 }
 
+/** A slide as the brief edition shows it: its brief variant where it has one, the slide itself otherwise. */
+export function briefSlide(slide: SlideDef): SlideDef {
+  const variant = slide.brief;
+  if (!variant) return slide;
+  return {
+    id: slide.id,
+    kind: slide.kind,
+    title: variant.title,
+    badge: variant.badge ?? slide.badge,
+    sources: variant.sources ?? slide.sources,
+    pose: variant.pose ?? slide.pose,
+    step: variant.step ?? slide.step,
+    layout: variant.layout ?? (variant.Stage ? "stage" : "split"),
+    Panel: variant.Panel,
+    Stage: variant.Stage,
+  };
+}
+
 export interface Cut extends Registry {
   /** Ids the edition lists that no theory folder has. Always empty in a healthy deck. */
   missing: string[];
@@ -89,13 +112,17 @@ export interface Cut extends Registry {
 
 /**
  * The registry an edition shows: the same theories with only the kept slides, in deck order.
- * A theory left with no slide is dropped, so the rail and the 3D world skip its station.
+ * The brief edition shows each kept slide in its brief variant. A theory left with no slide is
+ * dropped, so the rail and the 3D world skip its station.
  */
 export function cutRegistry(registry: Registry, edition: Edition): Cut {
   if (edition.slides === null) return { ...registry, missing: [] };
   const keep = new Set(edition.slides);
   const theories = registry.theories
-    .map((theory) => ({ ...theory, slides: theory.slides.filter((slide) => keep.has(slide.id)) }))
+    .map((theory) => ({
+      ...theory,
+      slides: theory.slides.filter((slide) => keep.has(slide.id)).map((slide) => (edition.id === "brief" ? briefSlide(slide) : slide)),
+    }))
     .filter((theory) => theory.slides.length > 0);
   const missing = edition.slides.filter((id) => !registry.ids.includes(id));
   return { ...buildRegistry(theories, registry.failed), missing };

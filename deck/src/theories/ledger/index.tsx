@@ -1,7 +1,8 @@
 import { fmt, m } from "../../data";
 import type { TheoryDef } from "../../deck/types";
-import { BarChart, Caption, CodeView, H, Note, P, StatRow, With, Without } from "../../ui";
+import { BarChart, Caption, CodeView, H, Note, P, StatRow } from "../../ui";
 import { Fallback } from "./Fallback";
+import { BriefPanel, BriefStage } from "./brief";
 import { GatePanel, GrowPanel, ProofPanel, TamperPanel } from "./panels";
 import { GATE_STEP, Scene } from "./Scene";
 
@@ -16,29 +17,20 @@ function ImpactPanel() {
         All {r("verification/verified")} ledgers verify, and every one of {r("tamper_detection/flips")} flipped bytes was
         caught.
       </H>
-      <Without slide="ledger/1">
-        <P>
-          A ledger is an append-only log: every training round appends a receipt, and a signed checkpoint commits to
-          the whole log with one hash, its root, so anyone can check that nothing was changed.
-        </P>
-      </Without>
       <P>
         The audit re-checked every ledger the experiments wrote: line order, each checkpoint&apos;s root and signature,
         and coverage, meaning every released private model has its own ledger ending in a release receipt that names its
         configuration and model hash. Then it flipped single bytes of the longest ledger, one at a time, and ran the
         verifier on each copy.
       </P>
-      <With slide="ledger/1">
       <P>
         The cost is small: {fmt.n(r("costs/append_ms_per_receipt"), 1)} ms to append a receipt, written to disk, and{" "}
         {fmt.n(r("costs/verify_seconds") * 1000, 0)} ms to verify a whole ledger of {fmt.int(r("costs/verified_size"))}{" "}
         receipts.
       </P>
-      </With>
       <Note tone="warn">
-        Tampering was tested only with single-byte flips of one ledger file
-        <With slide="ledger/4">, and the blocked-release run used the synthetic dataset</With>. One key on one machine signs everything; publishing checkpoints to an outside witness would
-        close that gap.
+        Tampering was tested only with single-byte flips of one ledger file, and the blocked-release run used the synthetic dataset. One key on one machine signs
+        everything; publishing checkpoints to an outside witness would close that gap.
       </Note>
     </>
   );
@@ -178,6 +170,14 @@ export const theory: TheoryDef = {
       layout: "stage",
       Panel: ImpactPanel,
       Stage: ImpactStage,
+      brief: {
+        title: "Every round is signed into a log that can be checked",
+        Panel: BriefPanel,
+        Stage: BriefStage,
+        badge: "measured",
+        sources: ["ledger_audit"],
+        step: GATE_STEP,
+      },
     },
     {
       id: "ledger/6",

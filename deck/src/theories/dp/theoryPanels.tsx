@@ -1,5 +1,5 @@
 import { fmt } from "../../data";
-import { Choice, Controls, H, Note, P, Readout, Readouts, Slider, Tex, Without } from "../../ui";
+import { Choice, Controls, H, Note, P, Readout, Readouts, Slider, Tex } from "../../ui";
 import { clip, clippedShare, distanceFor, eventProbability, N_UPDATES, norm, overlap } from "./sim";
 import { type Cohort, PROJECT_C, useDp, WINDOW_WIDTH } from "./store";
 import { DELTA, removedIndex, TOY_UPDATES, USERS } from "./toy";
@@ -29,7 +29,6 @@ export function PromisePanel() {
       <P>
         Epsilon (<Tex>{String.raw`\varepsilon`}</Tex>) sets how far apart the clouds may drift: smaller is closer and
         more private. Delta (<Tex>{String.raw`\delta`}</Tex>) is a tiny probability with which the promise may fail.
-        <Without slide="dp/2"> This is user-level privacy: what is protected is a whole history, not one check-in.</Without>
       </P>
       <Note>
         Illustration: a single noisy release at <Tex>{String.raw`\delta = ${deltaTex()}`}</Tex>. The project's

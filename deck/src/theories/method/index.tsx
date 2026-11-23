@@ -1,5 +1,6 @@
 import type { TheoryDef } from "../../deck/types";
 import { CodeView, H, P, StackList } from "../../ui";
+import { BriefPanel, BriefStage } from "./brief";
 import { Fallback } from "./Fallback";
 import { ImpactPanel, ImpactStage } from "./impact";
 import { ControlsPanel, OrderPanel, StatsPanel } from "./panels";
@@ -68,6 +69,14 @@ export const theory: TheoryDef = {
       pose: { position: [4.5, 3.4, 16], target: [0, -0.3, 0] },
       step: 0,
       Panel: OrderPanel,
+      brief: {
+        title: "The rules were fixed before the reported model was tested",
+        Panel: BriefPanel,
+        Stage: BriefStage,
+        badge: "measured",
+        sources: ["free_riding", "gossip", "ledger_audit", "membership", "participation", "poisoning", "privacy_utility", "sensitivity", "update_leakage", "flower_parity"],
+        step: 3,
+      },
     },
     {
       id: "method/2",

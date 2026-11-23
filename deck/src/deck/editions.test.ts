@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { BRIEF_LIMIT, cutRegistry, editionHref, EDITIONS, inEdition, pickEdition } from "./editions";
+import { checkTheory } from "./checkTheory";
+import { BRIEF_LIMIT, briefSlide, cutRegistry, editionHref, EDITIONS, inEdition, pickEdition } from "./editions";
 import { addressOf, followHash, fromHash, resolveHash } from "./hash";
 import { buildRegistry, loadRegistry, type Registry } from "./registry";
 import { DEFAULT_POSE, type SlideKind, type TheoryDef } from "./types";
@@ -75,6 +76,73 @@ describe("cutting the deck to an edition", () => {
 
   it("keeps the folders that failed to load", () => {
     expect(cutRegistry(buildRegistry([theory("intro", 0, ["extra"])], ["broken"]), { ...EDITIONS.brief, slides: ["intro/1"] }).failed).toEqual(["broken"]);
+  });
+});
+
+describe("a slide's brief variant", () => {
+  const Short = () => null;
+  const Figure = () => null;
+  const dp = theory("dp", 6, ["theory", "impact", "code"]);
+  dp.slides[0].brief = { title: "The idea in one slide", Panel: Short, step: 7 };
+  dp.slides[1].sources = ["privacy_utility"];
+  dp.slides[1].badge = "measured";
+  dp.slides[1].layout = "stage";
+  dp.slides[1].Stage = Nothing;
+  dp.slides[1].brief = { title: "The result in one slide", Panel: Short, Stage: Figure };
+  dp.slides[2].badge = "source";
+  const deck = buildRegistry([theory("intro", 0, ["extra"]), dp]);
+
+  it("keeps the slide's place and takes the variant's headline, text, figure and scene step", () => {
+    const shown = briefSlide(dp.slides[0]);
+    expect(shown.id).toBe("dp/1");
+    expect(shown.kind).toBe("theory");
+    expect(shown.title).toBe("The idea in one slide");
+    expect(shown.Panel).toBe(Short);
+    expect(shown.step).toBe(7);
+    expect(shown.pose).toBe(dp.slides[0].pose);
+    expect(shown.layout).toBe("split");
+    expect(shown.Stage).toBeUndefined();
+  });
+
+  it("uses the stage layout when the variant has a figure, and keeps the slide's sources", () => {
+    const shown = briefSlide(dp.slides[1]);
+    expect(shown.Stage).toBe(Figure);
+    expect(shown.layout).toBe("stage");
+    expect(shown.badge).toBe("measured");
+    expect(shown.sources).toEqual(["privacy_utility"]);
+  });
+
+  it("never shows the host's own figure with the variant's text", () => {
+    const host = { ...dp.slides[1], brief: { title: "Text only", Panel: Short } };
+    const shown = briefSlide(host);
+    expect(shown.Stage).toBeUndefined();
+    expect(shown.layout).toBe("split");
+  });
+
+  it("returns a slide without a variant unchanged", () => {
+    expect(briefSlide(dp.slides[2])).toBe(dp.slides[2]);
+  });
+
+  it("is shown by the brief edition and never by the full one", () => {
+    const brief = cutRegistry(deck, { ...EDITIONS.brief, slides: ["intro/1", "dp/1", "dp/2"] });
+    expect(brief.slides.map((s) => s.slide.title)).toEqual(["Slide intro/1", "The idea in one slide", "The result in one slide"]);
+    const full = cutRegistry(deck, EDITIONS.full);
+    expect(full.slides.map((s) => s.slide.title)).toEqual(["Slide intro/1", "Slide dp/1", "Slide dp/2", "Slide dp/3"]);
+    expect(full.slides[1].slide.Panel).toBe(Nothing);
+  });
+
+  it("is checked by the deck rules", () => {
+    expect(checkTheory(dp)).toEqual([]);
+    const bad = theory("dp", 6, ["theory", "impact", "code"]);
+    bad.slides[1].sources = ["privacy_utility"];
+    bad.slides[1].badge = "measured";
+    bad.slides[2].badge = "source";
+    bad.slides[0].brief = { title: " ", Panel: Short, badge: "measured" };
+    bad.slides[2].brief = { title: "Code", Panel: Short };
+    const problems = checkTheory(bad).join(" | ");
+    expect(problems).toContain("dp/1: brief variant has an empty title");
+    expect(problems).toContain("dp/1: a brief variant badged measured must list its sources");
+    expect(problems).toContain("dp/3: a code slide has no brief variant");
   });
 });
 

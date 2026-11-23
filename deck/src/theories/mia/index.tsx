@@ -1,4 +1,5 @@
 import type { TheoryDef } from "../../deck/types";
+import { BriefQuestionPanel, BriefResultPanel, BriefResultStage } from "./brief";
 import { CodePanel, CodeStage } from "./Code";
 import { Fallback } from "./Fallback";
 import { BoundPanel, BoundStage, SuccessPanel, SuccessStage } from "./Impact";
@@ -21,6 +22,7 @@ export const theory: TheoryDef = {
       pose: { position: [4.8, 4.2, 12.6], target: [0.2, 0.4, 0] },
       step: 0,
       Panel: ThresholdPanel,
+      brief: { title: "An outsider can test whether a user was in training", Panel: BriefQuestionPanel, step: 1 },
     },
     {
       id: "mia/2",
@@ -51,6 +53,7 @@ export const theory: TheoryDef = {
       layout: "stage",
       Panel: SuccessPanel,
       Stage: SuccessStage,
+      brief: { title: "The attack works without privacy and fails with it", Panel: BriefResultPanel, Stage: BriefResultStage, step: 2 },
     },
     {
       id: "mia/5",

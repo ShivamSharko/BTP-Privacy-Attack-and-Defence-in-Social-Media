@@ -1,6 +1,7 @@
 import { fact, fmt, m, raw } from "../../data";
 import type { TheoryDef } from "../../deck/types";
 import { BarChart, Button, Buttons, Caption, Choice, CodeView, Controls, H, Note, P, Readout, Readouts, Slider, StatRow, Tex } from "../../ui";
+import { BriefRoundPanel } from "./brief";
 import { Fallback } from "./Fallback";
 import { Scene } from "./Scene";
 import { cohortForRound, expectedCohort, meanSize, N_DEVICES, probabilityEmpty } from "./sim";
@@ -229,6 +230,12 @@ export const theory: TheoryDef = {
       pose: { position: [0, 3.2, 14], target: [0, 0, 0] },
       step: 0,
       Panel: RoundPanel,
+      brief: {
+        title: "One federated round, and its two regimes",
+        Panel: BriefRoundPanel,
+        pose: { position: [0, 2.2, 15], target: [0, -0.4, 0] },
+        step: 1,
+      },
     },
     {
       id: "fed/2",

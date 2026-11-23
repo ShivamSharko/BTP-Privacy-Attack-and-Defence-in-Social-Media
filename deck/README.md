@@ -66,25 +66,29 @@ every plan): every address then asks for a Vercel login.
 
 Hosted copy: https://prism-rec-brief.vercel.app
 
-The same deck with 30 of its 92 slides, for a talk of about fifteen minutes. It is not a
-second deck: `src/deck/editions.ts` lists the slide ids the short version keeps, and
-everything else (the scenes, the numbers, the checks) is the full deck's own. It has no code
-slides, and leaves out free-riding, participation and the method whole.
+Thirty slides for a talk of about fifteen minutes. It is not a second deck, and it is not a
+subset of the full deck's slides. Each short-version slide sits at the place of one full slide
+and reuses that topic's 3D scene, numbers and checks, but it has its own headline, text and
+figure, written to carry the main points of the whole topic. Every topic of the deck is in it,
+and it has no code slides. What each of the thirty slides must say is in `docs/BRIEF_EDITION.md`.
 
-| Topic | Slides kept | |
+| Topic | Slides | |
 |---|---|---|
-| Privacy attack and defence in social media | Privacy attack and defence in social media; Problem statement; What a recommender learns, and what leaks; The data; What we found | 5 |
-| The hybrid recommender | How well it ranks, without privacy noise | 1 |
-| A federated round | One round, step by step; Poisson sampling and the empty cohort | 2 |
-| Attack: what one update reveals | History inversion; Friendship links from update angles; Raw updates leak the history | 3 |
-| Defence: secure sum | Pairwise masks cancel in the sum; The defence ladder | 2 |
-| Attack: membership inference | Was this user in the training set?; How well the attack works | 2 |
-| Defence: differential privacy | The promise; Clipping bounds one user's influence; Noise, added once; The privacy-utility curve | 4 |
-| Privacy accounting | Epsilon as a surface | 1 |
-| Poisoning and robust aggregation | Target-item promotion; Robust aggregation needs plaintext; How far each defence holds; What defence costs, and H4 | 4 |
-| Gossip learning without a server | Averaging with a few peers; Accuracy without a server | 2 |
-| The transparency ledger | Every ledger verifies; every tamper is caught | 1 |
-| Putting it together | The trade-offs in one picture; What is not claimed; Thank you | 3 |
+| Privacy attack and defence in social media | Privacy attack and defence in social media; The problem: collecting the data is the risk; What leaks, to whom, and the defence for each; The data; The system end to end | 5 |
+| The hybrid recommender | The model and how well it ranks | 1 |
+| A federated round | One federated round, and its two regimes | 1 |
+| Attack: what one update reveals | What one update gives away; Measured: a raw update gives the history away | 2 |
+| Defence: secure sum | Masks cancel, so the server sees only the sum; The defence ladder, measured | 2 |
+| Attack: membership inference | An outsider can test whether a user was in training; The attack works without privacy and fails with it | 2 |
+| Defence: differential privacy | With or without your history, the result looks the same; Clip each user, then add noise once; H1 is not supported; Less noise helps in one cohort, and the data is not the cause | 4 |
+| Privacy accounting | Epsilon is computed, and three accountants must agree | 1 |
+| Poisoning and robust aggregation | Fake accounts, and why robust defences cost privacy or accuracy; How far each defence holds; What defence costs, and H4 | 3 |
+| Free-riding | Free-riders: cheap for others, caught by size | 1 |
+| Gossip learning without a server | Gossip has no server: peers average, every node adds noise; Gossip against server-based training | 2 |
+| Who actually takes part | Who takes part | 1 |
+| The transparency ledger | Every round is signed into a log that can be checked | 1 |
+| How we know: the method | The rules were fixed before the reported model was tested | 1 |
+| Putting it together | What we found; Limits and what is not claimed; Thank you | 3 |
 
 To open it:
 
@@ -95,14 +99,17 @@ To open it:
   not stay set for the next command). The second Vercel project does exactly this.
 
 The first and last slide of each version link to the other, and the all-slides page does too.
-Topics are numbered 1 to 10 with no gap, and the counter counts the slides the short version
-shows of the topic. Where a kept slide uses a term that a left-out slide explains, the short
-version adds one line of explanation (`<Without slide="...">`), and a pointer at a left-out
-slide is hidden (`<With slide="...">`); a button for a topic that is left out is not drawn.
-`src/deck/brief.test.tsx` reads the short version on its own and fails if any of that breaks.
+A short-version slide keeps the address of the full slide it stands for (`#/dp/5`), so a link
+written for one version opens the same place in the other.
 
-To change which slides it keeps, edit `BRIEF_SLIDES` in `src/deck/editions.ts`; the tests hold
-it to 30 slides, no code slide, the title first and the thank-you last.
+How it is built: a slide in a theory folder may carry a `brief` variant (its own `title`,
+`Panel` and `Stage`, in the folder's `brief.tsx`). `src/deck/editions.ts` lists the thirty slide
+ids, and the short version shows each of them in its variant. The full deck never shows a
+variant. The title and the thank-you are the only slides that are the same in both.
+`src/deck/brief.test.tsx` reads the short version on its own: thirty slides at most, no code
+slide, every topic present, every slide but those two remade, one headline and at most 130 words
+per panel, and no pointer at a slide it does not have. To change what a slide says, edit its
+variant; to change which slides there are, edit `BRIEF_SLIDES` and `docs/BRIEF_EDITION.md`.
 
 ## Presenting
 
@@ -161,7 +168,7 @@ A slide that reads a key that no longer exists fails the tests instead of showin
 ```
 uv run pytest tests/test_deck_export.py     # from the repository root: the exported data
 npm run typecheck                           # TypeScript, strict
-npm test                                    # 457 unit and component tests
+npm test                                    # 484 unit and component tests
 npm run build && npm run e2e                # walks all 92 slides and the short version in Edge: motion, reduced motion, no WebGL, no scrollers
 npm run dev  (then)  npm run overflow       # no scroller and nothing cut off at six window sizes
 npm run dev  (then)  node e2e/overflow.mjs --edition brief   # the same check on the short version

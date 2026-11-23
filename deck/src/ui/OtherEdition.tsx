@@ -14,7 +14,7 @@ export function OtherEdition() {
   if (edition.id === "brief") {
     return (
       <p className="caption edition">
-        This is the short version: {count} of the full deck's {fullCount} slides.{" "}
+        This is the short version: {count} slides that sum up the full deck's {fullCount}.{" "}
         <a href={href}>Open the full deck</a> for every step, the code behind each result and the live sandbox.
       </p>
     );

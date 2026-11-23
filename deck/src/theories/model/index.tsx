@@ -1,4 +1,5 @@
 import type { TheoryDef } from "../../deck/types";
+import { BriefModelPanel, BriefModelStage } from "./brief";
 import { Fallback } from "./Fallback";
 import { CollapsePanel, ScorePanel, TrainingPanel } from "./panels";
 import { CodePanel, CodeStage, ImpactPanel, ImpactStage } from "./results";
@@ -50,6 +51,14 @@ export const theory: TheoryDef = {
       layout: "stage",
       Panel: ImpactPanel,
       Stage: ImpactStage,
+      brief: {
+        title: "The model and how well it ranks",
+        Panel: BriefModelPanel,
+        Stage: BriefModelStage,
+        badge: "measured",
+        sources: ["baselines", "privacy_utility", "dataset_card"],
+        step: 0,
+      },
     },
     {
       id: "model/5",

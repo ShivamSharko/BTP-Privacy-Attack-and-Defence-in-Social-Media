@@ -1,6 +1,7 @@
 import type { TheoryDef } from "../../deck/types";
 import { CodeView, H, Note, P } from "../../ui";
 import { Fallback } from "./Fallback";
+import { BriefAttackPanel, BriefCostPanel, BriefExposurePanel } from "./brief";
 import { CostPanel, CostStage, ExposurePanel, ExposureStage } from "./impact";
 import { AttackPanel, CommitteePanel, RobustPanel, SparsePanel } from "./panels";
 import { Scene } from "./Scene";
@@ -71,6 +72,12 @@ export const theory: TheoryDef = {
       pose: { position: [5.2, 3.2, 10.2], target: [1.2, 0.9, 0] },
       step: 0,
       Panel: AttackPanel,
+      brief: {
+        title: "Fake accounts, and why robust defences cost privacy or accuracy",
+        Panel: BriefAttackPanel,
+        pose: { position: [4.4, 2.8, 10.2], target: [1.2, 0.9, 0] },
+        step: 1,
+      },
     },
     {
       id: "poison/2",
@@ -110,6 +117,13 @@ export const theory: TheoryDef = {
       layout: "stage",
       Panel: ExposurePanel,
       Stage: ExposureStage,
+      brief: {
+        title: "How far each defence holds",
+        Panel: BriefExposurePanel,
+        Stage: ExposureStage,
+        badge: "measured",
+        sources: ["poisoning"],
+      },
     },
     {
       id: "poison/6",
@@ -122,6 +136,15 @@ export const theory: TheoryDef = {
       layout: "stage",
       Panel: CostPanel,
       Stage: CostStage,
+      brief: {
+        title: "What defence costs, and H4",
+        Panel: BriefCostPanel,
+        Stage: CostStage,
+        badge: "measured",
+        sources: ["poisoning"],
+        pose: { position: [0, 0.8, 14.5], target: [0, 0.4, 0] },
+        step: 2,
+      },
     },
     {
       id: "poison/7",

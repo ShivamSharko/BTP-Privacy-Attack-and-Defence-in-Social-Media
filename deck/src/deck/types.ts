@@ -13,6 +13,23 @@ export interface Pose {
 
 export const DEFAULT_POSE: Pose = { position: [0, 2, 14], target: [0, 0, 0] };
 
+/**
+ * What the brief edition shows in place of a slide: its own headline, text and figure, written to
+ * carry the main points of the slides around it that the edition leaves out. A field left out is
+ * taken from the slide.
+ */
+export interface BriefDef {
+  title: string;
+  Panel: ComponentType;
+  Stage?: ComponentType;
+  /** Defaults to "stage" when a Stage is given and to "split" otherwise. */
+  layout?: "split" | "stage";
+  badge?: Badge;
+  sources?: ResultFile[];
+  pose?: Pose;
+  step?: number;
+}
+
 export interface SlideDef {
   /** `${theoryId}/${n}` with n counted from 1. */
   id: string;
@@ -28,6 +45,8 @@ export interface SlideDef {
   layout?: "split" | "stage";
   Panel: ComponentType;
   Stage?: ComponentType;
+  /** The slide as the brief edition shows it. Without it the brief edition shows the slide unchanged. */
+  brief?: BriefDef;
 }
 
 export interface SceneProps {

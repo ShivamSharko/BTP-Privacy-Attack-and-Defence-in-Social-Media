@@ -1,4 +1,5 @@
 import type { TheoryDef } from "../../deck/types";
+import { BriefFreeRidePanel, BriefFreeRideStage } from "./brief";
 import { Fallback } from "./Fallback";
 import { CodePanel, CodeStage, CostPanel, CostStage, DetectionPanel, DetectionStage, DetectPanel, WhatPanel } from "./panels";
 import { Scene } from "./Scene";
@@ -40,6 +41,15 @@ export const theory: TheoryDef = {
       layout: "stage",
       Panel: CostPanel,
       Stage: CostStage,
+      brief: {
+        title: "Free-riders: cheap for others, caught by size",
+        Panel: BriefFreeRidePanel,
+        Stage: BriefFreeRideStage,
+        badge: "measured",
+        sources: ["free_riding"],
+        pose: { position: [0, 4.4, 12.4], target: [0, 0.4, 0] },
+        step: 0,
+      },
     },
     {
       id: "freeride/4",

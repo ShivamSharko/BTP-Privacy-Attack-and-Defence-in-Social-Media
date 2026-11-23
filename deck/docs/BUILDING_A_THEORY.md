@@ -89,18 +89,22 @@ element can scroll, if anything is cut off, or if a slide had to shrink below 72
 
 ## If your slide is in the short version
 
-`src/deck/editions.ts` lists the slides "PRISM-Rec in Brief" keeps. A kept slide is read
-there without the slides around it, so:
+"PRISM-Rec in Brief" has thirty slides, listed in `src/deck/editions.ts` and described one by
+one in `docs/BRIEF_EDITION.md`. It does not show your slide's own panel. It shows the slide's
+`brief` variant, written to carry the main points of the whole topic on one slide:
 
-- a term that only a left-out slide explains gets one line, shown only when that slide is
-  absent: `<Without slide="leak/3"> (the chance that a real friend pair scores above a
-  non-friend pair)</Without>`. It may explain; it must not carry a result the full deck does
-  not show. If the panel is near its 150 words, put the line in a `Caption` on the Stage;
-- a pointer at another slide is wrapped so it disappears with that slide:
-  `<With slide="gossip/2"> (next slide)</With>`;
-- a button that opens another slide or topic is drawn only when it has somewhere to go
-  (`useInDeck("outro/1")`, `useTopicShown("part")` from `deck/store`);
-- never write a topic's number in text: the short version renumbers the topics it shows.
+```ts
+{ id: "dp/3", kind: "theory", title: "...", ..., Panel: ClipPanel,
+  brief: { title: "Clip each user, then add noise once", Panel: BriefMechanismPanel, step: 3 } },
+```
+
+- the variant's components live in `brief.tsx` in your folder; `title` and `Panel` are required,
+  and `Stage`, `layout`, `badge`, `sources`, `pose` and `step` fall back to the slide's own;
+- a variant that shows a result is badged `measured` or `computed` and lists its `sources`;
+- it has one headline, at most 130 words, and stands alone: no pointer at a slide the short
+  version lacks, and never a topic's number in text;
+- if you change what a full slide says, check whether its topic's variant must change too;
+- test it with `briefOf(theory)` from `src/test/renderTheory` (`renderAllSlides`, `longPanels`).
 
 `npx vitest run src/deck/brief.test.tsx` reads the short version on its own, and
 `node e2e/overflow.mjs --edition brief` checks its layout.

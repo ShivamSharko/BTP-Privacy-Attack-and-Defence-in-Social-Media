@@ -320,4 +320,4 @@ npm install
 npm run dev
 ```
 
-Then open http://localhost:5173. Keys, checks and how to regenerate the deck's data after a rerun are in `deck/README.md`. The same folder also builds "PRISM-Rec in Brief", 30 of those slides with no code, for a talk of about fifteen minutes (`?edition=brief`, or a build with `VITE_EDITION=brief`). The full deck is hosted since the owner's decision of 19 November 2026 (CHANGE-025 in `PROJECT_ROADMAP.md`) and the short version since 22 November 2026 (CHANGE-026); the dataset provider's review is still to be requested.
+Then open http://localhost:5173. Keys, checks and how to regenerate the deck's data after a rerun are in `deck/README.md`. The same folder also builds "PRISM-Rec in Brief", thirty slides with no code that sum up every topic, each remade for a talk of about fifteen minutes (`?edition=brief`, or a build with `VITE_EDITION=brief`). The full deck is hosted since the owner's decision of 19 November 2026 (CHANGE-025 in `PROJECT_ROADMAP.md`) and the short version since 22 November 2026 (CHANGE-026); the dataset provider's review is still to be requested.

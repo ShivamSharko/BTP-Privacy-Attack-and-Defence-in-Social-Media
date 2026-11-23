@@ -3,16 +3,16 @@ import { Caption, Choice, Controls, GroupedBars, H, Note, P, Readout, Readouts, 
 import { MULTIPLIERS, type Regime, useDp } from "./store";
 import { type CurvePoint, type CurveSeries, UtilityChart } from "./UtilityChart";
 
-const PU = "privacy_utility";
-const EPSILONS = raw<number[]>(PU, "frozen/epsilons");
-const lv = (regime: Regime, level: string, field: string) => m(PU, `summary/${regime}/levels/${level}/${field}`);
-const ci = (regime: Regime, level: string, field: string) => raw<[number, number]>(PU, `summary/${regime}/levels/${level}/${field}`);
-const h1 = (regime: Regime, field: string) => m(PU, `summary/${regime}/h1/${field}`);
-const threshold = h1("large", "threshold");
-const SEEDS = raw<number[]>(PU, "frozen/seeds").length;
-const range = (pair: [number, number], f: (v: number) => string) => `${f(pair[0])} to ${f(pair[1])}`;
+export const PU = "privacy_utility";
+export const EPSILONS = raw<number[]>(PU, "frozen/epsilons");
+export const lv = (regime: Regime, level: string, field: string) => m(PU, `summary/${regime}/levels/${level}/${field}`);
+export const ci = (regime: Regime, level: string, field: string) => raw<[number, number]>(PU, `summary/${regime}/levels/${level}/${field}`);
+export const h1 = (regime: Regime, field: string) => m(PU, `summary/${regime}/h1/${field}`);
+export const threshold = h1("large", "threshold");
+export const SEEDS = raw<number[]>(PU, "frozen/seeds").length;
+export const range = (pair: [number, number], f: (v: number) => string) => `${f(pair[0])} to ${f(pair[1])}`;
 
-function pairedLine(regime: Regime, level: string): string {
+export function pairedLine(regime: Regime, level: string): string {
   const paired = raw<{ seeds_degraded: number; wilcoxon_two_sided_p: number; min_possible_two_sided_p: number }>(
     PU,
     `summary/${regime}/levels/${level}/paired`,
@@ -23,7 +23,7 @@ function pairedLine(regime: Regime, level: string): string {
 }
 
 /** The target epsilons whose private model scores above MostPopular. */
-function beatsPopular(regime: Regime): number[] {
+export function beatsPopular(regime: Regime): number[] {
   const popular = m(PU, `summary/${regime}/most_popular_ndcg@10`);
   return EPSILONS.filter((eps) => lv(regime, `eps${eps}`, "ndcg@10_mean") > popular);
 }
@@ -124,8 +124,8 @@ export function CurveStage() {
 
 /* ---------------------------------------------------------------- 6.6 what would change it */
 
-const whatIfKey = (k: number) => (k === 1 ? `eps${h1("large", "epsilon")}` : `whatif-x${k}`);
-const zKey = (k: number) => (k === 1 ? "noise_multiplier" : "simulated_noise_multiplier");
+export const whatIfKey = (k: number) => (k === 1 ? `eps${h1("large", "epsilon")}` : `whatif-x${k}`);
+export const zKey = (k: number) => (k === 1 ? "noise_multiplier" : "simulated_noise_multiplier");
 
 export function WhatIfPanel() {
   const index = useDp((s) => s.multiplier);
@@ -220,17 +220,17 @@ export function WhatIfStage() {
 
 /* ---------------------------------------------------------------- 6.7 sensitivity */
 
-const SE = "sensitivity";
-const VARIANTS = [
+export const SE = "sensitivity";
+export const VARIANTS = [
   { key: "k10", label: "k-core 10" },
   { key: "k15", label: "k-core 15, main" },
   { key: "k20", label: "k-core 20" },
   { key: "stars4", label: "4 stars and up" },
 ] as const;
-const sv = (variant: string, regime: Regime, path: string) => m(SE, `results/${variant}/${regime}/${path}`);
+export const sv = (variant: string, regime: Regime, path: string) => m(SE, `results/${variant}/${regime}/${path}`);
 /** The one epsilon the sensitivity runs used, as a number and as its key in the result file. */
-const SE_EPS = raw<number[]>(SE, "settings/epsilons")[0];
-const SE_KEY = String(SE_EPS);
+export const SE_EPS = raw<number[]>(SE, "settings/epsilons")[0];
+export const SE_KEY = String(SE_EPS);
 
 export function SensitivityPanel() {
   const all = VARIANTS.flatMap((v) => (["large", "small"] as const).map((r) => ({ v, r, value: sv(v.key, r, `epsilons/${SE_KEY}/retention`) })));

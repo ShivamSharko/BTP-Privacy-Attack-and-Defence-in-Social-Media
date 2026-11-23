@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { fact, fmt, m } from "../../data";
 import { checkTheory } from "../../deck/checkTheory";
-import { longPanels, renderAllSlides } from "../../test/renderTheory";
+import { briefOf, longPanels, renderAllSlides } from "../../test/renderTheory";
 import { theory } from "./index";
 import { HYPOTHESES } from "./verdicts";
 
@@ -61,5 +61,22 @@ describe("theory 0: the opening", () => {
 
   it("keeps every panel short enough to read from the back of a room", () => {
     expect(longPanels(theory)).toEqual([]);
+  });
+
+  it("has four brief slides that carry the opening's main points", () => {
+    const brief = briefOf(theory);
+    expect(brief.slides.map((s) => s.id)).toEqual(["intro/3", "intro/4", "intro/5", "intro/6"]);
+    const text = renderAllSlides(brief);
+    expect(text).toContain(fmt.int(m("dataset_card", "users")));
+    expect(text).toContain(fmt.int(m("dataset_card", "items")));
+    expect(text).toContain(fmt.int(m("dataset_card", "interactions")));
+    expect(text).toContain(fmt.int(m("social_graph", "edges")));
+    expect(text).toContain(`${m("dataset_card", "k_core")}-core`);
+    expect(text).toContain("secure sum");
+    expect(text).toContain("six questions");
+  });
+
+  it("keeps every brief panel within the word limit", () => {
+    expect(longPanels(briefOf(theory), 130)).toEqual([]);
   });
 });

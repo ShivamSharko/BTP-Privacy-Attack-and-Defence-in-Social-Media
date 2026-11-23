@@ -20,7 +20,7 @@ export function OrderPanel() {
     <>
       <H>The order of work is fixed before the first result exists.</H>
       <P>
-        Hypotheses and their decision rules are written down while the test split is untouched. Settings are tuned on
+        Hypotheses and their decision rules are written down before the reported model is evaluated on the test split. Settings are tuned on
         the validation split only, then frozen in a file. Final models train on train plus validation and are
         evaluated once on test, ranking every item in the catalogue rather than a sample.
       </P>

@@ -1,5 +1,5 @@
 import { fmt, m, raw } from "../../data";
-import { Button, Buttons, Choice, Controls, H, Note, P, Readout, Readouts, Slider, Tex, With } from "../../ui";
+import { Button, Buttons, Choice, Controls, H, Note, P, Readout, Readouts, Slider, Tex } from "../../ui";
 import { disagreement, distanceToGoal, MAX_DEGREE, type Optimiser } from "./sim";
 import { GOAL, MAX_TRAIN_ROUNDS, START_RANGE, tableFor, useGossip } from "./store";
 
@@ -21,7 +21,7 @@ export function AveragingPanel() {
       <H>With no server, every user averages their model with a few peers each round.</H>
       <P>
         Each light is a user holding a model of their own; its colour is that model. In a round the user takes a local
-        step on their own data<With slide="gossip/2"> (next slide)</With>, then replaces their model with the average of their own and their peers'
+        step on their own data (next slide), then replaces their model with the average of their own and their peers'
         models. Nothing is collected anywhere.
       </P>
       <P>

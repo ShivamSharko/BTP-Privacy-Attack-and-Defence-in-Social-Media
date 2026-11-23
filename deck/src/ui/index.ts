@@ -9,5 +9,4 @@ export { StatRow } from "./StatRow";
 export { CodeView } from "./CodeView";
 export { StackList } from "./StackList";
 export { OtherEdition } from "./OtherEdition";
-export { With, Without } from "./editionText";
 export type { Role } from "../styles/roles";

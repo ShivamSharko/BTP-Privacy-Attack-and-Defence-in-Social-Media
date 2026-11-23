@@ -7,13 +7,19 @@ import { loadRegistry, type Registry } from "./registry";
 import { useDeck } from "./store";
 
 /**
- * The brief edition is the full deck's own slides with most left out. These tests read it as
- * its audience does: only the kept slides, in order, with nothing from the slides in between.
+ * The brief edition has thirty slides, each remade to carry the main points of its topic. These
+ * tests read it as its audience does: only its own slides, in order, with nothing from the full
+ * deck's slides in between.
  */
 let full: Registry;
 let brief: Cut;
 let briefText = "";
 let fullText = "";
+
+/** The slides that are the same in both editions: the title and the thank-you. */
+const SAME_IN_BOTH = ["intro/1", "outro/10"];
+/** A brief panel is read from the back of a room during a short talk. */
+const BRIEF_WORDS = 130;
 
 function textOf(registry: Registry): string {
   return registry.theories.map((theory) => renderAllSlides(theory)).join("\n");
@@ -33,63 +39,48 @@ afterAll(() => {
 });
 
 describe("the brief edition, read on its own", () => {
-  it("renders every kept slide, panel and figure, with no error", () => {
+  it("renders every one of its slides, panel and figure, with no error", () => {
     for (const id of brief.ids) expect(briefText).toContain(`[${id}]`);
     expect(briefText).not.toContain("[model/5]");
   });
 
+  it("covers every topic of the deck", () => {
+    expect(brief.theories.map((theory) => theory.id)).toEqual(full.theories.map((theory) => theory.id));
+  });
+
+  it("remakes every slide but the title and the thank-you", () => {
+    const hosts = new Map(full.slides.map((s) => [s.slide.id, s.slide]));
+    const unchanged = brief.ids.filter((id) => !hosts.get(id)?.brief);
+    for (const id of unchanged) expect(SAME_IN_BOTH, `${id} has no brief variant`).toContain(id);
+    // A remade slide has its own headline, so its text is not the host slide's text.
+    for (const { slide } of brief.slides) {
+      const host = hosts.get(slide.id);
+      if (!host?.brief) continue;
+      expect(slide.Panel, `${slide.id} shows the host's panel`).not.toBe(host.Panel);
+      expect(slide.title.trim().length, `${slide.id} has no title`).toBeGreaterThan(0);
+    }
+  });
+
+  it("gives every slide one headline", () => {
+    for (const { slide } of brief.slides) {
+      const Panel = slide.Panel;
+      const view = render(<Panel />);
+      expect(view.container.querySelectorAll("h1").length, `${slide.id} headlines`).toBe(1);
+      view.unmount();
+    }
+  });
+
   it("keeps every panel short enough to read from the back of a room", () => {
-    expect(brief.theories.flatMap((theory) => longPanels(theory))).toEqual([]);
+    expect(brief.theories.flatMap((theory) => longPanels(theory, BRIEF_WORDS))).toEqual([]);
   });
 
-  it("explains in one line each term whose own slide it leaves out", () => {
-    for (const line of [
-      "The model: every place is a direction",
-      "the chance that a real friend pair scores above a non-friend pair",
-      "the total still contains every member's update",
-      "Calibrated: each user's loss is compared with reference models that never saw that user",
-      "two accountants from separate code bases",
-      "A committee median deals the users into small groups",
-      "a committee with no attacker is clean",
-      "This is user-level privacy",
-      "The clip norm is the longest an update may be",
-      "its members' places still stand out",
-      "A secure sum shows the server only the total of the updates",
-      "Evidence: in the full deck",
-      "Everything here is a simulation in one process",
-      "are simulated here, so these scores",
-      "Honest updates are sparse",
-      "every node must add its own noise",
-      "A ledger is an append-only log",
-      "epsilon, is the privacy budget",
-    ]) {
-      expect(briefText, line).toContain(line);
+  it("badges a slide that shows results as measured or computed, with its sources", () => {
+    for (const { slide } of brief.slides) {
+      if (slide.badge === "illustration") continue;
+      expect(slide.sources?.length ?? 0, `${slide.id} lists no sources`).toBeGreaterThan(0);
     }
-  });
-
-  it("shows none of those lines in the full deck, where the slide itself is there", () => {
-    for (const line of [
-      "The model: every place is a direction",
-      "the chance that a real friend pair scores above",
-      "Calibrated: each user's loss",
-      "A committee median deals",
-      "A ledger is an append-only log",
-      "Evidence: in the full deck",
-      "Everything here is a simulation in one process",
-    ]) {
-      expect(fullText, line).not.toContain(line);
-    }
-    expect(fullText).toContain("(next slide)");
-    expect(fullText).toContain("blocked-release run");
-    expect(fullText).toContain("The cost is small");
-  });
-
-  it("says in both editions what the defences do to the friendship attack", () => {
-    for (const text of [fullText, briefText]) {
-      expect(text).toContain("On masked updates its AUC is");
-      expect(text).toContain("a sum leaves it no pair to compare");
-      expect(text).toContain("Raw loss gives");
-    }
+    // Every result slide of the full deck that the edition keeps is still a result slide.
+    expect(brief.slides.filter((s) => s.slide.kind === "impact").every((s) => s.slide.badge !== "illustration")).toBe(true);
   });
 
   it("never points at a slide it does not have", () => {
@@ -98,46 +89,35 @@ describe("the brief edition, read on its own", () => {
     brief.ids.forEach((id, i) => {
       const text = texts.find((line) => line.startsWith(`[${id}] `)) ?? "";
       const at = full.ids.indexOf(id);
-      if (/next slide/.test(text)) expect(brief.ids[i + 1], `${id} says "next slide"`).toBe(full.ids[at + 1]);
-      if (/previous slide|slide before/.test(text)) expect(brief.ids[i - 1], `${id} says "previous slide"`).toBe(full.ids[at - 1]);
+      if (/next slide/i.test(text)) expect(brief.ids[i + 1], `${id} says "next slide"`).toBe(full.ids[at + 1]);
+      if (/previous slide|slide before/i.test(text)) expect(brief.ids[i - 1], `${id} says "previous slide"`).toBe(full.ids[at - 1]);
     });
     expect(briefText).not.toMatch(/in the code\b/);
-    expect(briefText).not.toContain("blocked-release run");
-    expect(briefText).not.toMatch(/theory \d|concept \d/);
+    expect(briefText).not.toMatch(/theory \d|concept \d|slide \d/i);
     expect(briefText).not.toContain("The live sandbox");
   });
 
-  it("lists only the limits of what it shows", () => {
-    expect(fullText).toContain("Free-riders do not adapt");
-    expect(fullText).toContain("The what-if levels simulate");
-    expect(briefText).not.toContain("Free-riders do not adapt");
-    expect(briefText).not.toContain("The what-if levels simulate");
-    // The scoreboard on intro/7 shows the H5 verdict, so the limit on that study's epsilon stays.
-    expect(briefText).toMatch(/scenarios\), the epsilon shown is nominal/);
-    expect(briefText).toContain("Attackers do not adapt");
-    expect(briefText).toContain("pre-publication review");
-    // No date typed by hand: the note says the deck is online without saying when.
-    for (const text of [fullText, briefText]) expect(text).toContain("were put online to share them with the guide, before that review");
-  });
-
-  it("offers evidence buttons only for topics it shows", () => {
-    const shown = new Set(brief.theories.map((theory) => theory.id));
-    const { container, unmount } = render(<>{brief.slides.filter((s) => s.slide.Stage).map((s) => {
-      const Stage = s.slide.Stage!;
-      return <Stage key={s.slide.id} />;
-    })}</>);
-    const labels = Array.from(container.querySelectorAll("button[aria-label*='evidence: open']")).map((b) => b.getAttribute("aria-label") ?? "");
-    unmount();
-    expect(labels.length).toBeGreaterThan(3);
-    expect(labels.some((label) => label.includes("Who takes part"))).toBe(shown.has("part"));
-  });
-
-  it("opens a kept slide from every topic link a kept slide can follow", () => {
-    // Links inside slides name the first slide of a topic; in this edition that slide may be left out.
-    for (const theory of brief.theories) expect(resolveHash(`#/${theory.id}/1`, brief.ids)).not.toBeNull();
-    for (const gone of full.theories.filter((t) => !brief.theories.some((b) => b.id === t.id))) {
-      expect(resolveHash(`#/${gone.id}/1`, brief.ids)).toBeNull();
+  it("uses plain words", () => {
+    for (const word of ["crucial", "seamless", "leverage", "landscape", "showcase", "delve"]) {
+      expect(briefText.toLowerCase(), word).not.toContain(word);
     }
+    // No dash used as punctuation.
+    expect(briefText).not.toMatch(/\s[–—]\s|\s--\s/);
+  });
+
+  it("says the same about the hypotheses as the project's results", () => {
+    // The closing slide names all five, and the main result is on its own slide.
+    for (const h of ["H1", "H2", "H3", "H4", "H5"]) expect(briefText, h).toContain(h);
+  });
+
+  it("opens one of its slides from every topic link", () => {
+    // Links inside slides name the first slide of a topic; the edition may show another slide of it.
+    for (const theory of full.theories) expect(resolveHash(`#/${theory.id}/1`, brief.ids), theory.id).not.toBeNull();
+  });
+
+  it("leaves the full deck with all its slides, code included", () => {
+    expect(full.slides.length).toBeGreaterThan(brief.slides.length);
+    expect(fullText).toContain("[model/5]");
   });
 });
 

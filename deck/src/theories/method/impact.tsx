@@ -34,7 +34,7 @@ export function ImpactPanel() {
   );
 }
 
-function ChainDiagram({ hash, records, hashed }: { hash: string; records: number; hashed: number }) {
+export function ChainDiagram({ hash, records, hashed }: { hash: string; records: number; hashed: number }) {
   const nodes = [
     { x: 8, w: 150, a: "a number", b: "on a slide", color: "var(--model)" },
     { x: 218, w: 170, a: "result file", b: "status and controls", color: "var(--ledger)" },

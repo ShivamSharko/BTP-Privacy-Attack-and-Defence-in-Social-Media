@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import { fact, fmt, m } from "../../data";
 import type { TheoryDef } from "../../deck/types";
 import { Button, Buttons, Caption, Choice, Controls, H, List, Note, OtherEdition, P, Readout, Readouts } from "../../ui";
+import { BriefDataPanel, BriefLeaksPanel, BriefProblemPanel, BriefProblemStage, BriefSystemPanel } from "./brief";
 import { Fallback } from "./Fallback";
 import { HUB_SHARE, introGraph, MEASURED } from "./graph";
 import { Scene } from "./Scene";
@@ -103,7 +104,7 @@ function StatementPanel() {
       </P>
       <Note>
         {count.charAt(0).toUpperCase() + count.slice(1)} hypotheses and their pass marks were written down before the
-        test data were touched. The scoreboard at the end of this opening shows how each one came out.
+        reported model was tested. The scoreboard at the end of this opening shows how each one came out.
       </Note>
     </>
   );
@@ -272,7 +273,7 @@ function FoundPanel() {
       </H>
       <P>
         Each hypothesis and the rule that decides it were written down in <code>PREREGISTRATION.md</code> before the
-        test data were touched. The verdicts on the right are read from the result files, not typed in.
+        reported model was evaluated on the test data. The verdicts on the right are read from the result files, not typed in.
       </P>
       <P>
         H1 says where user-level privacy stops at this population size: at ε = {FIGURES.h1Epsilon} the model loses more accuracy than
@@ -325,6 +326,13 @@ export const theory: TheoryDef = {
       pose: { position: [-1.2, 2.8, 14.6], target: [0, 0.9, 0] },
       step: 1,
       Panel: StatementPanel,
+      brief: {
+        title: "The problem: collecting the data is the risk",
+        Panel: BriefProblemPanel,
+        Stage: BriefProblemStage,
+        badge: "illustration",
+        step: 1,
+      },
     },
     {
       id: "intro/4",
@@ -334,6 +342,7 @@ export const theory: TheoryDef = {
       pose: { position: [0.6, 3.6, 13.6], target: [0, 0.9, 0] },
       step: 1,
       Panel: ProblemPanel,
+      brief: { title: "What leaks, to whom, and the defence for each", Panel: BriefLeaksPanel, badge: "illustration", step: 1 },
     },
     {
       id: "intro/5",
@@ -344,6 +353,7 @@ export const theory: TheoryDef = {
       pose: { position: [0, 7.4, 11.2], target: [0, -0.8, 0] },
       step: 0,
       Panel: DataPanel,
+      brief: { title: "The data", Panel: BriefDataPanel, badge: "measured", sources: ["dataset_card", "social_graph"], step: 0 },
     },
     {
       id: "intro/6",
@@ -353,6 +363,7 @@ export const theory: TheoryDef = {
       pose: { position: [0, 1.6, 12], target: [0, 0, 0] },
       step: 2,
       Panel: SystemPanel,
+      brief: { title: "The system end to end", Panel: BriefSystemPanel, badge: "illustration", step: 2 },
     },
     {
       id: "intro/7",

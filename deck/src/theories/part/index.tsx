@@ -1,4 +1,5 @@
 import type { TheoryDef } from "../../deck/types";
+import { BriefPartPanel, BriefPartStage } from "./brief";
 import { AvailabilityCodePanel, AvailabilityCodeStage, TraceCodePanel, TraceCodeStage } from "./code";
 import { Fallback } from "./Fallback";
 import { GapPanel, GapStage, H5Panel, H5Stage, NdcgPanel, NdcgStage } from "./impact";
@@ -43,6 +44,11 @@ export const theory: TheoryDef = {
       layout: "stage",
       Panel: NdcgPanel,
       Stage: NdcgStage,
+      brief: {
+        title: "Who takes part",
+        Panel: BriefPartPanel,
+        Stage: BriefPartStage,
+      },
     },
     {
       id: "part/4",

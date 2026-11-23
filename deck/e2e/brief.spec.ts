@@ -22,6 +22,24 @@ test("the short version has thirty slides or fewer, no code slide, and they are 
   expect(brief.slides[brief.slides.length - 1].title).toBe("Thank you");
 });
 
+test("the short version shows its own remade slides at the same addresses", async ({ page }) => {
+  const full = await openDeck(page);
+  const brief = await openDeck(page, BRIEF);
+  const fullTitles = new Map(full.slides.map((s) => [s.id, s.title]));
+  // Most remade slides also have a title of their own; one of those is opened in both versions.
+  const remade = brief.slides.filter((s) => fullTitles.get(s.id) !== s.title);
+  expect(remade.length).toBeGreaterThan(brief.slides.length / 2);
+  const sample = remade[Math.floor(remade.length / 2)];
+  await openDeck(page, `/#/${sample.id}`);
+  await expect.poll(() => shownSlide(page)).toBe(sample.id);
+  const fullHeadline = await page.locator(".panel h1").first().innerText();
+  await openDeck(page, `${BRIEF}#/${sample.id}`);
+  await expect.poll(() => shownSlide(page)).toBe(sample.id);
+  const briefHeadline = await page.locator(".panel h1").first().innerText();
+  expect(briefHeadline).not.toBe(fullHeadline);
+  await expect(page).toHaveTitle(`${sample.title} | PRISM-Rec in Brief`);
+});
+
 test("the short version walks from the title to the thank-you with no errors", async ({ page }, testInfo) => {
   const errors = watchErrors(page);
   const deck = await openDeck(page, BRIEF);

@@ -1,5 +1,5 @@
 import { fmt, m, raw } from "../../data";
-import { BarChart, Caption, GroupedBars, H, Note, P, StatRow, Without } from "../../ui";
+import { BarChart, GroupedBars, H, Note, P, StatRow } from "../../ui";
 
 const NP = "results/by_epsilon/nonprivate";
 const E8 = "results/by_epsilon/8.0";
@@ -28,10 +28,6 @@ export function AccuracyPanel() {
       <P>
         Without privacy noise gossip still reaches {fmt.pct(m("gossip", "controls/gossip_share_of_federated/ratio"), 0)} of
         federated: removing the server alone has a price.
-        <Without slide="gossip/3">
-          {" "}
-          With privacy, every node must add its own noise to what it sends, far more than a server adds once to a sum.
-        </Without>
       </P>
       <Note tone="warn">
         Both private scores are below the MostPopular baseline, {fmt.ndcg(m("gossip", `${E8}/most_popular_ndcg10`))}. Averaged over
@@ -74,12 +70,6 @@ export function AccuracyStage() {
         ]}
         summary={`NDCG@10 on ${m("gossip", "results/nodes")} users, mean of ${SEEDS} seeds with the range of seeds. Without privacy noise gossip scores ${fmt.ndcg(m("gossip", `${NP}/gossip_ndcg10/mean`))} and federated ${fmt.ndcg(m("gossip", `${NP}/federated_ndcg10/mean`))}. At epsilon 8 gossip scores ${fmt.ndcg(m("gossip", `${E8}/gossip_ndcg10/mean`))} and federated ${fmt.ndcg(m("gossip", `${E8}/federated_ndcg10/mean`))}. The MostPopular baseline is ${fmt.ndcg(floor)}.`}
       />
-      <Without slide="gossip/5">
-        <Caption>
-          Only {fmt.int(m("gossip", "results/nodes"))} of the project's users are simulated here, so these scores, MostPopular
-          included, are not on the same scale as the slides on the full population.
-        </Caption>
-      </Without>
     </>
   );
 }

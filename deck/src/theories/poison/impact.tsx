@@ -1,5 +1,5 @@
 import { fmt, m, raw } from "../../data";
-import { BarChart, Caption, H, LineChart, Note, P, StatRow, Table, Without } from "../../ui";
+import { BarChart, Caption, H, LineChart, Note, P, StatRow, Table } from "../../ui";
 import type { Role } from "../../ui";
 
 const MODES = [
@@ -13,17 +13,17 @@ const MODES = [
 /** The attacker shares the experiment ran, as numbers and as the keys of the result file ("0.1"). */
 const SHARES = raw<number[]>("poisoning", "settings/fractions");
 const FRACTIONS = SHARES.map((f) => f.toFixed(1));
-const [, F1, F2, F3] = FRACTIONS;
-const pct = (f: string) => fmt.pct(Number(f), 0);
+export const [, F1, F2, F3] = FRACTIONS;
+export const pct = (f: string) => fmt.pct(Number(f), 0);
 /** The H4 row (index into h4/per_fraction) where the trimmed mean's lead over the secure sum is largest. */
-const PER_FRACTION = raw<{ fraction: number; gap: number }[]>("poisoning", "h4/per_fraction");
-const PEAK = PER_FRACTION.reduce((best, row, i) => (row.gap > PER_FRACTION[best].gap ? i : best), 0);
+export const PER_FRACTION = raw<{ fraction: number; gap: number }[]>("poisoning", "h4/per_fraction");
+export const PEAK = PER_FRACTION.reduce((best, row, i) => (row.gap > PER_FRACTION[best].gap ? i : best), 0);
 
 type Mode = (typeof MODES)[number]["key"];
 
-const at = (mode: Mode, f: string, what: string) => m("poisoning", `results/${mode}/${f}/${what}`);
-const exposure = (mode: Mode, f: string) => at(mode, f, "exposure/mean");
-const ndcg = (mode: Mode, f: string) => at(mode, f, "ndcg/mean");
+export const at = (mode: Mode, f: string, what: string) => m("poisoning", `results/${mode}/${f}/${what}`);
+export const exposure = (mode: Mode, f: string) => at(mode, f, "exposure/mean");
+export const ndcg = (mode: Mode, f: string) => at(mode, f, "ndcg/mean");
 
 /* ---------------------------------------------------------------- 8.5 exposure */
 
@@ -44,10 +44,6 @@ export function ExposurePanel() {
         The trimmed mean holds: {fmt.pct(exposure("plaintext_trimmed_mean", F1), 2)},{" "}
         {fmt.pct(exposure("plaintext_trimmed_mean", F2), 2)} and {fmt.pct(exposure("plaintext_trimmed_mean", F3), 1)} at {pct(F1)},{" "}
         {pct(F2)} and {pct(F3)}.{" "}
-        <Without slide="poison/4">
-          A committee median deals the users into small groups, sums each group securely and takes the median of the
-          group totals; a committee with no attacker is clean.{" "}
-        </Without>
         Committees of 4 hold at {pct(F1)} ({fmt.pct(exposure("committee_median_size4", F1), 2)}) and
         give way at {pct(F2)} ({fmt.pct(exposure("committee_median_size4", F2), 1)}), where only{" "}
         {fmt.pct(at("committee_median_size4", F2, "clean_committee_share"), 0)} of
@@ -114,10 +110,6 @@ export function CostPanel() {
       <Note tone="warn">
         With no attacker the trimmed mean already costs {fmt.pct(1 - cleanTrim / cleanSum, 0)} of NDCG@10:{" "}
         {fmt.ndcg(cleanSum)} falls to {fmt.ndcg(cleanTrim)}.
-        <Without slide="poison/3">
-          {" "}
-          Honest updates are sparse, so the cut that removes the attack removes most of the honest signal too.
-        </Without>
       </Note>
     </>
   );

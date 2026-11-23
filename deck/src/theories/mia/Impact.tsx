@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { fmt, raw } from "../../data";
-import { Caption, Choice, GroupedBars, H, Note, P, Table, Without } from "../../ui";
+import { Caption, Choice, GroupedBars, H, Note, P, Table } from "../../ui";
 import { claimed, controls, h3Limit, LEVEL_NAME, LEVELS, level, type LevelKey, settings } from "./figures";
 
 /* ---------------------------------------------------------------- 5.4 attack success */
@@ -108,12 +108,6 @@ export function SuccessStage() {
         threshold={{ value: chance, label: "" }}
         summary={summary}
       />
-      <Without slide="mia/2">
-        <Caption>
-          Calibrated: each user's loss is compared with reference models that never saw that user, which removes how
-          hard the user is to predict. Raw loss skips that step.
-        </Caption>
-      </Without>
       <Table
         caption={`Bars show the mean over ${settings.seeds()} seeds, whiskers the lowest and highest seed, the dashed line chance (${view === "tpr" ? "1%" : "0.5"}). Below: the two controls.`}
         head={["Control", "Result", "Passes if", "Verdict"]}

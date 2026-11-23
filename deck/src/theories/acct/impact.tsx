@@ -2,7 +2,7 @@ import { fmt, grid, m } from "../../data";
 import { Caption, Choice, CodeView, GroupedBars, H, Note, P, StatRow, Table } from "../../ui";
 import { type Convention, LEVELS, type Regime, regimeSetting, useAcct } from "./store";
 
-const level = (regime: Regime, eps: number, key: string) => m("privacy_utility", `summary/${regime}/levels/eps${eps}/${key}`);
+export const level = (regime: Regime, eps: number, key: string) => m("privacy_utility", `summary/${regime}/levels/eps${eps}/${key}`);
 const REGIMES: Regime[] = ["small", "large"];
 
 /* ---------------------------------------------------------------- 7.4 impact */

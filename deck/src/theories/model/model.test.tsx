@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { fmt, m } from "../../data";
 import { checkTheory } from "../../deck/checkTheory";
-import { longPanels, renderAllSlides } from "../../test/renderTheory";
+import { briefOf, longPanels, renderAllSlides } from "../../test/renderTheory";
 import { theory } from "./index";
 import { bars, blockSizes } from "./results";
 
@@ -33,6 +33,17 @@ describe("theory 1: the hybrid recommender", () => {
       expect(fed).toBeLessThan(v("Item ridge"));
     }
   });
+
+  it("renders the brief slide with the ranking and the model size", () => {
+    const brief = briefOf(theory);
+    expect(brief.slides).toHaveLength(1);
+    const text = renderAllSlides(brief);
+    expect(text).toContain(fmt.ndcg(m("privacy_utility", "baselines/item_ridge/ndcg@10")));
+    expect(text).toContain(fmt.ndcg(m("privacy_utility", "baselines/most_popular/ndcg@10")));
+    expect(text).toContain(fmt.int(blockSizes().total));
+    expect(longPanels(brief, 130)).toEqual([]);
+    expect(checkTheory(theory)).toEqual([]);
+  }, 30000);
 
   it("keeps every panel short enough to read from the back of a room", () => {
     expect(longPanels(theory)).toEqual([]);

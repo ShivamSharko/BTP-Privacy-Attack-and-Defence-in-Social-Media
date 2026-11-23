@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { fmt, m } from "../../data";
 import { checkTheory } from "../../deck/checkTheory";
-import { longPanels, renderAllSlides } from "../../test/renderTheory";
+import { briefOf, longPanels, renderAllSlides } from "../../test/renderTheory";
 import { theory } from "./index";
 
 describe("theory 5: membership inference", () => {
@@ -27,5 +27,19 @@ describe("theory 5: membership inference", () => {
 
   it("keeps every panel short enough to read from the back of a room", () => {
     expect(longPanels(theory)).toEqual([]);
+  });
+
+  it("has brief slides that show the result and the bound", () => {
+    const brief = briefOf(theory);
+    expect(brief.slides.map((s) => s.id)).toEqual(["mia/1", "mia/4"]);
+    const text = renderAllSlides(brief);
+    for (const k of ["nondp", "eps8", "eps1"]) {
+      expect(text).toContain(fmt.n(m("membership", `results/levels/${k}/aggregate/auc/mean`), 3));
+      expect(text).toContain(fmt.pct(m("membership", `results/levels/${k}/aggregate/tpr_at_1pct_fpr/mean`), 1));
+    }
+    expect(text).toContain(fmt.n(m("membership", "results/levels/eps8/aggregate/epsilon_lower_bound/mean"), 4));
+    expect(text).toContain(fmt.n(m("membership", "results/levels/eps1/aggregate/epsilon_lower_bound/mean"), 3));
+    expect(text).toContain("H3");
+    expect(longPanels(brief, 130)).toEqual([]);
   });
 });

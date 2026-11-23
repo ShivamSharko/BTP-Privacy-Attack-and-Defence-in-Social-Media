@@ -47,6 +47,35 @@ describe("closing: putting it together", () => {
   });
 });
 
+describe("the brief edition's closing slides", () => {
+  it("carries the verdicts from the intro's verdict data, the two trade-offs and the limits", async () => {
+    const { HYPOTHESES } = await import("../intro/verdicts");
+    const { briefOf } = await import("../../test/renderTheory");
+    const { REPLAY } = await import("./figures");
+    expect(checkTheory(theory)).toEqual([]);
+    const brief = briefOf(theory);
+    expect(brief.slides.map((s) => s.id)).toEqual(["outro/2", "outro/7"]);
+    const text = renderAllSlides(brief);
+    for (const h of HYPOTHESES) {
+      expect(text).toContain(h.id);
+      expect(text).toContain(h.verdict);
+      expect(text).toContain(h.evidence);
+    }
+    expect(text).toContain(fmt.pct(m("privacy_utility", "summary/large/h1/retention"), 0));
+    expect(text).toContain(fmt.pct(m("privacy_utility", "summary/small/h1/retention"), 0));
+    expect(text).toContain(fmt.ndcg(REPLAY.robust.trimmed));
+    expect(text).toContain(fmt.ndcg(REPLAY.robust.median));
+    expect(text).toContain("secure sum");
+    expect(text).toContain("pre-publication review");
+    expect(text).toContain("that one attack only");
+  });
+
+  it("keeps the brief panels short", async () => {
+    const { briefOf } = await import("../../test/renderTheory");
+    expect(longPanels(briefOf(theory), 130)).toEqual([]);
+  });
+});
+
 describe("the package diagram", () => {
   it("draws exactly the imports between packages found in src/prism", async () => {
     const { readdirSync, readFileSync, statSync } = await import("node:fs");

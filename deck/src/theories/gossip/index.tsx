@@ -1,6 +1,7 @@
 import { fmt, m } from "../../data";
 import type { TheoryDef } from "../../deck/types";
 import { CodeView, H, List, Note } from "../../ui";
+import { BriefGossipPanel, BriefGossipResultPanel, BriefGossipResultStage } from "./brief";
 import { Fallback } from "./Fallback";
 import { AccuracyPanel, AccuracyStage, CostPanel, CostStage } from "./impact";
 import { AveragingPanel, NoisePanel, OptimiserPanel } from "./panels";
@@ -83,6 +84,7 @@ export const theory: TheoryDef = {
       pose: { position: [0, 6, 15.5], target: [0, 0, 0] },
       step: 0,
       Panel: AveragingPanel,
+      brief: { title: "Gossip has no server: peers average, every node adds noise", Panel: BriefGossipPanel },
     },
     {
       id: "gossip/2",
@@ -113,6 +115,13 @@ export const theory: TheoryDef = {
       layout: "stage",
       Panel: AccuracyPanel,
       Stage: AccuracyStage,
+      brief: {
+        title: "Gossip against server-based training",
+        Panel: BriefGossipResultPanel,
+        Stage: BriefGossipResultStage,
+        badge: "measured",
+        sources: ["gossip"],
+      },
     },
     {
       id: "gossip/5",
